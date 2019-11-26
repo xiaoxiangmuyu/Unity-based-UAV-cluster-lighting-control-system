@@ -35,7 +35,7 @@ public class CycleCheck : MonoBehaviour
 
         if (hits != null && hits.Length > 0)
         {
-            ChangingColor changingColor;
+            ColorPoint changingColor;
 
             for (int i = 0; i < hits.Length; ++i)
             {
@@ -45,7 +45,7 @@ public class CycleCheck : MonoBehaviour
                 //    continue;
                 //}
                 Debug.LogFormat("hit!{0}",hits[i].collider.name);
-                changingColor = hits[i].collider.GetComponent<ChangingColor>();
+                changingColor = hits[i].collider.GetComponent<ColorPoint>();
 
                 if (changingColor)
                 {

@@ -4,13 +4,13 @@ using UnityEngine;
 using Sirenix.OdinInspector;
 using DG.Tweening;
 [RequireComponent(typeof(BoxCollider))]
-public class ChangingColor : MonoBehaviour
+public class ColorPoint : MonoBehaviour
 {
     private Renderer curRenderer;
     protected Material mat;
     protected ColorMapping colorMapping;
     public Color originalColor;
-    public string filterTag;
+    public List<string> filterTags = new List<string>();
 
 
 
@@ -43,7 +43,7 @@ public class ChangingColor : MonoBehaviour
         TriggerBase TriggerBase = other.GetComponent<TriggerBase>();
         if (TriggerBase)
         {
-            if (!string.IsNullOrEmpty(TriggerBase.filterTag) && !FilterCompare(TriggerBase))
+            if ((TriggerBase.filterTags.Count != 0) && !FilterCompare(TriggerBase))
             {
                 return;
             }
@@ -57,7 +57,7 @@ public class ChangingColor : MonoBehaviour
         {
             case LightType.SingleColor:
                 {
-                    mat.color = TriggerBase.targetColor;
+                    mat.DOColor(TriggerBase.targetColor,TriggerBase.duringTime);
                     break;
                 }
             case LightType.LowBrightness:
@@ -71,35 +71,44 @@ public class ChangingColor : MonoBehaviour
                 {
                     if (colorMapping)
                     {
-                        colorMapping.SetColor(transform);
+                        colorMapping.SetColor(transform,TriggerBase.duringTime);
                     }
                     break;
                 }
             case LightType.ColorAndReset:
-            {
-                mat.color=TriggerBase.targetColor;
-                StartCoroutine(DelayFunc(TriggerBase.colorChangingTime,()=>mat.color=originalColor));
-                //StartCoroutine(Change(Color.white));
-                //Sequence sequence=DOTween.Sequence();
-                //sequence.Append(mat.DOColor(TriggerBase.targetColor,TriggerBase.colorChangingTime));
-                //sequence.Append(mat.DOColor(originalColor,TriggerBase.colorChangingTime));
-                //sequence.AppendCallback(delegate{mat.color=originalColor;});
-                break;
-            }
+                {
+                    OnColorAndReset(TriggerBase.targetColor, TriggerBase.duringTime);
+                    //StartCoroutine(Change(Color.white));
+                    //Sequence sequence=DOTween.Sequence();
+                    //sequence.Append(mat.DOColor(TriggerBase.targetColor,TriggerBase.colorChangingTime));
+                    //sequence.Append(mat.DOColor(originalColor,TriggerBase.colorChangingTime));
+                    //sequence.AppendCallback(delegate{mat.color=originalColor;});
+                    break;
+                }
             case LightType.None:
-            {
-                Debug.LogError("未选择灯光效果,检查碰撞体!");
-                break;
-            }
+                {
+                    Debug.LogError("未选择灯光效果,检查碰撞体!");
+                    break;
+                }
         }
         // if (TriggerBase.resetColor)
         // {
         //     StartCoroutine(DelayFunc(TriggerBase.CDTime, delegate { mat.color = originalColor; }));
         // }
     }
+    public void OnColorAndReset(Color color, float ShowColorTime)
+    {
+        // mat.color=color;
+        // StartCoroutine(DelayFunc(ShowColorTime,()=>mat.color=originalColor));
+        originalColor=mat.color;
+        Sequence sequence = DOTween.Sequence();
+        sequence.Append(mat.DOColor(color, ShowColorTime/2));
+        sequence.Append(mat.DOColor(originalColor, ShowColorTime/2));
+        //sequence.AppendCallback(delegate { mat.color = originalColor; });
+    }
     public void ShowColorMapping(float during = 0)
     {
-        colorMapping.SetColor(transform);
+        colorMapping.SetColor(transform,0.5f);
         if (during == 0)
             return;
         StartCoroutine(DelayFunc(during, delegate { mat.color = originalColor; }));
@@ -184,7 +193,17 @@ public class ChangingColor : MonoBehaviour
     }
     private bool FilterCompare(TriggerBase tb)
     {
-        return string.Equals(tb.filterTag, this.filterTag);
+        foreach (var tag in tb.filterTags)
+        {
+            foreach (var thisTag in this.filterTags)
+            {
+                if (string.Equals(thisTag, tag))
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
 }

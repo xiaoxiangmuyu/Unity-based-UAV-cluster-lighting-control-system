@@ -7,10 +7,10 @@ using Sirenix.OdinInspector;
 /// </summary>
 public class Twinkle : MonoBehaviour
 {
-    public List<ChangingColor>triggersLeft;
-    public List<ChangingColor>triggersRight;
-    public List<ChangingColor>CircleIn;
-    public List<ChangingColor>CircleOut;
+    public List<ColorPoint>triggersLeft;
+    public List<ColorPoint>triggersRight;
+    public List<ColorPoint>CircleIn;
+    public List<ColorPoint>CircleOut;
     public float delayTime;
     public float showTime;
     public Color color;

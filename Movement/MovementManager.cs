@@ -107,7 +107,7 @@ public class MovementManager : MonoBehaviour
 
                 if (info.normalizedTime >= 1.0f) // 动画播放完毕
                 {
-                    Debug.LogError("anim fin");
+                    Debug.Log("动画播放完成");
                     isFinished = true;
                     MovementCheck();
                 }
@@ -200,11 +200,11 @@ public class MovementManager : MonoBehaviour
     private void MovementCheck()
     {
         maxDistance = GetMaxDistance();
-        Debug.LogError("maxDistance = " + maxDistance);
+        Debug.Log("maxDistance = " + maxDistance);
 
         if (maxDistance <= limitedSpeed) // 未超过移动阈值则导出，此时可根据需要继续调整播放速度然后再次导出
         {
-            Debug.LogError("移动距离ok");
+            Debug.Log("移动距离ok");
 
             if (!FrameCheck())
             {

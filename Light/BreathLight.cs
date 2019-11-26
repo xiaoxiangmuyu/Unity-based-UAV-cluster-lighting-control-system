@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BreathLight : ChangingColor
+public class BreathLight : ColorPoint
 {
     public float fadeSpeed = 2f;
     public float changeMargin = 0.1f;

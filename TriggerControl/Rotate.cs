@@ -32,23 +32,32 @@ public class Rotate : MonoBehaviour
             delayTimer+=Time.deltaTime;
             return;
         }
-        if(isFinish)
-            return;
         if(rotateType==RotateType.AntiClockwise)
         {
-            transform.Rotate(new Vector3(0,0,angle/25/duringTime));
+            transform.Rotate(new Vector3(0,0,angle));
         }
         else
         {
-            transform.Rotate(new Vector3(0,0,-angle / 25 / duringTime));
+            transform.Rotate(new Vector3(0,0,-angle));
         }
-        movedAngle+= angle / 25 / duringTime;
-        if (movedAngle >= angle)
-        {
-            isFinish=true;
-            if(OnFinish!=null)
-            OnFinish.Invoke();
-        }
+
+        // if(isFinish)
+        //     return;
+        // if(rotateType==RotateType.AntiClockwise)
+        // {
+        //     transform.Rotate(new Vector3(0,0,angle/25/duringTime));
+        // }
+        // else
+        // {
+        //     transform.Rotate(new Vector3(0,0,-angle / 25 / duringTime));
+        // }
+        // movedAngle+= angle / 25 / duringTime;
+        // if (movedAngle >= angle)
+        // {
+        //     isFinish=true;
+        //     if(OnFinish!=null)
+        //     OnFinish.Invoke();
+        // }
     }
     public void Again()
     {

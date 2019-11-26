@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class RandomBlink : ChangingColor
+public class RandomBlink : ColorPoint
 {
     public float duration = 40f; // 闪烁时间
     public Color[] blinkColors = { Color.black, new Color(0.96f, 0.30f, 0.14f) };

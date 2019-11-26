@@ -61,7 +61,10 @@ public class TxtForAnimation : MonoBehaviour
         {
             int fileIndex = 0;
             cords = new List<PointInfo>();
-            foreach (string file in Directory.EnumerateFiles(path, "*.txt"))
+            String[] fileArray=Directory.GetFiles(path, "*.txt");
+            List<String>files=new List<string>(fileArray);
+            files.Sort((a,b)=>int.Parse(a)-int.Parse(b));
+            foreach (string file in files)
             {
                 PointInfo tempList = new PointInfo();
                 using (var reader = new StreamReader(file))

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum LightType
+public enum ColorType
 {
     None,//未指定
     SingleColor,//指定显示单一颜色
@@ -10,4 +10,10 @@ public enum LightType
     TextureMapping,//贴图映射
     ColorAndReset,//流光，渐渐接近目标颜色，完成后还原
 
+}
+public enum AppearType
+{
+    None,
+    RightNow,
+    Gradual
 }

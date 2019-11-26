@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using DG.Tweening;
 public class CircleTrigger : TriggerBase
 {
     // Start is called before the first frame update
@@ -19,6 +19,7 @@ public class CircleTrigger : TriggerBase
     }
     protected override void Play(float speed)
     {
+        
         if(targetRaidus-col.radius<=changeMargin)
         {
             playingCount-=1;
@@ -34,7 +35,7 @@ public class CircleTrigger : TriggerBase
         if(isWait)
         {
             waitTimer+=Time.deltaTime;
-            if(waitTimer>=waitInterval+colorChangingTime*2)
+            if(waitTimer>=waitInterval+duringTime)
             {
                 isWait=false;
             }

@@ -62,7 +62,7 @@ public class LineLight : MonoBehaviour
                 {
                     if (colorMapping)
                     {
-                        colorMapping.SetColor(child);
+                        colorMapping.SetColor(child,1);
                     }
                 }
 

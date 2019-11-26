@@ -50,7 +50,7 @@ public class ShutDown : MonoBehaviour
     {
         if (child)
         {
-            ChangingColor changingColor = child.GetComponent<ChangingColor>();
+            ColorPoint changingColor = child.GetComponent<ColorPoint>();
 
             if (changingColor)
             {

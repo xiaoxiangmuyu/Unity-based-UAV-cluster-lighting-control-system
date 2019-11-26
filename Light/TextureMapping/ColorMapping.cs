@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Sirenix.OdinInspector;
+using DG.Tweening;
 public class ColorMapping : MonoBehaviour
 {
     public Texture2D srcTex;
@@ -70,7 +71,8 @@ public class ColorMapping : MonoBehaviour
                         {
                             // 飞机的屏幕坐标映射到图片上，取那一点的颜色作为飞机的颜色。
                             // 向上取整会造成边界点的颜色取到对面边界的颜色，所以改为向下取整。
-                            mat.color = destTex.GetPixel(Mathf.FloorToInt(screenPositions[child].x + offsetX), Mathf.FloorToInt(screenPositions[child].y + offsetY));
+                            Color color=destTex.GetPixel(Mathf.FloorToInt(screenPositions[child].x + offsetX), Mathf.FloorToInt(screenPositions[child].y + offsetY));
+                            mat.DOColor(color,1f);
                         }
                     }
                 }
@@ -318,13 +320,14 @@ public class ColorMapping : MonoBehaviour
 
         MappingFunc();
     }
-    public void SetColor(Transform trans)
+    public void SetColor(Transform trans,float duringTime)
     {
         foreach (var child in screenPositions.Keys)
         {
             if (child == trans)
             {
-                child.GetComponent<Renderer>().material.color = destTex.GetPixel(Mathf.FloorToInt(screenPositions[child].x), Mathf.FloorToInt(screenPositions[child].y));
+                Color targetColor=destTex.GetPixel(Mathf.FloorToInt(screenPositions[child].x), Mathf.FloorToInt(screenPositions[child].y));
+                child.GetComponent<Renderer>().material.DOColor(targetColor,duringTime);
             }
         }
     }
@@ -362,8 +365,8 @@ public class ColorMapping : MonoBehaviour
             {
                 if (!tra.GetChild(i).GetComponent<MovementCheck>())
                     tra.GetChild(i).gameObject.AddComponent<MovementCheck>();
-                if (!tra.GetChild(i).GetComponent<ChangingColor>())
-                    tra.GetChild(i).gameObject.AddComponent<ChangingColor>();
+                if (!tra.GetChild(i).GetComponent<ColorPoint>())
+                    tra.GetChild(i).gameObject.AddComponent<ColorPoint>();
 
             }
             else

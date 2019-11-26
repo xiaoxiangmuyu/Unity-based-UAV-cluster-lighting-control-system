@@ -8,18 +8,24 @@ using UnityEngine;
 public class PathLight : MonoBehaviour
 {
     public float interval = 0.2f;
+    public float showColorTime;
     public float delayTime;
-    public string[] names = { "26", "27", "28", "91", "92", "29", "30", "31", "32", "93", "94" };
+    public int showCount;
+    public Color targetColor;
+    public string[] names;
+    public bool loop;
 
     private ColorMapping colorMapping;
     private float timer = 0f;
     private float delayTimer = 0f;
     private int index;
     private Transform child;
+    private List<ColorPoint>curChilds;
 
     private void Awake()
     {
         colorMapping = GetComponent<ColorMapping>();
+        curChilds=new List<ColorPoint>();
     }
 
     // Update is called once per frame
@@ -27,6 +33,9 @@ public class PathLight : MonoBehaviour
     {
         if (index >= names.Length)
         {
+            if(loop)
+            index=0;
+            else
             return;
         }
 
@@ -42,19 +51,20 @@ public class PathLight : MonoBehaviour
         if (timer >= interval)
         {
             timer = 0f;
-            child = transform.Find(names[index]);
-
-            if (child)
+            curChilds.Clear();
+            for(int i=0;i<showCount;i++)
             {
-                if (colorMapping)
+                curChilds.Add(transform.Find(names[index+i]).GetComponent<ColorPoint>());
+            }
+            if (curChilds.Count!=0)
+            {
+                foreach (var child in curChilds)
                 {
-                    colorMapping.SetColor(child);
+                    child.OnColorAndReset(targetColor,showColorTime);
                     index++;
                 }
-                else
-                {
-                    Debug.LogErrorFormat("ColorMapping script is NOT found on gameObject: {0}", name);
-                }
+                    //Debug.LogErrorFormat("ColorMapping script is NOT found on gameObject: {0}", name);
+                //}
             }
             else
             {
