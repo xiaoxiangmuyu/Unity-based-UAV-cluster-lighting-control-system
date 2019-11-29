@@ -139,7 +139,7 @@ public class MovementManager : MonoBehaviour
 
             if (staticTimer >= staticTime)
             {
-                Debug.LogError("Force static fin");
+                Debug.Log("Force static fin");
                 isFinished = true;
                 MovementCheck();
             }

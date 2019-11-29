@@ -60,7 +60,7 @@ public class PathLight : MonoBehaviour
             {
                 foreach (var child in curChilds)
                 {
-                    child.OnColorAndReset(targetColor,showColorTime);
+                    child.GradualColor(child.mappingColor,showColorTime);
                     index++;
                 }
                     //Debug.LogErrorFormat("ColorMapping script is NOT found on gameObject: {0}", name);

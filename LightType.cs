@@ -4,16 +4,9 @@ using UnityEngine;
 
 public enum ColorType
 {
-    None,//未指定
     SingleColor,//指定显示单一颜色
-    LowBrightness,//现有颜色基础上亮度减半变暗
+    //LowBrightness,//现有颜色基础上亮度减半变暗
     TextureMapping,//贴图映射
-    ColorAndReset,//流光，渐渐接近目标颜色，完成后还原
-
-}
-public enum AppearType
-{
-    None,
-    RightNow,
-    Gradual
+    //ColorAndReset,//流光，渐渐接近目标颜色，完成后还原
+    ColorByHue//沿色环取色
 }

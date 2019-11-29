@@ -32,23 +32,28 @@ public class ColorMapping : MonoBehaviour
         CoordinateTransformation();
 
         // 生成可容纳所有飞机显示的图片
+        if (srcTex.isReadable == false)
+        {
+            Debug.LogError("图片不可读!    " + srcTex.name);
+            return;
+        }
         destTex = ScaleTexture(srcTex, intMaxX, intMaxY);
 
         // 飞机上色。注意：在delayTime=0时上色会有1帧的延迟，办法是在Awake中上色
         if (mappingOnAwake)
         {
-            SetColor(destTex);
+            SetColor();
         }
     }
-
     /// <summary>
     /// 根据目标图片为飞机上色
     /// </summary>
     /// <param name="destTex"></param>
-    protected void SetColor(Texture2D destTex, float offsetX = 0f, float offsetY = 0f, bool isHack = false)
+    protected void SetColor(float offsetX = 0f, float offsetY = 0f)
     {
         if (destTex == null)
         {
+            Debug.LogError("贴图为空！");
             return;
         }
 
@@ -61,6 +66,8 @@ public class ColorMapping : MonoBehaviour
             {
                 if (child)
                 {
+                    if (child.GetComponent<ColorPoint>().IsBusy)
+                        return;
                     curRenderer = child.GetComponent<Renderer>();
 
                     if (curRenderer)
@@ -71,94 +78,41 @@ public class ColorMapping : MonoBehaviour
                         {
                             // 飞机的屏幕坐标映射到图片上，取那一点的颜色作为飞机的颜色。
                             // 向上取整会造成边界点的颜色取到对面边界的颜色，所以改为向下取整。
-                            Color color=destTex.GetPixel(Mathf.FloorToInt(screenPositions[child].x + offsetX), Mathf.FloorToInt(screenPositions[child].y + offsetY));
-                            mat.DOColor(color,1f);
+                            Color color = destTex.GetPixel(Mathf.FloorToInt(screenPositions[child].x + offsetX), Mathf.FloorToInt(screenPositions[child].y + offsetY));
+                            child.GetComponent<ColorPoint>().originalColor = color;
+                            mat.color = color;
                         }
                     }
                 }
             }
         }
     }
-
-    private void RandomSetColor(Texture2D destTex)
+    protected void SetColor(Color color)
     {
-        if (destTex == null)
+
+        Renderer curRenderer;
+        Material mat;
+
+        foreach (var child in screenPositions.Keys)
         {
-            return;
-        }
-
-        if (screenPositions != null && screenPositions.Count > 0)
-        {
-            Renderer curRenderer;
-            Material mat;
-
-            int num = Mathf.FloorToInt(screenPositions.Count / 4f);
-            List<int> list = GetRandomIndex(screenPositions.Count, num);
-
-            if (list == null || list.Count < 0)
+            if (child)
             {
-                return;
-            }
+                if (child.GetComponent<ColorPoint>().IsBusy)
+                    return;
+                curRenderer = child.GetComponent<Renderer>();
 
-            int index = 0;
-
-            foreach (var child in screenPositions.Keys)
-            {
-                if (!list.Contains(index))
+                if (curRenderer)
                 {
-                    index++;
-                    continue;
-                }
-
-                index++;
-
-                if (child)
-                {
-                    curRenderer = child.GetComponent<Renderer>();
-
-                    if (curRenderer)
+                    mat = curRenderer.material;
+                    if (mat)
                     {
-                        mat = curRenderer.material;
-
-                        if (mat)
-                        {
-                            //mat.color = destTex.GetPixel(Mathf.CeilToInt(screenPositions[child].x), Mathf.CeilToInt(screenPositions[child].y));
-                            mat.color = new Color(0.33f, 0.98f, 0.97f);
-                        }
+                        mat.color = color;
                     }
                 }
             }
         }
+
     }
-
-    /// <summary>
-    /// 从maxNum个数中随机取不重复的num个数
-    /// </summary>
-    /// <param name="maxNum"></param>
-    /// <param name="num"></param>
-    /// <returns></returns>
-    private List<int> GetRandomIndex(int maxNum, int num)
-    {
-        List<int> indexList = new List<int>();
-        System.Random rd = new System.Random();
-
-        for (int i = 0; i < num; i++)
-        {
-            while (true)
-            {
-                int temp = rd.Next(0, maxNum);
-
-                if (!indexList.Contains(temp))
-                {
-                    indexList.Add(temp);
-                    break;
-                }
-            }
-        }
-
-        return indexList;
-    }
-
     /// <summary>
     /// 将飞机的世界坐标转为屏幕坐标，并计算最大宽度和高度
     /// </summary>
@@ -285,32 +239,6 @@ public class ColorMapping : MonoBehaviour
         {
             return;
         }
-
-        //startTimer += Time.deltaTime;
-        //timer += Time.deltaTime;
-
-        //if (!done1 && startTimer >= 8f) // 4秒后开始刷第一幅图
-        //{
-        //    SetColor(destTexs[0]);
-        //    done1 = true;
-        //    isFinished = true;
-        //}
-
-        //if (timer >= interval)
-        //{
-        //    isFinished = true;
-
-        //    // 飞机的世界坐标转屏幕坐标
-        //    CoordinateTransformation();
-
-        //    // 生成可容纳所有飞机显示的图片
-        //    //Texture2D destTex = ScaleTexture(destTexs[1], intMaxX, intMaxY);
-
-        //    // 飞机上色
-        //    //SetColor(destTexs[1]);
-        //    SetColor(destTexs[1], 0, 0, true);
-        //}
-
         delayTimer += Time.deltaTime;
 
         if (delayTimer < delayTime) // 未到上色时间
@@ -320,16 +248,40 @@ public class ColorMapping : MonoBehaviour
 
         MappingFunc();
     }
-    public void SetColor(Transform trans,float duringTime)
+    public void SetColor(Transform trans, float duringTime, TweenCallback callback)
     {
         foreach (var child in screenPositions.Keys)
         {
             if (child == trans)
             {
-                Color targetColor=destTex.GetPixel(Mathf.FloorToInt(screenPositions[child].x), Mathf.FloorToInt(screenPositions[child].y));
-                child.GetComponent<Renderer>().material.DOColor(targetColor,duringTime);
+                Color targetColor = destTex.GetPixel(Mathf.FloorToInt(screenPositions[child].x), Mathf.FloorToInt(screenPositions[child].y));
+                child.GetComponent<Renderer>().material.DOColor(targetColor, duringTime).onComplete += callback;
             }
         }
+    }
+    public void SetColor(Transform trans)
+    {
+        foreach (var child in screenPositions.Keys)
+        {
+            if (child == trans)
+            {
+                Color targetColor = destTex.GetPixel(Mathf.FloorToInt(screenPositions[child].x), Mathf.FloorToInt(screenPositions[child].y));
+                child.GetComponent<Renderer>().material.color = targetColor;
+            }
+        }
+    }
+    public virtual Color GetMappingColor(Transform trans)
+    {
+        foreach (var child in screenPositions.Keys)
+        {
+            if (child == trans)
+            {
+                Color targetColor = destTex.GetPixel(Mathf.FloorToInt(screenPositions[child].x), Mathf.FloorToInt(screenPositions[child].y));
+                return targetColor;
+            }
+        }
+        Debug.LogError("没有找到映射颜色__" + trans.name);
+        return Color.white;
     }
 
     protected virtual void MappingFunc()

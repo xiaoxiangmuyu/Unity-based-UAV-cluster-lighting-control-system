@@ -4,9 +4,10 @@ using UnityEngine;
 
 public class SingleMapping : ColorMapping
 {
+    public Color color;
     protected override void MappingFunc()
     {
-        SetColor(destTex);
+        SetColor(color);
         isFinished = true;
     }
 }

@@ -38,6 +38,6 @@ public class FrameRateManager : MonoBehaviour
     void OnGUI()
     {
         GUI.Label(new Rect(Screen.width / 2, 0, 100, 100), "FPS: " + m_FPS);
-        GUI.Label(new Rect(Screen.width, Screen.height, 100, 100), "Timer: " + Time.time.ToString("f2"));
+        GUI.Label(new Rect(Screen.width / 2+150, 0, 100, 100), "Timer: " + Time.time.ToString("f2"));
     }
 }

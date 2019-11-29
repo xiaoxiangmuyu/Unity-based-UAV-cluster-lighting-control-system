@@ -7,13 +7,35 @@ using DG.Tweening;
 public class ColorPoint : MonoBehaviour
 {
     private Renderer curRenderer;
-    protected Material mat;
+    public Material mat;
     protected ColorMapping colorMapping;
+    [ShowInInspector]
+    [SerializeField]
+    protected bool isbusy;
+    public Color targetColor;
+    public bool IsBusy { get { return isbusy; } }
     public Color originalColor;
     public List<string> filterTags = new List<string>();
+    public Color mappingColor { get { return colorMapping.GetMappingColor(transform); } }
+    public Color randomColor
+    {
+        get
+        {
+            float red = Random.Range(0.0f, 1.0f);
+            float green = Random.Range(0.0f, 1.0f);
+            float blue = Random.Range(0.0f, 1.0f);
+            return new Color(red, green, blue);
+        }
+    }
 
-
-
+    private void WorkBegin()
+    {
+        isbusy = true;
+    }
+    private void WorkComplete()
+    {
+        isbusy = false;
+    }
     protected virtual void Awake()
     {
         curRenderer = GetComponent<Renderer>();
@@ -39,7 +61,6 @@ public class ColorPoint : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        originalColor = mat.color;
         TriggerBase TriggerBase = other.GetComponent<TriggerBase>();
         if (TriggerBase)
         {
@@ -53,65 +74,64 @@ public class ColorPoint : MonoBehaviour
             Debug.LogError("碰撞体没有TriggerBase组件");
             return;
         }
-        switch (TriggerBase.lightType)
+        SetProcessType(TriggerBase.colorOrders);
+    }
+    public void SetProcessType(List<ColorOrderBase> colorOrders)
+    {
+        if (isbusy)
+            return;
+        WorkBegin();
+        Sequence sequence = DOTween.Sequence();
+        foreach (var order in colorOrders)
         {
-            case LightType.SingleColor:
+            if (order == null)
+            {
+                Debug.LogError("命令为空!");
+                return;
+            }
+            if (order is Interval)
+            {
+                Interval temp = order as Interval;
+                sequence.AppendInterval(temp.during);
+            }
+            else if (order is CallBack)
+            {
+                sequence.AppendCallback(delegate { order.GetOrder(this); });
+            }
+            else if (order is GradualOrder)
+            {
+                var temp = (GradualOrder)order;
+                for (int i = 0; i < temp.playCount; i++)
                 {
-                    mat.DOColor(TriggerBase.targetColor,TriggerBase.duringTime);
-                    break;
+                    sequence.Append(order.GetOrder(this));
                 }
-            case LightType.LowBrightness:
-                {
-                    float h, s, v;
-                    Color.RGBToHSV(originalColor, out h, out s, out v);
-                    mat.color = Color.HSVToRGB(h, s, v * 0.5f);
-                    break;
-                }
-            case LightType.TextureMapping:
-                {
-                    if (colorMapping)
-                    {
-                        colorMapping.SetColor(transform,TriggerBase.duringTime);
-                    }
-                    break;
-                }
-            case LightType.ColorAndReset:
-                {
-                    OnColorAndReset(TriggerBase.targetColor, TriggerBase.duringTime);
-                    //StartCoroutine(Change(Color.white));
-                    //Sequence sequence=DOTween.Sequence();
-                    //sequence.Append(mat.DOColor(TriggerBase.targetColor,TriggerBase.colorChangingTime));
-                    //sequence.Append(mat.DOColor(originalColor,TriggerBase.colorChangingTime));
-                    //sequence.AppendCallback(delegate{mat.color=originalColor;});
-                    break;
-                }
-            case LightType.None:
-                {
-                    Debug.LogError("未选择灯光效果,检查碰撞体!");
-                    break;
-                }
+            }
+            else
+                Debug.LogError("error");
         }
-        // if (TriggerBase.resetColor)
-        // {
-        //     StartCoroutine(DelayFunc(TriggerBase.CDTime, delegate { mat.color = originalColor; }));
-        // }
+        sequence.AppendCallback(delegate { WorkComplete(); });
     }
     public void OnColorAndReset(Color color, float ShowColorTime)
     {
         // mat.color=color;
         // StartCoroutine(DelayFunc(ShowColorTime,()=>mat.color=originalColor));
-        originalColor=mat.color;
+        originalColor = mat.color;
         Sequence sequence = DOTween.Sequence();
-        sequence.Append(mat.DOColor(color, ShowColorTime/2));
-        sequence.Append(mat.DOColor(originalColor, ShowColorTime/2));
+        sequence.Append(mat.DOColor(color, ShowColorTime / 2));
+        sequence.Append(mat.DOColor(originalColor, ShowColorTime / 2));
         //sequence.AppendCallback(delegate { mat.color = originalColor; });
+    }
+    public void GradualColor(Color color, float during)
+    {
+        Sequence sequence = DOTween.Sequence();
+        sequence.Append(mat.DOColor(color, during));
     }
     public void ShowColorMapping(float during = 0)
     {
-        colorMapping.SetColor(transform,0.5f);
-        if (during == 0)
-            return;
-        StartCoroutine(DelayFunc(during, delegate { mat.color = originalColor; }));
+        // colorMapping.SetColor(transform, 0.5f);
+        // if (during == 0)
+        //     return;
+        // StartCoroutine(DelayFunc(during, delegate { mat.color = originalColor; }));
     }
     IEnumerator Change(Color color)
     {

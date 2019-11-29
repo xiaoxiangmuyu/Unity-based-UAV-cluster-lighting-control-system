@@ -1,4 +1,5 @@
 ﻿using Sirenix.OdinInspector;
+using UnityEngine;
 public class OffsetMapping : ContinuousMapping
 {
     public enum DirTypeH{Left_Right,Right_Left}
@@ -35,7 +36,19 @@ public class OffsetMapping : ContinuousMapping
             else
             offsetX -= deltaY;
         }
-
-        SetColor(destTex, offsetX, offsetY);
+        //SetColor(offsetX, offsetY);
+    }
+    public override Color GetMappingColor(Transform trans)
+    {
+        foreach (var child in screenPositions.Keys)
+        {
+            if (child == trans)
+            {
+                Color targetColor = destTex.GetPixel(Mathf.FloorToInt(screenPositions[child].x+offsetX), Mathf.FloorToInt(screenPositions[child].y+offsetY));
+                return targetColor;
+            }
+        }
+        Debug.LogError("没有找到映射颜色__" + trans.name);
+        return Color.white;
     }
 }

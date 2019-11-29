@@ -5,15 +5,15 @@ using System.IO;
 using Sirenix.OdinInspector;
 using System;
 public class TxtForAnimation : MonoBehaviour
-{   
+{
     [Serializable]
     class PointInfo
     {
         [SerializeField]
-        List<Vector3>posList;
+        List<Vector3> posList;
         public PointInfo()
         {
-            posList=new List<Vector3>();
+            posList = new List<Vector3>();
         }
         public void AddPos(Vector3 pos)
         {
@@ -21,23 +21,25 @@ public class TxtForAnimation : MonoBehaviour
         }
         public Vector3 GetPos(int frameIndex)
         {
-            if(frameIndex<0||frameIndex>posList.Count-1)
+            if (frameIndex < 0 || frameIndex > posList.Count - 1)
             {
-                Debug.LogError("frameIndex error!"+frameIndex.ToString());
+                Debug.LogError("frameIndex error!" + frameIndex.ToString());
                 return Vector3.zero;
             }
             return posList[frameIndex];
         }
     }
-#region {Public field}
-    public string path = "E:/ProjectDocs/c-m1-m11m-475-2.2";
+    #region {Public field}
+    [FolderPath]
+    public string path;
     [ReadOnly]
     public int totalFrameCount;
-#endregion
+    #endregion
 
-#region {Private field}
+    #region {Private field}
     private int curFrameindex;
-    [SerializeField][ReadOnly]
+    [SerializeField]
+    [ReadOnly]
     private bool hasInit;
     private bool hasCount;
     private bool hasFinish;
@@ -45,25 +47,25 @@ public class TxtForAnimation : MonoBehaviour
     private List<PointInfo> cords;
     [SerializeField]
     private List<Transform> childs;
-#endregion
+    #endregion
     private void Awake()
     {
-        if(!hasInit)
-        Init();
+        if (!hasInit)
+            Init();
     }
     void ReadTxtFile()
     {
-        if (cords != null&&cords.Count!=0)
+        if (cords != null && cords.Count != 0)
             cords.Clear();
-        hasCount=false;
-        totalFrameCount=0;
+        hasCount = false;
+        totalFrameCount = 0;
         if (Directory.Exists(path))
         {
             int fileIndex = 0;
             cords = new List<PointInfo>();
-            String[] fileArray=Directory.GetFiles(path, "*.txt");
-            List<String>files=new List<string>(fileArray);
-            files.Sort((a,b)=>int.Parse(a)-int.Parse(b));
+            String[] fileArray = Directory.GetFiles(path, "*.txt");
+            List<String> files = new List<string>(fileArray);
+            files.Sort((a, b) => int.Parse(Path.GetFileNameWithoutExtension(a)) - int.Parse(Path.GetFileNameWithoutExtension(b)));
             foreach (string file in files)
             {
                 PointInfo tempList = new PointInfo();
@@ -79,7 +81,7 @@ public class TxtForAnimation : MonoBehaviour
                             continue;
                         }
                         var Pos = line.Split('\t');
-                        Vector3 tempPos = new Vector3(float.Parse(Pos[1]), float.Parse(Pos[3]), float.Parse(Pos[2]));
+                        Vector3 tempPos = new Vector3(float.Parse(Pos[1]), float.Parse(Pos[3]), -float.Parse(Pos[2]));
                         tempList.AddPos(tempPos);
                         lineIndex++;
                         if (!hasCount)
@@ -102,7 +104,7 @@ public class TxtForAnimation : MonoBehaviour
     }
     void GetChilds()
     {
-        if (childs != null&&childs.Count!=0)
+        if (childs != null && childs.Count != 0)
             childs.Clear();
         AddChild(transform);
         childs.Sort((a, b) => int.Parse(a.name) - int.Parse(b.name));
@@ -111,10 +113,17 @@ public class TxtForAnimation : MonoBehaviour
     {
         for (int i = 0; i < tra.childCount; i++)
         {
-            if(tra.GetChild(i).childCount==0)
-            childs.Add(tra.GetChild(i));
+            if (tra.GetChild(i).childCount == 0)
+            {
+                int temp;
+                if (!int.TryParse(tra.GetChild(i).name, out temp))
+                continue;
+                tra.GetChild(i).GetComponent<Renderer>().material=Resources.Load<Material>("bai");
+                childs.Add(tra.GetChild(i));
+
+            }
             else
-            AddChild(tra.GetChild(i));
+                AddChild(tra.GetChild(i));
         }
     }
     [Button(ButtonSizes.Gigantic)]
@@ -122,18 +131,18 @@ public class TxtForAnimation : MonoBehaviour
     {
         ReadTxtFile();
         GetChilds();
-        hasInit=true;
+        hasInit = true;
         Debug.Log("Init Success");
     }
     // Update is called once per frame
     void Update()
     {
-        if(hasFinish)
-        return;
-        if (curFrameindex >= totalFrameCount-1)
+        if (hasFinish)
+            return;
+        if (curFrameindex >= totalFrameCount)
         {
-            Debug.Log("播放完成");
-            hasFinish=true;
+            Debug.Log("播放完成,共" + curFrameindex + "帧");
+            hasFinish = true;
             return;
         }
         SetChildPos();
