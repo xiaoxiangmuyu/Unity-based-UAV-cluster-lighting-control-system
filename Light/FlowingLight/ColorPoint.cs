@@ -17,7 +17,7 @@ public class ColorPoint : MonoBehaviour
     public Color originalColor;
     public List<string> filterTags = new List<string>();
     public Color mappingColor { get { return colorMapping.GetMappingColor(transform); } }
-    public Color flowMappingColor { get { var temp=colorMapping as OffsetMapping;return temp.GetFlowMappingColor(transform); } }
+    public Color flowMappingColor { get { var temp = colorMapping as OffsetMapping; return temp.GetFlowMappingColor(transform); } }
 
     public Color randomColor
     {
@@ -84,12 +84,18 @@ public class ColorPoint : MonoBehaviour
             return;
         WorkBegin();
         Sequence sequence = DOTween.Sequence();
+        sequence.Append(ProcessOrder(colorOrders));
+        sequence.AppendCallback(delegate { WorkComplete(); });
+    }
+    Sequence ProcessOrder(List<ColorOrderBase> colorOrders)
+    {
+        Sequence sequence = DOTween.Sequence();
         foreach (var order in colorOrders)
         {
             if (order == null)
             {
                 Debug.LogError("命令为空!");
-                return;
+                return null;
             }
             if (order is Interval)
             {
@@ -99,6 +105,16 @@ public class ColorPoint : MonoBehaviour
             else if (order is CallBack)
             {
                 sequence.AppendCallback(delegate { order.GetOrder(this); });
+            }
+            else if (order is OrderGroup)
+            {
+                var temp = (OrderGroup)order;
+                Sequence sequence1 = DOTween.Sequence();
+                for (int i = 0; i < temp.playCount; i++)
+                {
+                    sequence1.Append(ProcessOrder(temp.colorOrders));
+                }
+                sequence.Append(sequence1);
             }
             else if (order is GradualOrder)
             {
@@ -110,8 +126,9 @@ public class ColorPoint : MonoBehaviour
             }
             else
                 Debug.LogError("error");
+
         }
-        sequence.AppendCallback(delegate { WorkComplete(); });
+        return sequence;
     }
     public void GradualColor(Color color, float during)
     {
