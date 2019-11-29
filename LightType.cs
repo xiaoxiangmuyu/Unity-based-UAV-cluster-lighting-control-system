@@ -8,5 +8,7 @@ public enum ColorType
     //LowBrightness,//现有颜色基础上亮度减半变暗
     TextureMapping,//贴图映射
     //ColorAndReset,//流光，渐渐接近目标颜色，完成后还原
+    FlowMapping,
+    Random,
     ColorByHue//沿色环取色
 }

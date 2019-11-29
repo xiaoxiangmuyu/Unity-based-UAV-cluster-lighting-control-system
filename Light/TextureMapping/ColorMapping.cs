@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Sirenix.OdinInspector;
 using DG.Tweening;
-public class ColorMapping : MonoBehaviour
+public class ColorMapping : SerializedMonoBehaviour
 {
     public Texture2D srcTex;
     public string destTagName = ""; // 需要上色的飞机的标签名，为空表示都上色

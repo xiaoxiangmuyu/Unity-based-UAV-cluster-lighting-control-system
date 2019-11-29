@@ -17,7 +17,7 @@ public abstract class GradualOrder : ColorOrderBase
     public float during;
  
     public int playCount=1;
-    [ColorPalette][HideIf("hideColor")]
+    [HideIf("hideColor")]
     public Color color;
 
 

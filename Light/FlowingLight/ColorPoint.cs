@@ -17,6 +17,8 @@ public class ColorPoint : MonoBehaviour
     public Color originalColor;
     public List<string> filterTags = new List<string>();
     public Color mappingColor { get { return colorMapping.GetMappingColor(transform); } }
+    public Color flowMappingColor { get { var temp=colorMapping as OffsetMapping;return temp.GetFlowMappingColor(transform); } }
+
     public Color randomColor
     {
         get
@@ -111,16 +113,6 @@ public class ColorPoint : MonoBehaviour
         }
         sequence.AppendCallback(delegate { WorkComplete(); });
     }
-    public void OnColorAndReset(Color color, float ShowColorTime)
-    {
-        // mat.color=color;
-        // StartCoroutine(DelayFunc(ShowColorTime,()=>mat.color=originalColor));
-        originalColor = mat.color;
-        Sequence sequence = DOTween.Sequence();
-        sequence.Append(mat.DOColor(color, ShowColorTime / 2));
-        sequence.Append(mat.DOColor(originalColor, ShowColorTime / 2));
-        //sequence.AppendCallback(delegate { mat.color = originalColor; });
-    }
     public void GradualColor(Color color, float during)
     {
         Sequence sequence = DOTween.Sequence();
@@ -133,34 +125,10 @@ public class ColorPoint : MonoBehaviour
         //     return;
         // StartCoroutine(DelayFunc(during, delegate { mat.color = originalColor; }));
     }
-    IEnumerator Change(Color color)
-    {
-        float ind = 0.95f;
-        while (ind >= 0.3f)
-        {
-            SetColor(Color.Lerp(color, originalColor, ind));
-            ind -= 0.1f;
-            yield return new WaitForSeconds(0.04f);
-        }
-        while (ind <= 0.9f)
-        {
-            SetColor(Color.Lerp(color, originalColor, ind));
-            ind += 0.1f;
-            yield return new WaitForSeconds(0.04f);
-        }
-        SetColor(originalColor);
-        StopAllCoroutines();
-    }
-
     private IEnumerator DelayFunc(float delayTime, System.Action callback)
     {
         yield return new WaitForSeconds(delayTime);
         callback();
-    }
-
-    private void OnEnable()
-    {
-
     }
 
     public void SetColor(Color targetColor, bool needResetColor = false, float CDTime = 0.1f)
@@ -183,24 +151,12 @@ public class ColorPoint : MonoBehaviour
             Debug.LogError("Material is null" + gameObject.name);
         }
     }
-
-    //private void Update()
-    //{
-    //timer += Time.deltaTime;
-
-    //if (timer >= interval)
-    //{
-    //    timer = 0f;
-    //    //SetColorByHue();
-    //}
-    //}
-
-    private void SetColorByHue()
+    private Color SetColorByHue()
     {
         float h, s, v;
         Color.RGBToHSV(mat.color, out h, out s, out v);
         float newHue = ((h * 360 + 10) % 360) / 360; // hue范围是[0,360]/360，这里每次累加10
-        mat.color = Color.HSVToRGB(newHue, s, v);
+        return Color.HSVToRGB(newHue, s, v);
     }
 
     public Color GetOriginalColor()
