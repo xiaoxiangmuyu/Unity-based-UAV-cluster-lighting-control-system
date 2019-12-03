@@ -5,25 +5,35 @@ using Sirenix.OdinInspector;
 /// <summary>
 ///  用于几个部分交替加速闪动
 /// </summary>
-public class Twinkle : MonoBehaviour
+public class Twinkle : SerializedMonoBehaviour
 {
-    public List<ColorPoint>triggersLeft;
-    public List<ColorPoint>triggersRight;
-    public List<ColorPoint>CircleIn;
-    public List<ColorPoint>CircleOut;
+    public List<ColorPoint> triggersLeft;
+    public List<ColorPoint> triggersRight;
+    public List<ColorPoint> CircleIn;
+    public List<ColorPoint> CircleOut;
     public float delayTime;
     public float showTime;
-    public Color color;
+    public List<ColorOrderBase> ordersLeft;
+    public List<ColorOrderBase> ordersRight;
 
     float timer;
     bool flag;
     // Start is called before the first frame update
     void Start()
     {
-        if(triggersLeft==null||triggersRight==null)
-        Debug.LogError("Triggers is null");
-    }
+        // if (triggersLeft == null || triggersRight == null)
+        //     Debug.LogError("Triggers is null");
+        // foreach (var point in triggersLeft)
+        // {
+        //     point.SetProcessType(ordersLeft);
+        // }
+        // foreach (var point in triggersRight)
+        // {
+        //     point.SetProcessType(ordersRight);
+        // }
 
+    }
+   
     // Update is called once per frame
     void Update()
     {
@@ -42,54 +52,52 @@ public class Twinkle : MonoBehaviour
             CircleOut.ForEach((a)=>a.TurnOff());
             StartCoroutine(TwinkleCoroutine());
         }
-            
-
     }
     IEnumerator TwinkleCoroutine()
     {
-        float showTimer=showTime;
+        float showTimer = showTime;
         bool flag = true;
-        float interval=0.25f;
-        int stage1=4;
-        int stage2=4;
-        int stage3=8;
+        float interval = 0.25f;
+        int stage1 = 4;
+        int stage2 = 4;
+        int stage3 = 8;
         while (true)
         {
-            if(flag)
+            if (flag)
             {
-            triggersLeft.ForEach((a)=>a.ShowColorMapping(showTimer));
-            CircleIn.ForEach((a)=>a.ShowColorMapping(showTimer+interval));
+                triggersLeft.ForEach((a) => a.ShowColorMapping(showTimer));
+                CircleIn.ForEach((a) => a.ShowColorMapping(showTimer + interval));
             }
             else
             {
-            triggersRight.ForEach((a)=>a.ShowColorMapping(showTimer));
-            CircleOut.ForEach((a)=>a.ShowColorMapping(showTimer+interval));
+                triggersRight.ForEach((a) => a.ShowColorMapping(showTimer));
+                CircleOut.ForEach((a) => a.ShowColorMapping(showTimer + interval));
             }
 
-            yield return new WaitForSeconds(showTimer+interval);
-            flag=!flag;
-            
-            if(stage1!=1)
+            yield return new WaitForSeconds(showTimer + interval);
+            flag = !flag;
+
+            if (stage1 != 1)
             {
-                stage1-=1;
+                stage1 -= 1;
                 continue;
             }
-            else if(stage2!=0)
+            else if (stage2 != 0)
             {
-                showTimer=0.4f;
-                interval=0.125f;
-                stage2-=1;
+                showTimer = 0.4f;
+                interval = 0.125f;
+                stage2 -= 1;
                 continue;
             }
-            else if(stage3!=0)
+            else if (stage3 != 0)
             {
-                showTimer=0.25f;
-                interval=0.0625f;
-                stage3-=1;
+                showTimer = 0.25f;
+                interval = 0.0625f;
+                stage3 -= 1;
             }
-            else 
-            break;
-            
+            else
+                break;
+
         }
         TurnOffAll();
         yield return new WaitForSeconds(1f);
@@ -102,16 +110,16 @@ public class Twinkle : MonoBehaviour
     }
     void TurnOffAll()
     {
-        triggersLeft.ForEach((a)=>a.SetColor(Color.black));
-        triggersRight.ForEach((a)=>a.SetColor(Color.black));
-        CircleOut.ForEach((a)=>a.SetColor(Color.black));
-        CircleIn.ForEach((a)=>a.SetColor(Color.black));
+        triggersLeft.ForEach((a) => a.SetColor(Color.black));
+        triggersRight.ForEach((a) => a.SetColor(Color.black));
+        CircleOut.ForEach((a) => a.SetColor(Color.black));
+        CircleIn.ForEach((a) => a.SetColor(Color.black));
     }
     void OpenAll()
     {
-        triggersLeft.ForEach((a)=>a.ShowColorMapping());
-        triggersRight.ForEach((a)=>a.ShowColorMapping());
-        CircleOut.ForEach((a)=>a.ShowColorMapping());
-        CircleIn.ForEach((a)=>a.ShowColorMapping());
+        triggersLeft.ForEach((a) => a.ShowColorMapping());
+        triggersRight.ForEach((a) => a.ShowColorMapping());
+        CircleOut.ForEach((a) => a.ShowColorMapping());
+        CircleIn.ForEach((a) => a.ShowColorMapping());
     }
 }

@@ -87,6 +87,44 @@ public class ColorMapping : SerializedMonoBehaviour
             }
         }
     }
+    protected void SetColorDes(Texture2D destTex)
+    {
+        if (destTex == null)
+        {
+            Debug.LogError("贴图为空！");
+            return;
+        }
+
+        if (screenPositions != null && screenPositions.Count > 0)
+        {
+            Renderer curRenderer;
+            Material mat;
+
+            foreach (var child in screenPositions.Keys)
+            {
+                if (child)
+                {
+                    if (child.GetComponent<ColorPoint>().IsBusy)
+                        return;
+                    curRenderer = child.GetComponent<Renderer>();
+
+                    if (curRenderer)
+                    {
+                        mat = curRenderer.material;
+
+                        if (mat)
+                        {
+                            // 飞机的屏幕坐标映射到图片上，取那一点的颜色作为飞机的颜色。
+                            // 向上取整会造成边界点的颜色取到对面边界的颜色，所以改为向下取整。
+                            Color color = destTex.GetPixel(Mathf.FloorToInt(screenPositions[child].x), Mathf.FloorToInt(screenPositions[child].y));
+                            child.GetComponent<ColorPoint>().originalColor = color;
+                            mat.color = color;
+                        }
+                    }
+                }
+            }
+        }
+    }
     protected void SetColor(Color color)
     {
 
@@ -248,14 +286,14 @@ public class ColorMapping : SerializedMonoBehaviour
 
         MappingFunc();
     }
-    public void SetColor(Transform trans, float duringTime, TweenCallback callback)
+    public void SetColor(Transform trans, float duringTime)
     {
         foreach (var child in screenPositions.Keys)
         {
             if (child == trans)
             {
                 Color targetColor = destTex.GetPixel(Mathf.FloorToInt(screenPositions[child].x), Mathf.FloorToInt(screenPositions[child].y));
-                child.GetComponent<Renderer>().material.DOColor(targetColor, duringTime).onComplete += callback;
+                child.GetComponent<Renderer>().material.DOColor(targetColor, duringTime);
             }
         }
     }

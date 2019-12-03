@@ -8,13 +8,7 @@ public abstract class ColorOrderBase
 {
     public virtual Tween GetOrder(ColorPoint point) { Debug.LogError("没有实现命令！"); return null; }
 }
-public abstract class GradualOrder : ColorOrderBase
-{  
-    public int playCount=1;
-}
-public abstract class CallBack : ColorOrderBase
-{
 
-}
+
 
 

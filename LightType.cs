@@ -10,5 +10,5 @@ public enum ColorType
     //ColorAndReset,//流光，渐渐接近目标颜色，完成后还原
     FlowMapping,
     Random,
-    ColorByHue//沿色环取色
+    HSV//沿色环取色
 }

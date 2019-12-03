@@ -18,7 +18,7 @@ public class ColorPoint : MonoBehaviour
     public List<string> filterTags = new List<string>();
     public Color mappingColor { get { return colorMapping.GetMappingColor(transform); } }
     public Color flowMappingColor { get { var temp = colorMapping as OffsetMapping; return temp.GetFlowMappingColor(transform); } }
-
+    public Color hsvColor { get { return GetColorByHSV(); } }
     public Color randomColor
     {
         get
@@ -29,7 +29,7 @@ public class ColorPoint : MonoBehaviour
             return new Color(red, green, blue);
         }
     }
-
+    float h, s, v;
     private void WorkBegin()
     {
         isbusy = true;
@@ -90,6 +90,11 @@ public class ColorPoint : MonoBehaviour
     Sequence ProcessOrder(List<ColorOrderBase> colorOrders)
     {
         Sequence sequence = DOTween.Sequence();
+        if (colorOrders == null)
+        {
+            Debug.LogError("命令列表为空");
+            return null;
+        }
         foreach (var order in colorOrders)
         {
             if (order == null)
@@ -104,7 +109,8 @@ public class ColorPoint : MonoBehaviour
             }
             else if (order is CallBack)
             {
-                sequence.AppendCallback(delegate { order.GetOrder(this); });
+                var temp = (CallBack)order;
+                sequence.AppendCallback(delegate { temp.GetCallBack(this); });
             }
             else if (order is OrderGroup)
             {
@@ -114,7 +120,10 @@ public class ColorPoint : MonoBehaviour
                 {
                     sequence1.Append(ProcessOrder(temp.colorOrders));
                 }
-                sequence.Append(sequence1);
+                for (int k = 0; k < temp.playCount; k++)
+                {
+                    sequence.Append(sequence1);
+                }
             }
             else if (order is GradualOrder)
             {
@@ -137,10 +146,10 @@ public class ColorPoint : MonoBehaviour
     }
     public void ShowColorMapping(float during = 0)
     {
-        // colorMapping.SetColor(transform, 0.5f);
-        // if (during == 0)
-        //     return;
-        // StartCoroutine(DelayFunc(during, delegate { mat.color = originalColor; }));
+        colorMapping.SetColor(transform);
+        if (during == 0)
+            return;
+        StartCoroutine(DelayFunc(during, delegate { mat.color = Color.black; }));
     }
     private IEnumerator DelayFunc(float delayTime, System.Action callback)
     {
@@ -168,12 +177,16 @@ public class ColorPoint : MonoBehaviour
             Debug.LogError("Material is null" + gameObject.name);
         }
     }
-    private Color SetColorByHue()
+    private Color GetColorByHSV()
     {
-        float h, s, v;
-        Color.RGBToHSV(mat.color, out h, out s, out v);
-        float newHue = ((h * 360 + 10) % 360) / 360; // hue范围是[0,360]/360，这里每次累加10
-        return Color.HSVToRGB(newHue, s, v);
+        //Color.RGBToHSV(mat.color, out h, out s, out v);
+        if (h < 1)
+            h += 0.2f;// hue范围是[0,360]/360，这里每次累加10
+        else
+            h = 0;
+        Color targetColor = Color.HSVToRGB(h, 1f, 1f);
+        //Debug.Log(h);
+        return targetColor;
     }
 
     public Color GetOriginalColor()
@@ -198,5 +211,6 @@ public class ColorPoint : MonoBehaviour
         }
         return false;
     }
+
 
 }

@@ -16,7 +16,10 @@ public class TriggerBase : SerializedMonoBehaviour
     {
 
     }
-
+    void Start()
+    {
+        GetComponent<Collider>().enabled=true;
+    }
     // Update is called once per frame
     void Update()
     {
@@ -33,9 +36,9 @@ public class TriggerBase : SerializedMonoBehaviour
         colorOrders.Clear();
         for(int i=0;i<data.colorOrders.Count;i++)
         {
-            if(data.colorOrders[i] is DoColor)
+            if(data.colorOrders[i] is GradualOrder.DoColor)
             {
-                DoColor temp=new DoColor();
+                GradualOrder.DoColor temp=new GradualOrder.DoColor();
                 //temp=data.colorOrders[i] as DoColor;
                 colorOrders.Add(temp);
             }
