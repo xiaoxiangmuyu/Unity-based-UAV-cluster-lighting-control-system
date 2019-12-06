@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 using Sirenix.OdinInspector;
+
 [System.Serializable]
 public abstract class ColorOrderBase
 {

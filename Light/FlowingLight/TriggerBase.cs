@@ -36,9 +36,9 @@ public class TriggerBase : SerializedMonoBehaviour
         colorOrders.Clear();
         for(int i=0;i<data.colorOrders.Count;i++)
         {
-            if(data.colorOrders[i] is GradualOrder.DoColor)
+            if(data.colorOrders[i] is DoColor)
             {
-                GradualOrder.DoColor temp=new GradualOrder.DoColor();
+                DoColor temp=new DoColor();
                 //temp=data.colorOrders[i] as DoColor;
                 colorOrders.Add(temp);
             }
