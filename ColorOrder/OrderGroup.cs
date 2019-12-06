@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Sirenix.OdinInspector;
 using DG.Tweening;
+using UnityEngine.Events;
 [System.Serializable][LabelText("命令组")]
 public class OrderGroup:GradualOrder
 {

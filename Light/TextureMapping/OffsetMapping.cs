@@ -39,19 +39,19 @@ public class OffsetMapping : ColorMapping
         }
         Offsets[child]=temp;
     }
-    public override Color GetMappingColor(Transform trans)
-    {
-        foreach (var child in screenPositions.Keys)
-        {
-            if (child == trans)
-            {
-                Color targetColor = destTex.GetPixel(Mathf.FloorToInt(screenPositions[child].x + offsetX), Mathf.FloorToInt(screenPositions[child].y + offsetY));
-                return targetColor;
-            }
-        }
-        Debug.LogError("没有找到映射颜色__" + trans.name);
-        return Color.white;
-    }
+    // public override Color GetMappingColor(Transform trans)
+    // {
+    //     foreach (var child in screenPositions.Keys)
+    //     {
+    //         if (child == trans)
+    //         {
+    //             Color targetColor = destTexs.GetPixel(Mathf.FloorToInt(screenPositions[child].x + offsetX), Mathf.FloorToInt(screenPositions[child].y + offsetY));
+    //             return targetColor;
+    //         }
+    //     }
+    //     Debug.LogError("没有找到映射颜色__" + trans.name);
+    //     return Color.white;
+    // }
     public Color GetFlowMappingColor(Transform trans)
     {
         if(Offsets==null)
@@ -72,7 +72,7 @@ public class OffsetMapping : ColorMapping
                     Offset(child);
                 }
                 //Debug.Log(Offsets[child]);
-                Color targetColor = destTex.GetPixel(Mathf.FloorToInt(screenPositions[child].x + Offsets[child].x), Mathf.FloorToInt(screenPositions[child].y + Offsets[child].y));
+                Color targetColor = destTexs[0].GetPixel(Mathf.FloorToInt(screenPositions[child].x + Offsets[child].x), Mathf.FloorToInt(screenPositions[child].y + Offsets[child].y));
                 return targetColor;
             }
         }

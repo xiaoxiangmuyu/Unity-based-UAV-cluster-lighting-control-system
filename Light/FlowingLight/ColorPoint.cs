@@ -16,7 +16,8 @@ public class ColorPoint : MonoBehaviour
     public bool IsBusy { get { return isbusy; } }
     public Color originalColor;
     public List<string> filterTags = new List<string>();
-    public Color mappingColor { get { return colorMapping.GetMappingColor(transform); } }
+    #region Colors
+    public Color mappingColor { get { return GetMappingColor(); } }
     public Color flowMappingColor { get { var temp = colorMapping as OffsetMapping; return temp.GetFlowMappingColor(transform); } }
     public Color hsvColor { get { return GetColorByHSV(); } }
     public Color randomColor
@@ -30,6 +31,7 @@ public class ColorPoint : MonoBehaviour
         }
     }
     float h, s, v;
+    #endregion
     private void WorkBegin()
     {
         isbusy = true;
@@ -149,7 +151,7 @@ public class ColorPoint : MonoBehaviour
         colorMapping.SetColor(transform);
         if (during == 0)
             return;
-        StartCoroutine(DelayFunc(during, delegate { mat.color = Color.black; }));
+        StartCoroutine(DelayFunc(during, delegate { mat.color=Color.black; }));
     }
     private IEnumerator DelayFunc(float delayTime, System.Action callback)
     {
@@ -177,6 +179,29 @@ public class ColorPoint : MonoBehaviour
             Debug.LogError("Material is null" + gameObject.name);
         }
     }
+    int texIndex;
+    int texCounter;
+    private Color GetMappingColor()
+    {
+        texCounter += 1;
+        if (texCounter <= colorMapping.texChangeCount)
+        {
+            return colorMapping.GetMappingColor(transform, texIndex);
+        }
+        else
+        {
+            texCounter = 1;
+            if (texIndex + 1 <= colorMapping.scrTexs.Count - 1)
+                texIndex += 1;
+            else
+            {
+                if(colorMapping.isTexLoop)
+                texIndex=0;
+            }
+
+            return colorMapping.GetMappingColor(transform, texIndex);
+        }
+    }
     private Color GetColorByHSV()
     {
         //Color.RGBToHSV(mat.color, out h, out s, out v);
@@ -184,7 +209,7 @@ public class ColorPoint : MonoBehaviour
             h += 0.2f;// hue范围是[0,360]/360，这里每次累加10
         else
             h = 0;
-        Color targetColor = Color.HSVToRGB(h, 1f, 1f);
+        Color targetColor = Color.HSVToRGB(h, 0.45f, 1f);
         //Debug.Log(h);
         return targetColor;
     }

@@ -51,4 +51,10 @@ public class DoColor : GradualOrder
         return null;
     }
 }
+// [System.Serializable][LabelText("命令组")]
+// public class OrderGroup:GradualOrder
+// {
+//     public List<ColorOrderBase>colorOrders=new List<ColorOrderBase>();
+    
+//}
 }

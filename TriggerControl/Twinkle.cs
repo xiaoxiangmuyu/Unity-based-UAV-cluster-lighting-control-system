@@ -58,9 +58,9 @@ public class Twinkle : SerializedMonoBehaviour
         float showTimer = showTime;
         bool flag = true;
         float interval = 0.25f;
-        int stage1 = 4;
-        int stage2 = 4;
-        int stage3 = 8;
+        int stage1 = 2;
+        int stage2 = 2;
+        int stage3 = 4;
         while (true)
         {
             if (flag)
@@ -100,7 +100,7 @@ public class Twinkle : SerializedMonoBehaviour
 
         }
         TurnOffAll();
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(0.5f);
         OpenAll();
         yield return new WaitForSeconds(0.02f);
         TurnOffAll();

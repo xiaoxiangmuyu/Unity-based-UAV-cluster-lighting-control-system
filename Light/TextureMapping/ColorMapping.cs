@@ -6,7 +6,11 @@ using Sirenix.OdinInspector;
 using DG.Tweening;
 public class ColorMapping : SerializedMonoBehaviour
 {
-    public Texture2D srcTex;
+    //public Texture2D srcTex;
+    public List<Texture2D> scrTexs = new List<Texture2D>();
+    public bool isTexLoop;
+
+    public int texChangeCount;
     public string destTagName = ""; // 需要上色的飞机的标签名，为空表示都上色
     public float delayTime = 0f; // 开始上色前的时间
     public bool mappingOnAwake = false;
@@ -16,33 +20,43 @@ public class ColorMapping : SerializedMonoBehaviour
     protected int intMaxY;
     protected Dictionary<Transform, Vector2> screenPositions = new Dictionary<Transform, Vector2>();
     protected bool isFinished = false;
-    protected Texture2D destTex;
-
+    [ShowInInspector]
+    protected List<Texture2D> destTexs=new List<Texture2D>();
     private float maxX = 0f;
     private float maxY = 0f;
     private float minX = 0f;
     private float minY = 0f;
     private float delayTimer = 0f; // 开始上色前的时间计时器
-    //private bool done1 = false;
-    //public bool isRandomSetColor = false;
-
+    private int counter;
     protected virtual void Awake()
     {
         // 飞机的世界坐标转屏幕坐标
         CoordinateTransformation();
 
         // 生成可容纳所有飞机显示的图片
-        if (srcTex.isReadable == false)
-        {
-            Debug.LogError("图片不可读!    " + srcTex.name);
-            return;
-        }
-        destTex = ScaleTexture(srcTex, intMaxX, intMaxY);
-
+        InitTex();
+        
         // 飞机上色。注意：在delayTime=0时上色会有1帧的延迟，办法是在Awake中上色
         if (mappingOnAwake)
         {
             SetColor();
+        }
+    }
+    protected void InitTex()
+    {
+        if(scrTexs.Count==0)
+        {
+            Debug.LogError("没有设置贴图"+gameObject.name);
+            return;
+        }
+        for(int i=0;i<scrTexs.Count;i++)
+        {
+            if (scrTexs[i].isReadable == false)
+            {
+                Debug.LogError("图片不可读!    " + scrTexs[i].name);
+                return;
+            }
+            destTexs.Add(ScaleTexture(scrTexs[i],intMaxX,intMaxY));
         }
     }
     /// <summary>
@@ -51,7 +65,7 @@ public class ColorMapping : SerializedMonoBehaviour
     /// <param name="destTex"></param>
     protected void SetColor(float offsetX = 0f, float offsetY = 0f)
     {
-        if (destTex == null)
+        if (destTexs == null)
         {
             Debug.LogError("贴图为空！");
             return;
@@ -78,7 +92,7 @@ public class ColorMapping : SerializedMonoBehaviour
                         {
                             // 飞机的屏幕坐标映射到图片上，取那一点的颜色作为飞机的颜色。
                             // 向上取整会造成边界点的颜色取到对面边界的颜色，所以改为向下取整。
-                            Color color = destTex.GetPixel(Mathf.FloorToInt(screenPositions[child].x + offsetX), Mathf.FloorToInt(screenPositions[child].y + offsetY));
+                            Color color = destTexs[0].GetPixel(Mathf.FloorToInt(screenPositions[child].x + offsetX), Mathf.FloorToInt(screenPositions[child].y + offsetY));
                             child.GetComponent<ColorPoint>().originalColor = color;
                             mat.color = color;
                         }
@@ -292,7 +306,7 @@ public class ColorMapping : SerializedMonoBehaviour
         {
             if (child == trans)
             {
-                Color targetColor = destTex.GetPixel(Mathf.FloorToInt(screenPositions[child].x), Mathf.FloorToInt(screenPositions[child].y));
+                Color targetColor = destTexs[0].GetPixel(Mathf.FloorToInt(screenPositions[child].x), Mathf.FloorToInt(screenPositions[child].y));
                 child.GetComponent<Renderer>().material.DOColor(targetColor, duringTime);
             }
         }
@@ -303,18 +317,18 @@ public class ColorMapping : SerializedMonoBehaviour
         {
             if (child == trans)
             {
-                Color targetColor = destTex.GetPixel(Mathf.FloorToInt(screenPositions[child].x), Mathf.FloorToInt(screenPositions[child].y));
+                Color targetColor = destTexs[0].GetPixel(Mathf.FloorToInt(screenPositions[child].x), Mathf.FloorToInt(screenPositions[child].y));
                 child.GetComponent<Renderer>().material.color = targetColor;
             }
         }
     }
-    public virtual Color GetMappingColor(Transform trans)
+    public virtual Color GetMappingColor(Transform trans,int texIndex)
     {
         foreach (var child in screenPositions.Keys)
         {
             if (child == trans)
-            {
-                Color targetColor = destTex.GetPixel(Mathf.FloorToInt(screenPositions[child].x), Mathf.FloorToInt(screenPositions[child].y));
+            {   
+                Color targetColor = destTexs[texIndex].GetPixel(Mathf.FloorToInt(screenPositions[child].x), Mathf.FloorToInt(screenPositions[child].y));
                 return targetColor;
             }
         }
@@ -333,7 +347,7 @@ public class ColorMapping : SerializedMonoBehaviour
 
         if (screenPositions.ContainsKey(trans))
         {
-            color = destTex.GetPixel(Mathf.FloorToInt(screenPositions[trans].x), Mathf.FloorToInt(screenPositions[trans].y));
+            color = destTexs[0].GetPixel(Mathf.FloorToInt(screenPositions[trans].x), Mathf.FloorToInt(screenPositions[trans].y));
         }
         else
         {

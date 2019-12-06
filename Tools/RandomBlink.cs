@@ -5,10 +5,15 @@ using Sirenix.OdinInspector;
 using DG.Tweening;
 public class RandomBlink : SerializedMonoBehaviour
 {
-    public int breathCount;
+    public float beginTime;
+    public int breathTimes;
+    public int breathChildCount;
     public float interval = 1;
     public List<Transform> childs=new List<Transform>();
     public List<ColorOrderBase> colorOrders;
+    float timer;
+    bool isBegin;
+    int breathTime;
     void Awake()
     {
         if(childs.Count==0)
@@ -16,18 +21,34 @@ public class RandomBlink : SerializedMonoBehaviour
     }
     void Start()
     {
-        StartCoroutine(RandomChild());
+        //StartCoroutine(RandomChild());
+    }
+    void Update()
+    {
+        if(isBegin)
+        return;
+        if(timer<beginTime)
+        {
+            timer+=Time.deltaTime;
+        }
+        else
+        {
+            isBegin=true;
+            Debug.Log("!");
+            StartCoroutine(RandomChild());
+        }
     }
     IEnumerator RandomChild()
     {
-        while (true)
+        while (breathTime<breathTimes)
         {
-            for (int i = 0; i < breathCount; i++)
+            for (int i = 0; i < breathChildCount; i++)
             {
                 int index = Random.Range(0, childs.Count);
                 var point = childs[index].GetComponent<ColorPoint>();
                 point.SetProcessType(colorOrders);
             }
+            breathTime+=1;
             yield return new WaitForSeconds(interval);
         }
     }

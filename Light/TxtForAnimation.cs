@@ -43,9 +43,9 @@ public class TxtForAnimation : MonoBehaviour
     private bool hasInit;
     private bool hasCount;
     private bool hasFinish;
-    [SerializeField]
+    [SerializeField][HideInInspector]
     private List<PointInfo> cords;
-    [SerializeField]
+    [SerializeField][HideInInspector]
     private List<Transform> childs;
     #endregion
     private void Awake()
