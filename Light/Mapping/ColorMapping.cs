@@ -150,10 +150,10 @@ public class ColorMapping : ColorParent
                 switch (dirType)
                 {
                     case DirType.Up_Down:
-                        targetColor = colors[texIndex].Evaluate(1 - screenPositions[child].y / intMaxX);
+                        targetColor = colors[texIndex].Evaluate(1 - screenPositions[child].y / intMaxY);
                         break;
                     case DirType.Down_UP:
-                        targetColor = colors[texIndex].Evaluate(screenPositions[child].y / intMaxX);
+                        targetColor = colors[texIndex].Evaluate(screenPositions[child].y / intMaxY);
                         break;
                     case DirType.Left_Right:
                         targetColor = colors[texIndex].Evaluate(screenPositions[child].x / intMaxX);
