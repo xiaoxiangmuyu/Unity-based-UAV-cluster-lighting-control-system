@@ -15,7 +15,7 @@ public class PathLight : MonoBehaviour
     public string[] names;
     public bool loop;
 
-    private ColorMapping colorMapping;
+    private TextureMapping colorMapping;
     private float timer = 0f;
     private float delayTimer = 0f;
     private int index;
@@ -24,7 +24,7 @@ public class PathLight : MonoBehaviour
 
     private void Awake()
     {
-        colorMapping = GetComponent<ColorMapping>();
+        colorMapping = GetComponent<TextureMapping>();
         curChilds=new List<ColorPoint>();
     }
 
@@ -60,7 +60,7 @@ public class PathLight : MonoBehaviour
             {
                 foreach (var child in curChilds)
                 {
-                    child.GradualColor(child.mappingColor,showColorTime);
+                    child.GradualColor(child.TextureColor,showColorTime);
                     index++;
                 }
                     //Debug.LogErrorFormat("ColorMapping script is NOT found on gameObject: {0}", name);

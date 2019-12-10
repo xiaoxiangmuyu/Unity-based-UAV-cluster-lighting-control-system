@@ -3,21 +3,28 @@ using System.Collections.Generic;
 using UnityEngine;
 using Sirenix.OdinInspector;
 using DG.Tweening;
-public class RandomBlink : SerializedMonoBehaviour
+public class OverallControl : SerializedMonoBehaviour
 {
+    [LabelText("开始时间")]
     public float beginTime;
+    [LabelText("呼吸次数")][Tooltip("执行一整组命令算一次")]
     public int breathTimes;
+    [LabelText("执行的子物体个数")][PropertyRange(0,"childCount")]
     public int breathChildCount;
     public float interval = 1;
-    public List<Transform> childs=new List<Transform>();
+    public List<Transform> childs = new List<Transform>();
     public List<ColorOrderBase> colorOrders;
+
+
+    
     float timer;
     bool isBegin;
     int breathTime;
+    int childCount{get{return childs.Count;}}
     void Awake()
     {
-        if(childs.Count==0)
-        AddChild(transform);
+        if (childs.Count == 0)
+            AddChild(transform);
     }
     void Start()
     {
@@ -25,22 +32,25 @@ public class RandomBlink : SerializedMonoBehaviour
     }
     void Update()
     {
-        if(isBegin)
-        return;
-        if(timer<beginTime)
+        if (isBegin)
+            return;
+        if (timer < beginTime)
         {
-            timer+=Time.deltaTime;
+            timer += Time.deltaTime;
         }
         else
         {
-            isBegin=true;
-            Debug.Log("!");
+            isBegin = true;
+            Debug.Log("overallControl begin");
+            if(breathChildCount<childs.Count)
             StartCoroutine(RandomChild());
+            else
+            StartCoroutine(ControlAll());
         }
     }
     IEnumerator RandomChild()
     {
-        while (breathTime<breathTimes)
+        while (breathTime < breathTimes)
         {
             for (int i = 0; i < breathChildCount; i++)
             {
@@ -48,7 +58,20 @@ public class RandomBlink : SerializedMonoBehaviour
                 var point = childs[index].GetComponent<ColorPoint>();
                 point.SetProcessType(colorOrders);
             }
-            breathTime+=1;
+            breathTime += 1;
+            yield return new WaitForSeconds(interval);
+        }
+    }
+    IEnumerator ControlAll()
+    {
+        while (breathTime < breathTimes)
+        {
+            for (int i = 0; i < childs.Count; i++)
+            {
+                var point = childs[i].GetComponent<ColorPoint>();
+                point.SetProcessType(colorOrders);
+            }
+            breathTime += 1;
             yield return new WaitForSeconds(interval);
         }
     }
@@ -67,7 +90,7 @@ public class RandomBlink : SerializedMonoBehaviour
             if (tra.GetChild(i).childCount == 0)
             {
                 int temp;
-                string name=tra.GetChild(i).name;
+                string name = tra.GetChild(i).name;
                 if (!int.TryParse(name, out temp))
                     continue;
                 childs.Add(tra.GetChild(i));

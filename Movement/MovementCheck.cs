@@ -18,10 +18,12 @@ public class MovementCheck : MonoBehaviour
 
     private void Awake()
     {
+        movementManager = GetComponentInParent<MovementManager>();
+        if(!movementManager.isWorking)
+        return;
         lastPos = TruncVector3(transform.position);
         infos = new List<string>();
         maxDistance = 0f;
-        movementManager = GetComponentInParent<MovementManager>();
         curRenderer = GetComponent<Renderer>();
 
         if (curRenderer)
@@ -35,6 +37,8 @@ public class MovementCheck : MonoBehaviour
     // Update is called once per frame
     void LateUpdate()
     {
+        if(!movementManager.isWorking)
+        return;
         if (movementManager.GetIsFinished()) // 动画播放完毕或静态画面达到持续时间后则不再进行检测
         {
             return;
@@ -63,6 +67,7 @@ public class MovementCheck : MonoBehaviour
         b = Mathf.FloorToInt(mat.color.b * 255);
 
         sb.Clear();
+        //sb.Append(name+"\t"+curPos.x+"\t"+-curPos.z+"\t"+curPos.y+"\t"+r+"\t"+g+"\t"+b);
         sb.Append(name);
         sb.Append("\t");
         sb.Append(curPos.x);
@@ -88,11 +93,12 @@ public class MovementCheck : MonoBehaviour
     {
         return infos;
     }
-
+    string tmp;
+    float result;
     private float Trunc(float num)
-    {
-        string tmp = num.ToString("f2");
-        float result = float.Parse(tmp);
+    {   
+        tmp = num.ToString("f2");
+        result = float.Parse(tmp);
         return result;
     }
 

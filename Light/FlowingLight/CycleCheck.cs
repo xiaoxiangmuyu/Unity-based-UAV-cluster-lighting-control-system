@@ -16,11 +16,11 @@ public class CycleCheck : MonoBehaviour
     private bool isDone = false;
     private float delayTimer = 0f;
     private float durationTimer = 0f;
-    private ColorMapping colorMapping;
+    private TextureMapping colorMapping;
 
     private void Awake()
     {
-        colorMapping = GetComponentInParent<ColorMapping>();
+        colorMapping = GetComponentInParent<TextureMapping>();
     }
 
     // Start is called before the first frame update

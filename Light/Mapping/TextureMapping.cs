@@ -4,30 +4,38 @@ using System.Collections.Generic;
 using UnityEngine;
 using Sirenix.OdinInspector;
 using DG.Tweening;
-public class ColorMapping : SerializedMonoBehaviour
+public class TextureMapping : ColorParent
 {
-    //public Texture2D srcTex;
-    public List<Texture2D> scrTexs = new List<Texture2D>();
-    public bool isTexLoop;
 
+    [BoxGroup("TextureMapping")]
+    public bool isTexLoop;
+    [BoxGroup("TextureMapping")]
     public int texChangeCount;
+    [BoxGroup("TextureMapping")]
+    public List<Texture2D> scrTexs = new List<Texture2D>();
+
+
     public string destTagName = ""; // 需要上色的飞机的标签名，为空表示都上色
     public float delayTime = 0f; // 开始上色前的时间
     public bool mappingOnAwake = false;
+    
 
     protected float timer = 0f;
     protected int intMaxX;
     protected int intMaxY;
     protected Dictionary<Transform, Vector2> screenPositions = new Dictionary<Transform, Vector2>();
     protected bool isFinished = false;
-    [ShowInInspector]
-    protected List<Texture2D> destTexs=new List<Texture2D>();
+    protected List<Texture2D> destTexs = new List<Texture2D>();
+
+
     private float maxX = 0f;
     private float maxY = 0f;
     private float minX = 0f;
     private float minY = 0f;
     private float delayTimer = 0f; // 开始上色前的时间计时器
     private int counter;
+
+
     protected virtual void Awake()
     {
         // 飞机的世界坐标转屏幕坐标
@@ -35,7 +43,7 @@ public class ColorMapping : SerializedMonoBehaviour
 
         // 生成可容纳所有飞机显示的图片
         InitTex();
-        
+
         // 飞机上色。注意：在delayTime=0时上色会有1帧的延迟，办法是在Awake中上色
         if (mappingOnAwake)
         {
@@ -44,19 +52,19 @@ public class ColorMapping : SerializedMonoBehaviour
     }
     protected void InitTex()
     {
-        if(scrTexs.Count==0)
+        if (scrTexs.Count == 0)
         {
-            Debug.LogError("没有设置贴图"+gameObject.name);
+            Debug.LogError("没有设置贴图" + gameObject.name);
             return;
         }
-        for(int i=0;i<scrTexs.Count;i++)
+        for (int i = 0; i < scrTexs.Count; i++)
         {
             if (scrTexs[i].isReadable == false)
             {
                 Debug.LogError("图片不可读!    " + scrTexs[i].name);
                 return;
             }
-            destTexs.Add(ScaleTexture(scrTexs[i],intMaxX,intMaxY));
+            destTexs.Add(ScaleTexture(scrTexs[i], intMaxX, intMaxY));
         }
     }
     /// <summary>
@@ -322,12 +330,12 @@ public class ColorMapping : SerializedMonoBehaviour
             }
         }
     }
-    public virtual Color GetMappingColor(Transform trans,int texIndex)
+    public override Color GetMappingColor(Transform trans, int texIndex)
     {
         foreach (var child in screenPositions.Keys)
         {
             if (child == trans)
-            {   
+            {
                 Color targetColor = destTexs[texIndex].GetPixel(Mathf.FloorToInt(screenPositions[child].x), Mathf.FloorToInt(screenPositions[child].y));
                 return targetColor;
             }
@@ -335,7 +343,10 @@ public class ColorMapping : SerializedMonoBehaviour
         Debug.LogError("没有找到映射颜色__" + trans.name);
         return Color.white;
     }
+    // public virtual Color GetMappingColor(Transform trans)
+    // {
 
+    // }
     protected virtual void MappingFunc()
     {
         isFinished = true;
@@ -355,26 +366,5 @@ public class ColorMapping : SerializedMonoBehaviour
         }
 
         return color;
-    }
-    [Button(ButtonSizes.Gigantic)]
-    private void AddMoveCheck()
-    {
-        MoveCheck(transform);
-    }
-    void MoveCheck(Transform tra)
-    {
-        for (int i = 0; i < tra.childCount; i++)
-        {
-            if (tra.GetChild(i).childCount == 0)
-            {
-                if (!tra.GetChild(i).GetComponent<MovementCheck>())
-                    tra.GetChild(i).gameObject.AddComponent<MovementCheck>();
-                if (!tra.GetChild(i).GetComponent<ColorPoint>())
-                    tra.GetChild(i).gameObject.AddComponent<ColorPoint>();
-
-            }
-            else
-                MoveCheck(tra.GetChild(i));
-        }
     }
 }

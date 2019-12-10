@@ -1,18 +1,22 @@
 ﻿using Sirenix.OdinInspector;
 using UnityEngine;
 using System.Collections.Generic;
-public class OffsetMapping : ColorMapping
+public class OffsetMapping : TextureMapping
 {
     public enum DirTypeH { Left_Right, Right_Left }
     public enum DirTypeV { Up_Down, Down_Up }
-    public float deltaX;
-    public float deltaY;
+    [BoxGroup("horizontal")]
     public bool horizontal;
-    [HideIf("hideDirTypeV")]
-    public DirTypeV dirTypeV;
-    [HideIf("hideDirTypeH")]
-    public DirTypeH dirTypeH;
+    [ShowIf("horizontal")][BoxGroup("horizontal")]
+    public float deltaX;
+    [BoxGroup("vertical")]
     public bool vertical;
+    [ShowIf("vertical")][BoxGroup("vertical")]
+    public float deltaY;
+    [HideIf("hideDirTypeV")][BoxGroup("vertical")]
+    public DirTypeV dirTypeV;
+    [HideIf("hideDirTypeH")][BoxGroup("horizontal")]
+    public DirTypeH dirTypeH;
     [SerializeField]
     private Dictionary<Transform,Vector2> Offsets;
     private float offsetX;
@@ -52,7 +56,7 @@ public class OffsetMapping : ColorMapping
     //     Debug.LogError("没有找到映射颜色__" + trans.name);
     //     return Color.white;
     // }
-    public Color GetFlowMappingColor(Transform trans)
+    public Color GetMappingColor(Transform trans)
     {
         if(Offsets==null)
         {

@@ -7,18 +7,21 @@ using DG.Tweening;
 public class ColorPoint : MonoBehaviour
 {
     private Renderer curRenderer;
+    [HideInInspector]
     public Material mat;
-    protected ColorMapping colorMapping;
-    [ShowInInspector]
-    [SerializeField]
+    protected ColorParent colorParent;
     protected bool isbusy;
-    public Color targetColor;
+    [ShowInInspector][PropertyOrder(1)]
     public bool IsBusy { get { return isbusy; } }
+    [ReadOnly]
     public Color originalColor;
+    [PropertyOrder(2)]
     public List<string> filterTags = new List<string>();
+
+
     #region Colors
-    public Color mappingColor { get { return GetMappingColor(); } }
-    public Color flowMappingColor { get { var temp = colorMapping as OffsetMapping; return temp.GetFlowMappingColor(transform); } }
+    public Color TextureColor { get { return GetTextureColor(); } }
+    public Color flowTextureColor { get { var temp = colorParent as OffsetMapping; return temp.GetMappingColor(transform); } }
     public Color hsvColor { get { return GetColorByHSV(); } }
     public Color randomColor
     {
@@ -30,8 +33,11 @@ public class ColorPoint : MonoBehaviour
             return new Color(red, green, blue);
         }
     }
+    public Color mappingColor{get{return GetMappingColor();}}
     float h, s, v;
     #endregion
+
+
     private void WorkBegin()
     {
         isbusy = true;
@@ -60,7 +66,7 @@ public class ColorPoint : MonoBehaviour
             return;
         }
 
-        colorMapping = GetComponentInParent<ColorMapping>();
+        colorParent = GetComponentInParent<ColorParent>();
     }
 
     private void OnTriggerEnter(Collider other)
@@ -146,13 +152,13 @@ public class ColorPoint : MonoBehaviour
         Sequence sequence = DOTween.Sequence();
         sequence.Append(mat.DOColor(color, during));
     }
-    public void ShowColorMapping(float during = 0)
-    {
-        colorMapping.SetColor(transform);
-        if (during == 0)
-            return;
-        StartCoroutine(DelayFunc(during, delegate { mat.color=Color.black; }));
-    }
+    // public void ShowColorMapping(float during = 0)
+    // {
+    //     colorParent.SetColor(transform);
+    //     if (during == 0)
+    //         return;
+    //     StartCoroutine(DelayFunc(during, delegate { mat.color=Color.black; }));
+    // }
     private IEnumerator DelayFunc(float delayTime, System.Action callback)
     {
         yield return new WaitForSeconds(delayTime);
@@ -181,21 +187,44 @@ public class ColorPoint : MonoBehaviour
     }
     int texIndex;
     int texCounter;
+    private Color GetTextureColor()
+    {
+        TextureMapping textureMapping=colorParent as TextureMapping;
+        texCounter += 1;
+        if (texCounter <= textureMapping.texChangeCount)
+        {
+            return textureMapping.GetMappingColor(transform, texIndex);
+        }
+        else
+        {
+            texCounter = 1;
+            if (texIndex + 1 <= textureMapping.scrTexs.Count - 1)
+                texIndex += 1;
+            else
+            {
+                if(textureMapping.isTexLoop)
+                texIndex=0;
+            }
+
+            return textureMapping.GetMappingColor(transform, texIndex);
+        }
+    }
     private Color GetMappingColor()
     {
+        ColorMapping colorMapping=colorParent as ColorMapping;
         texCounter += 1;
-        if (texCounter <= colorMapping.texChangeCount)
+        if (texCounter <= colorMapping.ColorChangeCount)
         {
             return colorMapping.GetMappingColor(transform, texIndex);
         }
         else
         {
             texCounter = 1;
-            if (texIndex + 1 <= colorMapping.scrTexs.Count - 1)
+            if (texIndex + 1 <= colorMapping.colors.Count - 1)
                 texIndex += 1;
             else
             {
-                if(colorMapping.isTexLoop)
+                if(colorMapping.isColorLoop)
                 texIndex=0;
             }
 

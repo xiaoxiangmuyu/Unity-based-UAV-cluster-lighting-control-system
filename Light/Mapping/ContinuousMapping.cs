@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class ContinuousMapping : ColorMapping
+public class ContinuousMapping : TextureMapping
 {
     public float duration = 0f;
     public float interval = 0.1f; // 间隔多少秒后再次上色

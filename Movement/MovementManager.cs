@@ -7,6 +7,7 @@ using UnityEngine;
 
 public class MovementManager : MonoBehaviour
 {
+    public bool isWorking;
     public float staticTime = 10f; // 静态表演时间
     public bool needExport = false; // 是否导出TXT
     public bool includeStartEndFrame = false; // 是否导出首末帧
@@ -33,6 +34,8 @@ public class MovementManager : MonoBehaviour
 
     void Awake()
     {
+        if(!isWorking)
+        return;
         animator = GetComponent<Animator>();
         isFinished = false;
         maxDistance = 0f;
@@ -94,6 +97,8 @@ public class MovementManager : MonoBehaviour
 
     void Update()
     {
+        if(!isWorking)
+        return;
         if (!exportPathValid || isFinished)
         {
             return;

@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Tools : MonoBehaviour
 {
-    public ColorMapping colorMapping;
+    public TextureMapping colorMapping;
     public Texture2D texture;
     void Start()
     {

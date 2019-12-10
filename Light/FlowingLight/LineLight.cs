@@ -14,7 +14,7 @@ public class LineLight : MonoBehaviour
     public bool singleColor = false; // 是否使用单一颜色上色
     public Color targetColor = Color.white; // 指定使用的单色
 
-    private ColorMapping colorMapping;
+    private TextureMapping colorMapping;
     private float timer = 0f;
     private float delayTimer = 0f;
     private int index;
@@ -24,7 +24,7 @@ public class LineLight : MonoBehaviour
     {
         if (!singleColor)
         {
-            colorMapping = GetComponent<ColorMapping>();
+            colorMapping = GetComponent<TextureMapping>();
         }
 
         index = startIndex;
