@@ -21,15 +21,15 @@ public class MovementCheck : MonoBehaviour
         movementManager = GetComponentInParent<MovementManager>();
         if(!movementManager.isWorking)
         return;
-        lastPos = TruncVector3(transform.position);
-        infos = new List<string>();
-        maxDistance = 0f;
         curRenderer = GetComponent<Renderer>();
-
         if (curRenderer)
         {
             mat = curRenderer.material;
         }
+        lastPos = TruncVector3(transform.position);
+        infos = new List<string>();
+        maxDistance = 0f;
+
 
         RecordInfo(lastPos);
     }

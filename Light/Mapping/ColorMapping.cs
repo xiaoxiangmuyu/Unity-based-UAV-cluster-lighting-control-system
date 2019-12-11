@@ -12,13 +12,16 @@ public class ColorMapping : ColorParent
         Left_Right,//左右
         Right_Left,//右左
         In_Out,//内外
-        Out_In//外内
+        Out_In,//外内
+        Custom
     }
     [Tooltip("是否Log中心点位置")]
     public bool logCenterPoint;
     [Tooltip("映射的中心点位置")]
+    [ShowIf("IsCircleInOut")]
     public Vector2 centerPoint;
-
+    [ShowIf("IsCustomDir")]
+    public Vector2 customDirection;
     public DirType dirType;
     [Tooltip("颜色是否循环")]
     public bool isColorLoop;
@@ -28,10 +31,13 @@ public class ColorMapping : ColorParent
 
 
     private float maxDistance;
+    private float maxValue { get { return Mathf.Sqrt(Mathf.Pow(customDirection.x, 2) + Mathf.Pow(customDirection.y, 2)); } }
     private float maxX = 0f;
     private float maxY = 0f;
     private float minX = 0f;
     private float minY = 0f;
+    private bool IsCircleInOut { get { return dirType == DirType.In_Out || dirType == DirType.Out_In; } }
+    private bool IsCustomDir { get { return dirType == DirType.Custom; } }
     protected int intMaxX;
     protected int intMaxY;
     public string destTagName = ""; // 需要上色的飞机的标签名，为空表示都上色
@@ -42,8 +48,9 @@ public class ColorMapping : ColorParent
     void Awake()
     {
         CoordinateTransformation();
-        if (dirType == DirType.In_Out || dirType == DirType.Out_In)
+        if (IsCircleInOut)
             InitCircleDistance();
+        Debug.Log("intMaxX:"+intMaxX+"   intMaxY"+intMaxY);
     }
 
     // Update is called once per frame
@@ -53,8 +60,8 @@ public class ColorMapping : ColorParent
     }
     void InitCircleDistance()
     {
-        if(logCenterPoint)
-        Debug.Log(gameObject.name+"的渐变中心点为" + new Vector2(intMaxX/2,intMaxY/2));
+        if (logCenterPoint)
+            Debug.Log(gameObject.name + "的渐变中心点为" + new Vector2(intMaxX / 2, intMaxY / 2));
         foreach (var obj in screenPositions.Keys)
         {
             if (Vector2.Distance(screenPositions[obj], centerPoint) > maxDistance)
@@ -167,9 +174,16 @@ public class ColorMapping : ColorParent
                         break;
                     case DirType.Out_In:
                         float value2 = Vector2.Distance(screenPositions[child], centerPoint);
-                        targetColor = colors[texIndex].Evaluate(1-value2 / maxDistance);
+                        targetColor = colors[texIndex].Evaluate(1 - value2 / maxDistance);
                         break;
-
+                    case DirType.Custom:
+                        float dirAngle = Mathf.Atan2(customDirection.y, customDirection.x);
+                        float angelOrigin = Mathf.Atan2(screenPositions[child].y, screenPositions[child].x);
+                        float angleDiff = Mathf.Abs(dirAngle - angelOrigin);
+                        float xieBian = Mathf.Sqrt(Mathf.Pow(screenPositions[child].x, 2) + Mathf.Pow(screenPositions[child].y, 2));
+                        float _value = xieBian * Mathf.Cos(angleDiff);
+                        targetColor = colors[texIndex].Evaluate(_value / maxValue);
+                        break;
                 }
                 return targetColor;
             }

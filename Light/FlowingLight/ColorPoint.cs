@@ -11,7 +11,8 @@ public class ColorPoint : MonoBehaviour
     public Material mat;
     protected ColorParent colorParent;
     protected bool isbusy;
-    [ShowInInspector][PropertyOrder(1)]
+    [ShowInInspector]
+    [PropertyOrder(1)]
     public bool IsBusy { get { return isbusy; } }
     [ReadOnly]
     public Color originalColor;
@@ -33,7 +34,7 @@ public class ColorPoint : MonoBehaviour
             return new Color(red, green, blue);
         }
     }
-    public Color mappingColor{get{return GetMappingColor();}}
+    public Color mappingColor { get { return GetMappingColor(); } }
     float h, s, v;
     #endregion
 
@@ -89,7 +90,10 @@ public class ColorPoint : MonoBehaviour
     public void SetProcessType(List<ColorOrderBase> colorOrders)
     {
         if (isbusy)
+        {
+            //Debug.LogError("busy:"+gameObject.name);
             return;
+        }
         WorkBegin();
         Sequence sequence = DOTween.Sequence();
         sequence.Append(ProcessOrder(colorOrders));
@@ -189,7 +193,7 @@ public class ColorPoint : MonoBehaviour
     int texCounter;
     private Color GetTextureColor()
     {
-        TextureMapping textureMapping=colorParent as TextureMapping;
+        TextureMapping textureMapping = colorParent as TextureMapping;
         texCounter += 1;
         if (texCounter <= textureMapping.texChangeCount)
         {
@@ -202,8 +206,8 @@ public class ColorPoint : MonoBehaviour
                 texIndex += 1;
             else
             {
-                if(textureMapping.isTexLoop)
-                texIndex=0;
+                if (textureMapping.isTexLoop)
+                    texIndex = 0;
             }
 
             return textureMapping.GetMappingColor(transform, texIndex);
@@ -211,7 +215,7 @@ public class ColorPoint : MonoBehaviour
     }
     private Color GetMappingColor()
     {
-        ColorMapping colorMapping=colorParent as ColorMapping;
+        ColorMapping colorMapping = colorParent as ColorMapping;
         texCounter += 1;
         if (texCounter <= colorMapping.ColorChangeCount)
         {
@@ -224,8 +228,8 @@ public class ColorPoint : MonoBehaviour
                 texIndex += 1;
             else
             {
-                if(colorMapping.isColorLoop)
-                texIndex=0;
+                if (colorMapping.isColorLoop)
+                    texIndex = 0;
             }
 
             return colorMapping.GetMappingColor(transform, texIndex);

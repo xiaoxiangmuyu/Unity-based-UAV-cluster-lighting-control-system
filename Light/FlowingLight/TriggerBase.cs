@@ -18,7 +18,6 @@ public class TriggerBase : SerializedMonoBehaviour
     }
     void Start()
     {
-        GetComponent<Collider>().enabled=true;
     }
     // Update is called once per frame
     void Update()

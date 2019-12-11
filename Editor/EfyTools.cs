@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 public class EfyTools : MonoBehaviour
 {
-    static Renderer renderer;
+    static MeshRenderer _renderer;
     static MovementCheck movementCheck;
     [MenuItem("Tools/EfyTools/Init", priority = 0)]
     static void Init()
@@ -64,13 +64,13 @@ public class EfyTools : MonoBehaviour
     }
     private static void HandleRenderer(Transform obj,Material mat)
     {
-        renderer = obj.GetComponent<MeshRenderer>();
-        if (renderer == null)
+        _renderer = obj.GetComponent<MeshRenderer>();
+        if (_renderer == null)
         {
-            renderer = Undo.AddComponent<MeshRenderer>(obj.gameObject);
+            _renderer = Undo.AddComponent<MeshRenderer>(obj.gameObject);
         }
-        renderer.receiveShadows = false;
-        renderer.material=mat;
+        //renderer.receiveShadows = false;
+        _renderer.material=mat;
 
     }
 }

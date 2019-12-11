@@ -43,9 +43,11 @@ public class TxtForAnimation : MonoBehaviour
     private bool hasInit;
     private bool hasCount;
     private bool hasFinish;
-    [SerializeField][HideInInspector]
+    [SerializeField]
+    [HideInInspector]
     private List<PointInfo> cords;
-    [SerializeField][HideInInspector]
+    [SerializeField]
+    [HideInInspector]
     private List<Transform> childs;
     #endregion
     private void Awake()
@@ -117,10 +119,8 @@ public class TxtForAnimation : MonoBehaviour
             {
                 int temp;
                 if (!int.TryParse(tra.GetChild(i).name, out temp))
-                continue;
-                tra.GetChild(i).GetComponent<Renderer>().material=Resources.Load<Material>("bai");
+                    continue;
                 childs.Add(tra.GetChild(i));
-
             }
             else
                 AddChild(tra.GetChild(i));
