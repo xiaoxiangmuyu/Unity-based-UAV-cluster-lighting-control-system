@@ -2,11 +2,11 @@
 using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
-public class EfyTools : MonoBehaviour
+public class EfyTools 
 {
     static MeshRenderer _renderer;
     static MovementCheck movementCheck;
-    [MenuItem("Tools/EfyTools/Init", priority = 0)]
+    [MenuItem("工具/EfyTools/Init", priority = 0)]
     static void Init()
     {
         Material mat = AssetDatabase.LoadAssetAtPath<Material>("Assets/Resources/bai.mat");

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
-public class SceneEditor:Editor
+public class SceneEditor : Editor
 {
     [InitializeOnLoadMethod]
     static void Init()
@@ -18,8 +18,8 @@ public class SceneEditor:Editor
             GenericMenu menu = new GenericMenu();
             menu.AddItem(new GUIContent("显示"), false, Show, "menu_1");
             menu.AddItem(new GUIContent("隐藏"), false, Hide, "menu_2");
-            menu.AddItem(new GUIContent("显示名字"), false, delegate{ShowSceneObjName.Show=true;}, "menu_2");
-            menu.AddItem(new GUIContent("隐藏名字"), false, delegate{ShowSceneObjName.Show=false;}, "menu_2");
+            //menu.AddItem(new GUIContent("显示名字"), false, delegate{ShowSceneObjName.Show=true;}, "menu_2");
+            //menu.AddItem(new GUIContent("隐藏名字"), false, delegate{ShowSceneObjName.Show=false;}, "menu_2");
 
             menu.ShowAsContext();
         }
@@ -27,32 +27,43 @@ public class SceneEditor:Editor
     static void Show(object userData)
     {
         //EditorUtility.DisplayDialog("Tip", "OnMenuClick"+ userData.ToString(), "Ok");
-        var mat=Resources.Load<Material>("bai");
-        mat.color=Color.white;
+        var mat = Resources.Load<Material>("bai");
+        mat.color = Color.white;
     }
     static void Hide(object userData)
     {
         //EditorUtility.DisplayDialog("Tip", "OnMenuClick"+ userData.ToString(), "Ok");
-        var mat=Resources.Load<Material>("bai");
-        Color color=mat.color;
-        color=Color.black;
-        color.a=0.01f;
-        mat.color=color;
+        var mat = Resources.Load<Material>("bai");
+        Color color = mat.color;
+        color = Color.black;
+        color.a = 0.01f;
+        mat.color = color;
     }
-    public class ShowSceneObjName : Editor
-{
-    public static bool Show;
-    [DrawGizmo(GizmoType.NonSelected)]
-    static void DrawGameObjectName(Transform transform, GizmoType gizmoType)
-    {
-        int temp;
-        if(ShowSceneObjName.Show)
-        {
-            if(int.TryParse(transform.gameObject.name,out temp))
-            Handles.Label(transform.position, transform.gameObject.name);
-        }
 
+    public class ShowSceneObjName : Editor
+    {
+        public static bool Show;
+        [DrawGizmo(GizmoType.NonSelected)]
+        static void DrawGameObjectName(Transform transform, GizmoType gizmoType)
+        {
+            int temp;
+            if (ShowSceneObjName.Show)
+            {
+                if (int.TryParse(transform.gameObject.name, out temp))
+                    Handles.Label(transform.position, transform.gameObject.name);
+            }
+
+        }
+        [MenuItem("GameObject/工具/添加Tag", priority = 0)]
+        static void Init()
+        {
+            GameObject obj=Selection.activeGameObject;
+            foreach(var point in obj.GetComponentsInChildren<ColorPoint>())
+            {
+                point.AddTag(obj.name);
+            }
+            Debug.Log("添加Tag成功");
+        }
     }
-}
 
 }

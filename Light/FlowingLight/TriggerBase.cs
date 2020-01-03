@@ -17,18 +17,22 @@ public class TriggerBase : SerializedMonoBehaviour
     [SerializeField]
     [ShowInInspector]
     private bool hideDataOperation = true;
-    [HideIf("hideDataOperation")][InlineEditor]
+    [HideIf("hideDataOperation")]
+    [InlineEditor]
     public OrderData orderFile;
-    public List<string> filterTags = new List<string>(); // 影响的飞机的标签
+    public List<string> targetTags = new List<string>(); // 影响的飞机的标签
+    public List<string> ignoreTags = new List<string>();
     [LabelText("命令序列")]
     [BoxGroup("MainArea")]
     public List<ColorOrderBase> colorOrders;
-    [ShowIf("useExitOrder")][BoxGroup("MainArea")][LabelText("退出命令序列")]
+    [ShowIf("useExitOrder")]
+    [BoxGroup("MainArea")]
+    [LabelText("退出命令序列")]
     public List<ColorOrderBase> exitOrders;
 
     protected virtual void Awake()
     {
-        if(isRecordMode)
+        if (isRecordMode)
         {
             record.Clear();
         }

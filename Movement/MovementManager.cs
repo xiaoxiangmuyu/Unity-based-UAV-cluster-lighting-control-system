@@ -51,7 +51,7 @@ public class MovementManager : MonoBehaviour
             return;
         }
 
-        if (transform && transform.childCount > 0)
+        if (transform.childCount > 0)
         {
             movementChecks = new List<MovementCheck>();
             MovementCheck movementCheck;
@@ -97,6 +97,14 @@ public class MovementManager : MonoBehaviour
         else
         {
             Debug.LogErrorFormat("There is NO child for this gameObject, name: {0}", name);
+        }
+        PointCountCheck();
+    }
+    void PointCountCheck()
+    {
+        if (movementChecks.Count % 50 != 0)
+        {
+            Debug.LogError("飞机数量有问题：" + movementChecks.Count);
         }
     }
     void Update()
@@ -189,7 +197,7 @@ public class MovementManager : MonoBehaviour
             {
                 return;
             }
-            if(!GetComponent<TxtForAnimation>().HasFinish)
+            if (!GetComponent<TxtForAnimation>().HasFinish)
             {
                 Debug.LogError("导出时间过短，动画没播放完");
                 return;
@@ -199,7 +207,7 @@ public class MovementManager : MonoBehaviour
                 Export();
             }
 
-            if (includeStartEndFrame&&needExport)
+            if (includeStartEndFrame && needExport)
             {
                 FrameExport("/StartFrame.txt", FrameType.start);
                 FrameExport("/EndFrame.txt", FrameType.end);

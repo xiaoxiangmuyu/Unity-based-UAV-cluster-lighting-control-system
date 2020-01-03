@@ -11,7 +11,8 @@ public class ColorPoint : MonoBehaviour
     public Material mat;
     protected ColorParent colorParent;
     PointState state;
-    [ShowInInspector][PropertyOrder(1)]
+    [ShowInInspector]
+    [PropertyOrder(1)]
     public PointState State { get { return state; } }
     [ReadOnly]
     public Color originalColor;
@@ -22,7 +23,7 @@ public class ColorPoint : MonoBehaviour
     #region Colors
     public Color TextureColor { get { return GetTextureColor(); } }
     public Color flowTextureColor { get { var temp = colorParent as OffsetMapping; return temp.GetMappingColor(transform); } }
-    public Color hsvColor { get { return GetColorByHSV(); } }
+    //public Color hsvColor { get { return GetColorByHSV(); } }
     public Color randomColor
     {
         get
@@ -34,17 +35,18 @@ public class ColorPoint : MonoBehaviour
         }
     }
     public Color mappingColor { get { return GetMappingColor(); } }
-    float h, s, v;
+    float h, s, v;//for hsv effect
+    float _h, _s, _v;//for dark effect
     #endregion
 
 
     private void WorkBegin()
     {
-        state  = PointState.Busy;
+        state = PointState.Busy;
     }
     private void WorkComplete()
     {
-        state  = PointState.Idle;
+        state = PointState.Idle;
     }
     protected virtual void Awake()
     {
@@ -74,7 +76,11 @@ public class ColorPoint : MonoBehaviour
         TriggerBase TriggerBase = other.GetComponent<TriggerBase>();
         if (TriggerBase)
         {
-            if ((TriggerBase.filterTags.Count != 0) && !FilterCompare(TriggerBase))
+            if ((TriggerBase.targetTags.Count != 0) && !FilterCompare(TriggerBase.targetTags))
+            {
+                return;
+            }
+            if ((TriggerBase.ignoreTags.Count != 0) && FilterCompare(TriggerBase.ignoreTags))
             {
                 return;
             }
@@ -86,8 +92,8 @@ public class ColorPoint : MonoBehaviour
         }
         if (TriggerBase.isRecordMode)
         {
-            if(TriggerBase.record.objParent==string.Empty)
-            TriggerBase.record.objParent=transform.root.name;
+            if (TriggerBase.record.objParent == string.Empty)
+                TriggerBase.record.objParent = transform.root.name;
             if (TriggerBase.record.objs.Exists((x) => x == gameObject.name))
                 return;
             if (TriggerBase.recordTimer == 0)
@@ -101,7 +107,7 @@ public class ColorPoint : MonoBehaviour
                 TriggerBase.record.times.Add(Time.time - TriggerBase.recordTimer);
                 TriggerBase.record.objs.Add(gameObject.name);
             }
-            mat.DOColor(Color.red,0.5f);
+            mat.DOColor(Color.red, 0.5f);
             return;
         }
         if (TriggerBase.orderFile != null)
@@ -119,7 +125,11 @@ public class ColorPoint : MonoBehaviour
         TriggerBase TriggerBase = other.GetComponent<TriggerBase>();
         if (TriggerBase)
         {
-            if ((TriggerBase.filterTags.Count != 0) && !FilterCompare(TriggerBase))
+            if ((TriggerBase.targetTags.Count != 0) && !FilterCompare(TriggerBase.targetTags))
+            {
+                return;
+            }
+            if ((TriggerBase.ignoreTags.Count != 0) && FilterCompare(TriggerBase.targetTags))
             {
                 return;
             }
@@ -129,15 +139,15 @@ public class ColorPoint : MonoBehaviour
             Debug.LogError("碰撞体没有TriggerBase组件");
             return;
         }
-        if(TriggerBase.useExitOrder)
+        if (TriggerBase.useExitOrder)
         {
             SetProcessType(TriggerBase.exitOrders);
         }
     }
 
-    public void SetProcessType(List<ColorOrderBase> colorOrders,bool forceMode=false)
+    public void SetProcessType(List<ColorOrderBase> colorOrders, bool forceMode = false)
     {
-        if (state==PointState.Busy&&!forceMode)
+        if (state == PointState.Busy && !forceMode)
         {
             return;
         }
@@ -282,18 +292,26 @@ public class ColorPoint : MonoBehaviour
             return colorMapping.GetMappingColor(transform, texIndex);
         }
     }
-    private Color GetColorByHSV()
+    public Color GetColorByHSV(Vector3 value)
     {
         //Color.RGBToHSV(mat.color, out h, out s, out v);
         if (h < 1)
-            h += 0.1f;// hue范围是[0,360]/360，这里每次累加10
+            h += value.x;// hue范围是[0,360]/360，这里每次累加10
         else
             h = 0;
-        Color targetColor = Color.HSVToRGB(h, 1f, 1f);
+        Color targetColor = Color.HSVToRGB(h, value.y, value.z);
         //Debug.Log(h);
         return targetColor;
     }
 
+    public Color GetDarkColor(Vector2 value)
+    {
+        if (Color.Equals(originalColor, new Color(0, 0, 0, 0)))
+            Debug.LogError(gameObject.name + "没有记录其他颜色，无法变暗");
+        Color.RGBToHSV(originalColor, out _h, out _s, out _v);
+        Color targetColor = Color.HSVToRGB(_h, value.x, value.y);
+        return targetColor;
+    }
     public Color GetOriginalColor()
     {
         return originalColor;
@@ -302,9 +320,9 @@ public class ColorPoint : MonoBehaviour
     {
         mat.color = Color.black;
     }
-    private bool FilterCompare(TriggerBase tb)
+    private bool FilterCompare(List<string> tags)
     {
-        foreach (var tag in tb.filterTags)
+        foreach (var tag in tags)
         {
             foreach (var thisTag in this.filterTags)
             {

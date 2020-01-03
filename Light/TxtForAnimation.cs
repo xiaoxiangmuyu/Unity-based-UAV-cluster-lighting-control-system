@@ -31,12 +31,12 @@ public class TxtForAnimation : MonoBehaviour
     }
     #region {Public field}
     [ShowInInspector]
-    public float time{get{return (float)totalFrameCount/25;}}
+    public float time { get { return (float)totalFrameCount / 25; } }
     [FolderPath]
     public string path;
     [ReadOnly]
     public int totalFrameCount;
-    public bool HasFinish{get{return hasFinish;}}
+    public bool HasFinish { get { return hasFinish; } }
     #endregion
 
     #region {Private field}
@@ -55,10 +55,17 @@ public class TxtForAnimation : MonoBehaviour
     #endregion
     private void Awake()
     {
-        // if(GetComponent<Animator>().enabled)
-        // Debug.LogError(gameObject.name+"   动画组件没关");
+        AnimatorCheck();
         if (!hasInit)
             Init();
+    }
+    void AnimatorCheck()
+    {
+        if (GetComponent<Animator>())
+        {
+            if (GetComponent<Animator>().enabled)
+                Debug.LogError(gameObject.name + "动画组件没关");
+        }
     }
     void ReadTxtFile()
     {
@@ -134,7 +141,7 @@ public class TxtForAnimation : MonoBehaviour
     [Button(ButtonSizes.Gigantic)]
     public void Init()
     {
-        if(hasInit)
+        if (hasInit)
         {
             cords.Clear();
             childs.Clear();

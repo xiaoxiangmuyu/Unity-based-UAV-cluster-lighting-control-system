@@ -52,6 +52,8 @@ public class MovementCheck : MonoBehaviour
         if (distance > maxDistance)
         {
             maxDistance = distance;
+            if(maxDistance>movementManager.GetLimitedSpeed())
+            Debug.LogError(gameObject.name+"超速！ "+"最大距离:"+maxDistance);
         }
 
         lastPos = curPos;
