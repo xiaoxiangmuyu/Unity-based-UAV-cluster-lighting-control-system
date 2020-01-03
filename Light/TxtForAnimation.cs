@@ -154,8 +154,8 @@ public class TxtForAnimation : MonoBehaviour
     // Update is called once per frame
     public void MyUpdate(int frame)
     {
-        if (hasFinish)
-            return;
+        // if (hasFinish)
+        //     return;
         if (frame >= totalFrameCount)
         {
             Debug.Log("播放完成,共" + frame + "帧");

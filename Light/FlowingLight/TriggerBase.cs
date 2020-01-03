@@ -8,7 +8,7 @@ public class TriggerBase : SerializedMonoBehaviour
     public bool useExitOrder;
     public bool isRecordMode;
     [ShowIf("isRecordMode")]
-    public Record record;
+    public RecordAsset record;
     [HideInInspector]
     public float recordTimer;
 

@@ -6,12 +6,11 @@ using Sirenix.OdinInspector;
 using UnityEngine.Timeline;
 using DG.Tweening;
 // A behaviour that is attached to a playable
-[TrackColor(241, 249, 99)]
-public class OrderBehavior : PlayableBehaviour
+public class RecordBehavior : PlayableBehaviour
 {
     public List<ColorOrderBase> orders;
-    public Record record;
-    public ScriptPlayable<OrderBehavior> scriptPlayable;
+    public RecordAsset record;
+    public ScriptPlayable<RecordBehavior> scriptPlayable;
 
 
     List<GameObject> objs;

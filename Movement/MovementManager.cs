@@ -7,6 +7,7 @@ using UnityEngine.Timeline;
 using UnityEngine.Playables;
 public class MovementManager : MonoBehaviour
 {
+    public bool isSpeedTest{get{return GetComponent<Animator>().enabled==true;}}
     public bool isWorking;
     public float staticTime = 10f; // 静态表演时间
     public bool needExport = false; // 是否导出TXT
@@ -216,9 +217,9 @@ public class MovementManager : MonoBehaviour
         else
         {
             // 动画速度为 animSpeed，在1帧时间内 maxDistance / animSpeed = limitedSpeed / 建议速度
-            float animSpeed = info.speed;
-            float speed = limitedSpeed * animSpeed / maxDistance;
-            Debug.LogErrorFormat("移动距离超出限制，建议将动画速度调整为 {0}", speed);
+            // float animSpeed = info.speed;
+            // float speed = limitedSpeed * animSpeed / maxDistance;
+            // Debug.LogErrorFormat("移动距离超出限制，建议将动画速度调整为 {0}", speed);
             if (needExport)
             {
                 Export();

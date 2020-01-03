@@ -5,7 +5,7 @@ using Sirenix.OdinInspector;
 using UnityEngine.Playables;
 using UnityEngine.Timeline;
 [CreateAssetMenu(menuName = "创建记录容器", fileName = "新位置序列")]
-public class Record : SerializedScriptableObject, IPlayableAsset
+public class RecordAsset : SerializedScriptableObject, IPlayableAsset
 {
     #region  IPlayableAsset
     public double duration { get; }
@@ -50,7 +50,7 @@ public class Record : SerializedScriptableObject, IPlayableAsset
 
 
     bool useOrderFile { get { return orderType == OrderType.OrderFile; } }
-    ScriptPlayable<OrderBehavior> scriptPlayable;
+    ScriptPlayable<RecordBehavior> scriptPlayable;
     [Button(ButtonSizes.Large)]
     public void Clear()
     {
@@ -60,7 +60,7 @@ public class Record : SerializedScriptableObject, IPlayableAsset
     }
     public Playable CreatePlayable(PlayableGraph graph, GameObject owner)
     {
-        scriptPlayable = ScriptPlayable<OrderBehavior>.Create(graph);
+        scriptPlayable = ScriptPlayable<RecordBehavior>.Create(graph);
         if (orderType == OrderType.OrderFile)
         {
             scriptPlayable.GetBehaviour().orders = orderData.colorOrders;
