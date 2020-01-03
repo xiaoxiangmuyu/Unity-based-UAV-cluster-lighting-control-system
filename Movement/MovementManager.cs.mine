@@ -1,28 +1,32 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.Timeline;
-using UnityEngine.Playables;
+using Sirenix.OdinInspector;
 public class MovementManager : MonoBehaviour
 {
     public bool isWorking;
     public float staticTime = 10f; // 静态表演时间
-    public bool needExport = false; // 是否导出TXT
+    //public bool needExport = false; // 是否导出TXT
     public bool includeStartEndFrame = false; // 是否导出首末帧
     public string projectName = ""; // 导出路径中的项目文件夹的名字
     public bool forceStatic = false; // 是否强制指定表演时间，用于模型带动画但播放完毕后仍有表现内容的情况
-    private float limitedSpeed = 0.12f; // 飞机速度限制为每秒不超过3米，1秒为25帧，所以每帧限速为 3 / 25 = 0.12
+    public int childReadyCount;
+    public int maxChildCount;
+    public List<MovementCheck> WaitProcessChilds;
+    private float limitedSpeed = 0.08f; // 飞机速度限制为每秒不超过3米，1秒为25帧，所以每帧限速为 3 / 25 = 0.12
 
     private Animator animator;
     private AnimatorStateInfo info;
-    private bool isFinished; // 动画是否播放完毕或静态画面达到持续时间
+    public bool isFinished; // 动画是否播放完毕或静态画面达到持续时间
     private bool exportPathValid; // 导出路径是否有效
     private float maxDistance;
     private string exportPath;
     private List<MovementCheck> movementChecks;
     private float staticTimer = 0f; // 静态表演计时器
+    private int processCount;
     private enum FrameType
     {
         start = 1,
@@ -31,17 +35,13 @@ public class MovementManager : MonoBehaviour
     private string[] fileNames = { "d-m1-static", "f-m2-static", "h-m3-static", "j-m4-static", "l-m5-static",
         "n-m6-static","p-m7-static","r-m8-static","t-m9-static"};
 
-    private StringBuilder sb = new StringBuilder(50, 50);
-    string m_StringBuildertxt = string.Empty;
-    private int r, g, b;
-
     void Awake()
     {
         if (!isWorking)
             return;
 
-        //m_StringBuildertxt = sb.GetGarbageFreeString();
         animator = GetComponent<Animator>();
+        //animator.speed=0.002f;
         isFinished = false;
         maxDistance = 0f;
         exportPathValid = CheckExportPath();
@@ -98,7 +98,13 @@ public class MovementManager : MonoBehaviour
         {
             Debug.LogErrorFormat("There is NO child for this gameObject, name: {0}", name);
         }
+        foreach (var child in movementChecks)
+        {
+            WaitProcessChilds.Add(child);
+        }
+        processCount = (int)movementChecks.Count / 2;
     }
+
     void Update()
     {
         if (!isWorking)
@@ -107,7 +113,6 @@ public class MovementManager : MonoBehaviour
         {
             return;
         }
-
         if (!forceStatic)
         {
             if (animator) // 带动画的表演图形
@@ -118,7 +123,7 @@ public class MovementManager : MonoBehaviour
                 {
                     Debug.Log("动画播放完成");
                     isFinished = true;
-                    MovementCheck();
+                    //MovementCheck();
                 }
             }
             else // 静态的表演图形
@@ -134,11 +139,7 @@ public class MovementManager : MonoBehaviour
                     {
                         return;
                     }
-
-                    if (needExport)
-                    {
-                        Export(); // 静态表演无位移，所以无需校验直接导出即可
-                    }
+                    Export(); // 静态表演无位移，所以无需校验直接导出即可
                 }
             }
         }
@@ -150,11 +151,73 @@ public class MovementManager : MonoBehaviour
             {
                 Debug.Log("Force static fin");
                 isFinished = true;
-                MovementCheck();
+                //MovementCheck();
             }
         }
     }
+    void LateUpdate()
+    {
+        if (!isWorking)
+            return;
+        if (WaitProcessChilds.Count != 0)
+        {
+            if (!isFinished)
+            {
+                if (Time.smoothDeltaTime <= 0.03f)
+                {
+                    processCount += 1;
+                }
+                else
+                {
+                    processCount -= 1;
+                }
+                for (int i = 0; i < processCount; i++)
+                {
+                    int k = Mathf.Clamp(i, 0, WaitProcessChilds.Count - 1);
+                    WaitProcessChilds[k].Process();
+                }
+            }
+            else
+            {
+                for (int i = 0; i < WaitProcessChilds.Count; i++)
+                {
+                    WaitProcessChilds[i].Process();
+                }
+            }
+        }
+        else
+        {
+            StartCoroutine(ExportProcess());
+            if (includeStartEndFrame)
+            {
+                FrameExport("/StartFrame.txt", FrameType.start);
+                FrameExport("/EndFrame.txt", FrameType.end);
+            }
+            isWorking = false;
+        }
+    }
+    [ShowInInspector]
+    int waitProcessCount=1000;
+    IEnumerator ExportProcess()
+    {
+        int i = 0;
+        waitProcessCount=movementChecks.Count;
+        while (true)
+        {
+            SingleExport(movementChecks[i]);
+            i++;
+            waitProcessCount--;
+            Debug.Log(waitProcessCount);
+            if (i == movementChecks.Count)
+                break;
+            yield return new WaitForEndOfFrame();
+        }
+        Debug.Log("导出完成，动画用时: " + Time.time + "s");
+        Debug.Log("真实时间:" + Time.realtimeSinceStartup);
+        Debug.Log("浪费的时间" + (Time.realtimeSinceStartup - Time.time));
+        AssetDatabase.Refresh();
 
+    }
     private bool CheckExportPath()
     {
         bool result = false;
@@ -165,64 +228,120 @@ public class MovementManager : MonoBehaviour
             return result;
         }
 
-        exportPath = string.Format("E:/ProjectDocs/Export/{0}/{1}", projectName, name);
+        string[] chars = name.Split('_');
 
-        if (!Directory.Exists(exportPath))
+        if (chars != null && chars.Length > 1)
         {
-            Directory.CreateDirectory(exportPath);
-        }
+            string num = chars[1];
+            int index;
 
-        result = true;
-        return result;
-    }
-
-    private void MovementCheck()
-    {
-        maxDistance = GetMaxDistance();
-        Debug.Log("maxDistance = " + maxDistance);
-
-        if (maxDistance <= limitedSpeed) // 未超过移动阈值则导出，此时可根据需要继续调整播放速度然后再次导出
-        {
-            Debug.Log("移动距离ok");
-
-            if (!FrameCheck())
+            if (int.TryParse(num, out index))
             {
-                return;
+                index = index - 1; // 图案名字中的序号从1开始
+
+                if (index < 0 || index >= fileNames.Length)
+                {
+                    Debug.LogErrorFormat("图案序号超出fileNames索引范围，请检查! index: {0}", index);
+                    return result;
+                }
+
+                string folderName = fileNames[index];
+                exportPath = string.Format("E:/ProjectDocs/Export/{0}/{1}", projectName, folderName);
+
+                if (!Directory.Exists(exportPath))
+                {
+                    Directory.CreateDirectory(exportPath);
+                }
+
+                result = true;
+                return result;
             }
-            if(!GetComponent<TxtForAnimation>().HasFinish)
+            else
             {
-                Debug.LogError("导出时间过短，动画没播放完");
-                return;
-            }
-            if (needExport)
-            {
-                Export();
-            }
-
-            if (includeStartEndFrame&&needExport)
-            {
-                FrameExport("/StartFrame.txt", FrameType.start);
-                FrameExport("/EndFrame.txt", FrameType.end);
+                Debug.LogErrorFormat("图案序号转为int出错，请检查! num: {0}", num);
+                return result;
             }
         }
         else
         {
-            // 动画速度为 animSpeed，在1帧时间内 maxDistance / animSpeed = limitedSpeed / 建议速度
-            float animSpeed = info.speed;
-            float speed = limitedSpeed * animSpeed / maxDistance;
-            Debug.LogErrorFormat("移动距离超出限制，建议将动画速度调整为 {0}", speed);
-            if (needExport)
-            {
-                Export();
-            }
-
-            if (includeStartEndFrame)
-            {
-                FrameExport("/StartFrame.txt", FrameType.start);
-                FrameExport("/EndFrame.txt", FrameType.end);
-            }
+            Debug.LogErrorFormat("图案名称解析失败，请检查！name: {0}", name);
+            return result;
         }
     }
+    // IEnumerator ExportCheck()
+    // {
+    //     while (true)
+    //     {
+    //         if (childReadyCount == maxChildCount)
+    //         {
+    //             Export();
+    //             if (includeStartEndFrame)
+    //             {
+    //                 FrameExport("/StartFrame.txt", FrameType.start);
+    //                 FrameExport("/EndFrame.txt", FrameType.end);
+    //             }
+    //             break;
+    //         }
+    //         yield return new WaitForSeconds(1f);
+    //     }
+    // }
+    // private void MovementCheck()
+    // {
+    //     StartCoroutine(ExportCheck());
+
+    // if (needExport)
+    // {
+    //     Export();
+    // }
+
+    // if (includeStartEndFrame)
+    // {
+    //     FrameExport("/StartFrame.txt", FrameType.start);
+    //     FrameExport("/EndFrame.txt", FrameType.end);
+    // }
+    // maxDistance = GetMaxDistance();
+    // Debug.Log("maxDistance = " + maxDistance);
+
+    // if (maxDistance <= limitedSpeed) // 未超过移动阈值则导出，此时可根据需要继续调整播放速度然后再次导出
+    // {
+    //     Debug.Log("移动距离ok");
+
+    //     if (!FrameCheck())
+    //     {
+    //         return;
+    //     }
+
+    //     if (needExport)
+    //     {
+    //         Export();
+    //     }
+
+    //     if (includeStartEndFrame)
+    //     {
+    //         FrameExport("/StartFrame.txt", FrameType.start);
+    //         FrameExport("/EndFrame.txt", FrameType.end);
+    //     }
+    // }
+    // else
+    // {
+    //     // 动画速度为 animSpeed，在1帧时间内 maxDistance / animSpeed = limitedSpeed / 建议速度
+    //     float animSpeed = info.speed;
+    //     float speed = limitedSpeed * animSpeed / maxDistance;
+    //     Debug.LogErrorFormat("移动距离超出限制，建议将动画速度调整为 {0}", speed);
+
+
+    //     if (needExport)
+    //     {
+    //         Export();
+    //     }
+
+    //     if (includeStartEndFrame)
+    //     {
+    //         FrameExport("/StartFrame.txt", FrameType.start);
+    //         FrameExport("/EndFrame.txt", FrameType.end);
+    //     }
+    // }
+    //}
 
     private float GetMaxDistance()
     {
@@ -250,15 +369,34 @@ public class MovementManager : MonoBehaviour
 
         return maxValue;
     }
+    MovementCheck movementCheck;
+    string path = "";
+    List<string> infos = new List<string>();
+    void SingleExport(MovementCheck mc)
+    {
+        movementCheck = mc;
+        path = exportPath + "/" + movementCheck.name + ".txt";
+        infos = movementCheck.GetInfos();
+        if (File.Exists(path))
+        {
+            File.Delete(path);
+        }
 
+        using (var writer = new StreamWriter(path))
+        {
+            for (int j = 0; j < infos.Count; j++)
+            {
+                writer.WriteLine(infos[j]);
+            }
+            writer.Flush();
+            writer.Close();
+        }
+    }
     private void Export()
     {
         MovementCheck movementCheck;
         string path = "";
-        string droneName = "";
-        string exportInfo = "";
-        List<Vector3> posInfos = new List<Vector3>();
-        List<Color> colorInfos = new List<Color>();
+        List<string> infos = new List<string>();
 
         if (movementChecks != null && movementChecks.Count > 0)
         {
@@ -268,16 +406,14 @@ public class MovementManager : MonoBehaviour
 
                 if (movementCheck != null)
                 {
-                    posInfos = movementCheck.GetPosInfos();
-                    colorInfos = movementCheck.GetColorInfos();
+                    infos = movementCheck.GetInfos();
 
-                    if (posInfos == null || posInfos.Count < 1 || colorInfos == null || colorInfos.Count < 1)
+                    if (infos == null || infos.Count < 1)
                     {
                         continue;
                     }
 
-                    droneName = movementCheck.name;
-                    path = exportPath + "/" + droneName + ".txt";
+                    path = exportPath + "/" + movementCheck.name + ".txt";
 
                     if (File.Exists(path))
                     {
@@ -286,10 +422,9 @@ public class MovementManager : MonoBehaviour
 
                     using (var writer = new StreamWriter(path))
                     {
-                        for (int j = 0; j < posInfos.Count; j++)
+                        for (int j = 0; j < infos.Count; j++)
                         {
-                            exportInfo = GetExportInfo(posInfos[j], colorInfos[j], droneName);
-                            writer.WriteLine(exportInfo);
+                            writer.WriteLine(infos[j]);
                         }
 
                         writer.Flush();
@@ -298,9 +433,12 @@ public class MovementManager : MonoBehaviour
                 }
             }
 
-            Debug.Log("Export is finished");
+            Debug.Log("导出完成，动画用时: " + Time.time + "s");
+            Debug.Log("真实时间:" + Time.realtimeSinceStartup);
+            Debug.Log("浪费的时间" + (Time.realtimeSinceStartup - Time.time));
             AssetDatabase.Refresh();
         }
+
     }
 
     public bool GetIsFinished()
@@ -311,10 +449,7 @@ public class MovementManager : MonoBehaviour
     private void FrameExport(string fileName, FrameType frameType)
     {
         MovementCheck movementCheck;
-        string droneName = "";
-        string exportInfo = "";
-        List<Vector3> posInfos = new List<Vector3>();
-        List<Color> colorInfos = new List<Color>();
+        List<string> infos = new List<string>();
 
         if (movementChecks != null && movementChecks.Count > 0)
         {
@@ -333,25 +468,21 @@ public class MovementManager : MonoBehaviour
 
                 if (movementCheck != null)
                 {
-                    droneName = movementCheck.name;
-                    posInfos = movementCheck.GetPosInfos();
-                    colorInfos = movementCheck.GetColorInfos();
+                    infos = movementCheck.GetInfos();
 
-                    if (posInfos == null || posInfos.Count < 1 || colorInfos == null || colorInfos.Count < 1)
+                    if (infos == null || infos.Count < 1)
                     {
                         continue;
                     }
 
                     if (frameType == FrameType.start)
                     {
-                        exportInfo = GetExportInfo(posInfos[0], colorInfos[0], droneName);
+                        orderInfo.Add(infos[0]);
                     }
                     else
                     {
-                        exportInfo = GetExportInfo(posInfos[posInfos.Count - 1], colorInfos[colorInfos.Count - 1], droneName);
+                        orderInfo.Add(infos[infos.Count - 1]);
                     }
-
-                    orderInfo.Add(exportInfo);
                 }
             }
 
@@ -366,7 +497,8 @@ public class MovementManager : MonoBehaviour
 
                 writer.Flush();
                 writer.Close();
-                Debug.LogErrorFormat("Export is finished: {0}", path);
+                Debug.LogFormat("Export is finished: {0}", path);
+                //AssetDatabase.Refresh();
             }
         }
     }
@@ -388,10 +520,9 @@ public class MovementManager : MonoBehaviour
     {
         bool isValid = true;
         MovementCheck movementCheck;
-        List<Vector3> posInfos = new List<Vector3>();
+        List<string> infos = new List<string>();
         Dictionary<int, List<string>> frameInfo = new Dictionary<int, List<string>>();
         List<string> names = new List<string>();
-        string droneName = "";
 
         if (movementChecks != null && movementChecks.Count > 0)
         {
@@ -401,23 +532,22 @@ public class MovementManager : MonoBehaviour
 
                 if (movementCheck != null)
                 {
-                    posInfos = movementCheck.GetPosInfos();
-                    droneName = movementCheck.name;
+                    infos = movementCheck.GetInfos();
                 }
 
-                if (posInfos == null)
+                if (infos == null)
                 {
                     continue;
                 }
 
-                if (frameInfo.TryGetValue(posInfos.Count, out names))
+                if (frameInfo.TryGetValue(infos.Count, out names))
                 {
-                    names.Add(droneName);
+                    names.Add(movementCheck.name);
                 }
                 else
                 {
-                    frameInfo[posInfos.Count] = new List<string>();
-                    frameInfo[posInfos.Count].Add(droneName);
+                    frameInfo[infos.Count] = new List<string>();
+                    frameInfo[infos.Count].Add(movementCheck.name);
                 }
             }
 
@@ -445,52 +575,5 @@ public class MovementManager : MonoBehaviour
     public float GetLimitedSpeed()
     {
         return limitedSpeed;
-    }
-
-    private string GetExportInfo(Vector3 curPos, Color color, string droneName)
-    {
-        r = Mathf.FloorToInt(color.r * 255);
-        g = Mathf.FloorToInt(color.g * 255);
-        b = Mathf.FloorToInt(color.b * 255);
-
-        sb.Clear();
-        sb.Append(droneName);
-        sb.Append("\t");
-        sb.Append(curPos.x);
-        sb.Append("\t");
-        sb.Append(-curPos.z); // 统一取相反数
-        sb.Append("\t");
-        sb.Append(curPos.y);
-        sb.Append("\t");
-        sb.Append(r);
-        sb.Append("\t");
-        sb.Append(g);
-        sb.Append("\t");
-        sb.Append(b);
-        return sb.ToString();
-    }
-
-    private string GetExportInfoWithoutGC(Vector3 curPos, Color color, string droneName)
-    {
-        r = Mathf.FloorToInt(color.r * 255);
-        g = Mathf.FloorToInt(color.g * 255);
-        b = Mathf.FloorToInt(color.b * 255);
-
-        sb.GarbageFreeClear();
-        sb.Append(droneName);
-        sb.Append("\t");
-        sb.Concat(curPos.x, 4);
-        sb.Append("\t");
-        sb.Concat(-curPos.z, 4); // 统一取相反数
-        sb.Append("\t");
-        sb.Concat(curPos.y, 4);
-        sb.Append("\t");
-        sb.Concat(r);
-        sb.Append("\t");
-        sb.Concat(g);
-        sb.Append("\t");
-        sb.Concat(b);
-        string s = m_StringBuildertxt;
-        return s;
     }
 }

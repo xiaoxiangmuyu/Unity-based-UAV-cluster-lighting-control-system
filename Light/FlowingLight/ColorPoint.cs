@@ -10,10 +10,9 @@ public class ColorPoint : MonoBehaviour
     [HideInInspector]
     public Material mat;
     protected ColorParent colorParent;
-    protected bool isbusy;
-    [ShowInInspector]
-    [PropertyOrder(1)]
-    public bool IsBusy { get { return isbusy; } }
+    PointState state;
+    [ShowInInspector][PropertyOrder(1)]
+    public PointState State { get { return state; } }
     [ReadOnly]
     public Color originalColor;
     [PropertyOrder(2)]
@@ -41,11 +40,11 @@ public class ColorPoint : MonoBehaviour
 
     private void WorkBegin()
     {
-        isbusy = true;
+        state  = PointState.Busy;
     }
     private void WorkComplete()
     {
-        isbusy = false;
+        state  = PointState.Idle;
     }
     protected virtual void Awake()
     {
@@ -85,13 +84,61 @@ public class ColorPoint : MonoBehaviour
             Debug.LogError("碰撞体没有TriggerBase组件");
             return;
         }
-        SetProcessType(TriggerBase.colorOrders);
-    }
-    public void SetProcessType(List<ColorOrderBase> colorOrders)
-    {
-        if (isbusy)
+        if (TriggerBase.isRecordMode)
         {
-            //Debug.LogError("busy:"+gameObject.name);
+            if(TriggerBase.record.objParent==string.Empty)
+            TriggerBase.record.objParent=transform.root.name;
+            if (TriggerBase.record.objs.Exists((x) => x == gameObject.name))
+                return;
+            if (TriggerBase.recordTimer == 0)
+            {
+                TriggerBase.record.objs.Add(gameObject.name);
+                TriggerBase.record.times.Add(0);
+                TriggerBase.recordTimer = Time.time;
+            }
+            else
+            {
+                TriggerBase.record.times.Add(Time.time - TriggerBase.recordTimer);
+                TriggerBase.record.objs.Add(gameObject.name);
+            }
+            mat.DOColor(Color.red,0.5f);
+            return;
+        }
+        if (TriggerBase.orderFile != null)
+        {
+            SetProcessType(TriggerBase.orderFile.colorOrders);
+
+        }
+        else
+        {
+            SetProcessType(TriggerBase.colorOrders);
+        }
+    }
+    private void OnTriggerExit(Collider other)
+    {
+        TriggerBase TriggerBase = other.GetComponent<TriggerBase>();
+        if (TriggerBase)
+        {
+            if ((TriggerBase.filterTags.Count != 0) && !FilterCompare(TriggerBase))
+            {
+                return;
+            }
+        }
+        else
+        {
+            Debug.LogError("碰撞体没有TriggerBase组件");
+            return;
+        }
+        if(TriggerBase.useExitOrder)
+        {
+            SetProcessType(TriggerBase.exitOrders);
+        }
+    }
+
+    public void SetProcessType(List<ColorOrderBase> colorOrders,bool forceMode=false)
+    {
+        if (state==PointState.Busy&&!forceMode)
+        {
             return;
         }
         WorkBegin();
@@ -122,7 +169,7 @@ public class ColorPoint : MonoBehaviour
             else if (order is CallBack)
             {
                 var temp = (CallBack)order;
-                sequence.AppendCallback(delegate { temp.GetCallBack(this); });
+                sequence.AppendCallback(delegate { temp.GetCallBack(); });
             }
             else if (order is OrderGroup)
             {
@@ -239,10 +286,10 @@ public class ColorPoint : MonoBehaviour
     {
         //Color.RGBToHSV(mat.color, out h, out s, out v);
         if (h < 1)
-            h += 0.2f;// hue范围是[0,360]/360，这里每次累加10
+            h += 0.1f;// hue范围是[0,360]/360，这里每次累加10
         else
             h = 0;
-        Color targetColor = Color.HSVToRGB(h, 0.45f, 1f);
+        Color targetColor = Color.HSVToRGB(h, 1f, 1f);
         //Debug.Log(h);
         return targetColor;
     }
@@ -269,6 +316,10 @@ public class ColorPoint : MonoBehaviour
         }
         return false;
     }
-
+    [Button(ButtonSizes.Gigantic)]
+    public void AddTag(string tag)
+    {
+        filterTags.Add(tag);
+    }
 
 }

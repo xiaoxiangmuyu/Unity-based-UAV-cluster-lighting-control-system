@@ -1,51 +1,53 @@
 ﻿using System.Collections.Generic;
-using System.Text;
 using UnityEngine;
 
 public class MovementCheck : MonoBehaviour
 {
     private Vector3 lastPos;
-    private List<string> infos;
+    private List<Vector3> posInfos;
+    private List<Color> colorInfos;
     private float distance;
     private float maxDistance;
     private MovementManager movementManager;
     private Renderer curRenderer;
     private Material mat;
-    private StringBuilder sb = new StringBuilder();
-    private int r;
-    private int g;
-    private int b;
+    bool firstFrameIgnore;
 
     private void Awake()
     {
         movementManager = GetComponentInParent<MovementManager>();
-        if(!movementManager.isWorking)
-        return;
+        if (!movementManager.isWorking)
+            return;
         curRenderer = GetComponent<Renderer>();
         if (curRenderer)
         {
             mat = curRenderer.material;
         }
         lastPos = TruncVector3(transform.position);
-        infos = new List<string>();
+        posInfos = new List<Vector3>();
+        colorInfos = new List<Color>();
         maxDistance = 0f;
-
-
-        RecordInfo(lastPos);
+        //RecordInfo(lastPos, mat.color);
     }
 
     // Update is called once per frame
     void LateUpdate()
     {
-        if(!movementManager.isWorking)
-        return;
+        if (!movementManager.isWorking)
+            return;
         if (movementManager.GetIsFinished()) // 动画播放完毕或静态画面达到持续时间后则不再进行检测
         {
             return;
         }
 
         Vector3 curPos = TruncVector3(transform.position);
-        distance = Vector3.Distance(curPos, lastPos);
+        if (!firstFrameIgnore)
+        {
+            distance = 0;
+            firstFrameIgnore=true;
+        }
+        else
+            distance = Vector3.Distance(curPos, lastPos);
 
         if (distance > maxDistance)
         {
@@ -54,34 +56,17 @@ public class MovementCheck : MonoBehaviour
 
         lastPos = curPos;
 
-        if (distance <= movementManager.limitedSpeed)
-        {
-            RecordInfo(curPos);
-        }
+        //if (distance <= movementManager.GetLimitedSpeed())
+        //{
+        RecordInfo(curPos, mat.color);
+        //}
+
     }
 
-    private void RecordInfo(Vector3 curPos)
+    private void RecordInfo(Vector3 pos, Color color)
     {
-        r = Mathf.FloorToInt(mat.color.r * 255);
-        g = Mathf.FloorToInt(mat.color.g * 255);
-        b = Mathf.FloorToInt(mat.color.b * 255);
-
-        sb.Clear();
-        //sb.Append(name+"\t"+curPos.x+"\t"+-curPos.z+"\t"+curPos.y+"\t"+r+"\t"+g+"\t"+b);
-        sb.Append(name);
-        sb.Append("\t");
-        sb.Append(curPos.x);
-        sb.Append("\t");
-        sb.Append(-curPos.z); // 统一取相反数
-        sb.Append("\t");
-        sb.Append(curPos.y);
-        sb.Append("\t");
-        sb.Append(r);
-        sb.Append("\t");
-        sb.Append(g);
-        sb.Append("\t");
-        sb.Append(b);
-        infos.Add(sb.ToString());
+        posInfos.Add(pos);
+        colorInfos.Add(color);
     }
 
     public float GetMaxDistance()
@@ -89,14 +74,20 @@ public class MovementCheck : MonoBehaviour
         return maxDistance;
     }
 
-    public List<string> GetInfos()
+    public List<Vector3> GetPosInfos()
     {
-        return infos;
+        return posInfos;
     }
+
+    public List<Color> GetColorInfos()
+    {
+        return colorInfos;
+    }
+
     string tmp;
     float result;
     private float Trunc(float num)
-    {   
+    {
         tmp = num.ToString("f2");
         result = float.Parse(tmp);
         return result;

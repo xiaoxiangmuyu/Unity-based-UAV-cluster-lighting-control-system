@@ -88,7 +88,7 @@ public class TextureMapping : ColorParent
             {
                 if (child)
                 {
-                    if (child.GetComponent<ColorPoint>().IsBusy)
+                    if (child.GetComponent<ColorPoint>().State==PointState.Busy)
                         return;
                     curRenderer = child.GetComponent<Renderer>();
 
@@ -126,7 +126,7 @@ public class TextureMapping : ColorParent
             {
                 if (child)
                 {
-                    if (child.GetComponent<ColorPoint>().IsBusy)
+                    if (child.GetComponent<ColorPoint>().State==PointState.Busy)
                         return;
                     curRenderer = child.GetComponent<Renderer>();
 
@@ -157,7 +157,7 @@ public class TextureMapping : ColorParent
         {
             if (child)
             {
-                if (child.GetComponent<ColorPoint>().IsBusy)
+                if (child.GetComponent<ColorPoint>().State==PointState.Busy)
                     return;
                 curRenderer = child.GetComponent<Renderer>();
 

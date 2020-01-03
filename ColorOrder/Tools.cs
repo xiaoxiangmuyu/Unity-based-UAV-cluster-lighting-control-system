@@ -4,19 +4,50 @@ using UnityEngine;
 
 public class Tools : MonoBehaviour
 {
-    public TextureMapping colorMapping;
-    public Texture2D texture;
-    void Start()
+    public static double GetTotalTime(List<ColorOrderBase> orders)
     {
-        //StartCoroutine(DelayFunc(20,delegate{ChangeTex();}));
+        double temp = ProcessOrder(orders);
+        return double.Parse(temp.ToString("f2"));
     }
-    public void ChangeTex()
+    static double ProcessOrder(List<ColorOrderBase> orders)
     {
-        //colorMapping.ChangeTex(texture);
-    }
-    private IEnumerator DelayFunc(float delayTime, System.Action callback)
-    {
-        yield return new WaitForSeconds(delayTime);
-        callback();
+        double totalTime = 0;
+        if (orders == null)
+        {
+            Debug.LogError("命令列表为空");
+            return 0;
+        }
+        foreach (var order in orders)
+        {
+            if (order == null)
+            {
+                Debug.LogError("命令为空!");
+                return 0;
+            }
+            if (order is Interval)
+            {
+                Interval temp = order as Interval;
+                totalTime += temp.during;
+            }
+            else if (order is OrderGroup)
+            {
+                var temp = (OrderGroup)order;
+                double tempTime = 0;
+                for (int i = 0; i < temp.playCount; i++)
+                {
+                    tempTime += (ProcessOrder(temp.colorOrders));
+                }
+                totalTime += tempTime;
+            }
+            else if (order is DoColor)
+            {
+                var temp = (DoColor)order;
+                for (int i = 0; i < temp.playCount; i++)
+                {
+                    totalTime += temp.during;
+                }
+            }
+        }
+        return totalTime;
     }
 }

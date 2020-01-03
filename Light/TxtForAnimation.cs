@@ -30,10 +30,13 @@ public class TxtForAnimation : MonoBehaviour
         }
     }
     #region {Public field}
+    [ShowInInspector]
+    public float time{get{return (float)totalFrameCount/25;}}
     [FolderPath]
     public string path;
     [ReadOnly]
     public int totalFrameCount;
+    public bool HasFinish{get{return hasFinish;}}
     #endregion
 
     #region {Private field}
@@ -52,6 +55,8 @@ public class TxtForAnimation : MonoBehaviour
     #endregion
     private void Awake()
     {
+        // if(GetComponent<Animator>().enabled)
+        // Debug.LogError(gameObject.name+"   动画组件没关");
         if (!hasInit)
             Init();
     }
@@ -129,26 +134,31 @@ public class TxtForAnimation : MonoBehaviour
     [Button(ButtonSizes.Gigantic)]
     public void Init()
     {
+        if(hasInit)
+        {
+            cords.Clear();
+            childs.Clear();
+        }
         ReadTxtFile();
         GetChilds();
         hasInit = true;
         Debug.Log("Init Success");
     }
     // Update is called once per frame
-    void Update()
+    public void MyUpdate(int frame)
     {
         if (hasFinish)
             return;
-        if (curFrameindex >= totalFrameCount)
+        if (frame >= totalFrameCount)
         {
-            Debug.Log("播放完成,共" + curFrameindex + "帧");
+            Debug.Log("播放完成,共" + frame + "帧");
             hasFinish = true;
             return;
         }
-        SetChildPos();
-        curFrameindex++;
+        SetChildPos(frame);
+        //curFrameindex++;
     }
-    void SetChildPos()
+    void SetChildPos(int frame)
     {
         for (int i = 0; i < childs.Count; i++)
         {
@@ -156,7 +166,7 @@ public class TxtForAnimation : MonoBehaviour
             // Debug.LogError("i超出范围:"+i.ToString());
             // if(curFrameindex>cords[0].Count-1)
             // Debug.LogError("curFrameindex超出范围:"+curFrameindex.ToString());
-            childs[i].transform.position = cords[i].GetPos(curFrameindex);
+            childs[i].transform.position = cords[i].GetPos(frame);
         }
     }
 }

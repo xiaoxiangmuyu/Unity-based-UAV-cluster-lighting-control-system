@@ -5,16 +5,33 @@ using Sirenix.OdinInspector;
 using DG.Tweening;
 public class TriggerBase : SerializedMonoBehaviour
 {
-    
-    [SerializeField][ShowInInspector]
-    private bool hideDataOperation=true;
-    public List<string> filterTags=new List<string>(); // 影响的飞机的标签
-    [LabelText("命令序列")][BoxGroup("MainArea")]
-    public List<ColorOrderBase>colorOrders;
+    public bool useExitOrder;
+    public bool isRecordMode;
+    [ShowIf("isRecordMode")]
+    public Record record;
+    [HideInInspector]
+    public float recordTimer;
+
+
+
+    [SerializeField]
+    [ShowInInspector]
+    private bool hideDataOperation = true;
+    [HideIf("hideDataOperation")][InlineEditor]
+    public OrderData orderFile;
+    public List<string> filterTags = new List<string>(); // 影响的飞机的标签
+    [LabelText("命令序列")]
+    [BoxGroup("MainArea")]
+    public List<ColorOrderBase> colorOrders;
+    [ShowIf("useExitOrder")][BoxGroup("MainArea")][LabelText("退出命令序列")]
+    public List<ColorOrderBase> exitOrders;
 
     protected virtual void Awake()
     {
-
+        if(isRecordMode)
+        {
+            record.Clear();
+        }
     }
     void Start()
     {
@@ -22,35 +39,36 @@ public class TriggerBase : SerializedMonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
     }
-    [Button(ButtonSizes.Gigantic)][HideIf("hideDataOperation")]
+    [Button(ButtonSizes.Gigantic)]
+    [HideIf("hideDataOperation")]
     public void ReadOrderData(OrderData data)
     {
-        if(!data)
+        if (!data)
         {
             Debug.LogError("存储文件为空");
-            return ;
+            return;
         }
         colorOrders.Clear();
-        for(int i=0;i<data.colorOrders.Count;i++)
+        for (int i = 0; i < data.colorOrders.Count; i++)
         {
-            if(data.colorOrders[i] is DoColor)
+            if (data.colorOrders[i] is DoColor)
             {
-                DoColor temp=new DoColor();
+                DoColor temp = new DoColor();
                 //temp=data.colorOrders[i] as DoColor;
                 colorOrders.Add(temp);
             }
         }
         Debug.Log("读取成功");
     }
-    [Button(ButtonSizes.Gigantic)][HideIf("hideDataOperation")]
+    [Button(ButtonSizes.Gigantic)]
+    [HideIf("hideDataOperation")]
     public void WriteData(OrderData data)
     {
-        if(!data)
+        if (!data)
         {
             Debug.LogError("存储文件为空");
-            return ;
+            return;
         }
         data.colorOrders.Clear();
         foreach (var order in colorOrders)
@@ -59,5 +77,15 @@ public class TriggerBase : SerializedMonoBehaviour
         }
         Debug.Log("写入成功");
 
+    }
+    DOTweenAnimation animation;
+    public void SpeedAnimation()
+    {
+        if (animation == null)
+        {
+            animation = GetComponent<DOTweenAnimation>();
+        }
+        animation.duration += 50f;
+        Debug.Log("trigger");
     }
 }

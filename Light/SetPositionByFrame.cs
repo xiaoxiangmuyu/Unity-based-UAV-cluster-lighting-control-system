@@ -19,7 +19,7 @@ public class SetPositionByFrame : MonoBehaviour
             Vector3 axis = Vector3.zero;
             Color color = Color.clear;
 
-            foreach (string file in Directory.EnumerateFiles(path, "*.txt"))
+            foreach (string file in Directory.GetFiles(path, "*.txt"))
             {
                 using (var reader = new StreamReader(file))
                 {

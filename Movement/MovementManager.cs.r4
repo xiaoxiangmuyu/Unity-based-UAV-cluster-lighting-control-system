@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.Timeline;
-using UnityEngine.Playables;
+
 public class MovementManager : MonoBehaviour
 {
     public bool isWorking;
@@ -31,16 +31,10 @@ public class MovementManager : MonoBehaviour
     private string[] fileNames = { "d-m1-static", "f-m2-static", "h-m3-static", "j-m4-static", "l-m5-static",
         "n-m6-static","p-m7-static","r-m8-static","t-m9-static"};
 
-    private StringBuilder sb = new StringBuilder(50, 50);
-    string m_StringBuildertxt = string.Empty;
-    private int r, g, b;
-
     void Awake()
     {
-        if (!isWorking)
-            return;
-
-        //m_StringBuildertxt = sb.GetGarbageFreeString();
+        if(!isWorking)
+        return;
         animator = GetComponent<Animator>();
         isFinished = false;
         maxDistance = 0f;
@@ -99,10 +93,11 @@ public class MovementManager : MonoBehaviour
             Debug.LogErrorFormat("There is NO child for this gameObject, name: {0}", name);
         }
     }
+
     void Update()
     {
-        if (!isWorking)
-            return;
+        if(!isWorking)
+        return;
         if (!exportPathValid || isFinished)
         {
             return;
@@ -165,15 +160,45 @@ public class MovementManager : MonoBehaviour
             return result;
         }
 
-        exportPath = string.Format("E:/ProjectDocs/Export/{0}/{1}", projectName, name);
+        string[] chars = name.Split('_');
 
-        if (!Directory.Exists(exportPath))
+        if (chars != null && chars.Length > 1)
         {
-            Directory.CreateDirectory(exportPath);
-        }
+            string num = chars[1];
+            int index;
 
-        result = true;
-        return result;
+            if (int.TryParse(num, out index))
+            {
+                index = index - 1; // 图案名字中的序号从1开始
+
+                if (index < 0 || index >= fileNames.Length)
+                {
+                    Debug.LogErrorFormat("图案序号超出fileNames索引范围，请检查! index: {0}", index);
+                    return result;
+                }
+
+                string folderName = fileNames[index];
+                exportPath = string.Format("E:/ProjectDocs/Export/{0}/{1}", projectName, folderName);
+
+                if (!Directory.Exists(exportPath))
+                {
+                    Directory.CreateDirectory(exportPath);
+                }
+
+                result = true;
+                return result;
+            }
+            else
+            {
+                Debug.LogErrorFormat("图案序号转为int出错，请检查! num: {0}", num);
+                return result;
+            }
+        }
+        else
+        {
+            Debug.LogErrorFormat("图案名称解析失败，请检查！name: {0}", name);
+            return result;
+        }
     }
 
     private void MovementCheck()
@@ -189,17 +214,13 @@ public class MovementManager : MonoBehaviour
             {
                 return;
             }
-            if(!GetComponent<TxtForAnimation>().HasFinish)
-            {
-                Debug.LogError("导出时间过短，动画没播放完");
-                return;
-            }
+
             if (needExport)
             {
                 Export();
             }
 
-            if (includeStartEndFrame&&needExport)
+            if (includeStartEndFrame)
             {
                 FrameExport("/StartFrame.txt", FrameType.start);
                 FrameExport("/EndFrame.txt", FrameType.end);
@@ -211,16 +232,6 @@ public class MovementManager : MonoBehaviour
             float animSpeed = info.speed;
             float speed = limitedSpeed * animSpeed / maxDistance;
             Debug.LogErrorFormat("移动距离超出限制，建议将动画速度调整为 {0}", speed);
-            if (needExport)
-            {
-                Export();
-            }
-
-            if (includeStartEndFrame)
-            {
-                FrameExport("/StartFrame.txt", FrameType.start);
-                FrameExport("/EndFrame.txt", FrameType.end);
-            }
         }
     }
 
@@ -255,10 +266,7 @@ public class MovementManager : MonoBehaviour
     {
         MovementCheck movementCheck;
         string path = "";
-        string droneName = "";
-        string exportInfo = "";
-        List<Vector3> posInfos = new List<Vector3>();
-        List<Color> colorInfos = new List<Color>();
+        List<string> infos = new List<string>();
 
         if (movementChecks != null && movementChecks.Count > 0)
         {
@@ -268,16 +276,14 @@ public class MovementManager : MonoBehaviour
 
                 if (movementCheck != null)
                 {
-                    posInfos = movementCheck.GetPosInfos();
-                    colorInfos = movementCheck.GetColorInfos();
+                    infos = movementCheck.GetInfos();
 
-                    if (posInfos == null || posInfos.Count < 1 || colorInfos == null || colorInfos.Count < 1)
+                    if (infos == null || infos.Count < 1)
                     {
                         continue;
                     }
 
-                    droneName = movementCheck.name;
-                    path = exportPath + "/" + droneName + ".txt";
+                    path = exportPath + "/" + movementCheck.name + ".txt";
 
                     if (File.Exists(path))
                     {
@@ -286,10 +292,9 @@ public class MovementManager : MonoBehaviour
 
                     using (var writer = new StreamWriter(path))
                     {
-                        for (int j = 0; j < posInfos.Count; j++)
+                        for (int j = 0; j < infos.Count; j++)
                         {
-                            exportInfo = GetExportInfo(posInfos[j], colorInfos[j], droneName);
-                            writer.WriteLine(exportInfo);
+                            writer.WriteLine(infos[j]);
                         }
 
                         writer.Flush();
@@ -311,10 +316,7 @@ public class MovementManager : MonoBehaviour
     private void FrameExport(string fileName, FrameType frameType)
     {
         MovementCheck movementCheck;
-        string droneName = "";
-        string exportInfo = "";
-        List<Vector3> posInfos = new List<Vector3>();
-        List<Color> colorInfos = new List<Color>();
+        List<string> infos = new List<string>();
 
         if (movementChecks != null && movementChecks.Count > 0)
         {
@@ -333,25 +335,21 @@ public class MovementManager : MonoBehaviour
 
                 if (movementCheck != null)
                 {
-                    droneName = movementCheck.name;
-                    posInfos = movementCheck.GetPosInfos();
-                    colorInfos = movementCheck.GetColorInfos();
+                    infos = movementCheck.GetInfos();
 
-                    if (posInfos == null || posInfos.Count < 1 || colorInfos == null || colorInfos.Count < 1)
+                    if (infos == null || infos.Count < 1)
                     {
                         continue;
                     }
 
                     if (frameType == FrameType.start)
                     {
-                        exportInfo = GetExportInfo(posInfos[0], colorInfos[0], droneName);
+                        orderInfo.Add(infos[0]);
                     }
                     else
                     {
-                        exportInfo = GetExportInfo(posInfos[posInfos.Count - 1], colorInfos[colorInfos.Count - 1], droneName);
+                        orderInfo.Add(infos[infos.Count - 1]);
                     }
-
-                    orderInfo.Add(exportInfo);
                 }
             }
 
@@ -367,6 +365,7 @@ public class MovementManager : MonoBehaviour
                 writer.Flush();
                 writer.Close();
                 Debug.LogErrorFormat("Export is finished: {0}", path);
+                //AssetDatabase.Refresh();
             }
         }
     }
@@ -388,10 +387,9 @@ public class MovementManager : MonoBehaviour
     {
         bool isValid = true;
         MovementCheck movementCheck;
-        List<Vector3> posInfos = new List<Vector3>();
+        List<string> infos = new List<string>();
         Dictionary<int, List<string>> frameInfo = new Dictionary<int, List<string>>();
         List<string> names = new List<string>();
-        string droneName = "";
 
         if (movementChecks != null && movementChecks.Count > 0)
         {
@@ -401,23 +399,22 @@ public class MovementManager : MonoBehaviour
 
                 if (movementCheck != null)
                 {
-                    posInfos = movementCheck.GetPosInfos();
-                    droneName = movementCheck.name;
+                    infos = movementCheck.GetInfos();
                 }
 
-                if (posInfos == null)
+                if (infos == null)
                 {
                     continue;
                 }
 
-                if (frameInfo.TryGetValue(posInfos.Count, out names))
+                if (frameInfo.TryGetValue(infos.Count, out names))
                 {
-                    names.Add(droneName);
+                    names.Add(movementCheck.name);
                 }
                 else
                 {
-                    frameInfo[posInfos.Count] = new List<string>();
-                    frameInfo[posInfos.Count].Add(droneName);
+                    frameInfo[infos.Count] = new List<string>();
+                    frameInfo[infos.Count].Add(movementCheck.name);
                 }
             }
 
@@ -445,52 +442,5 @@ public class MovementManager : MonoBehaviour
     public float GetLimitedSpeed()
     {
         return limitedSpeed;
-    }
-
-    private string GetExportInfo(Vector3 curPos, Color color, string droneName)
-    {
-        r = Mathf.FloorToInt(color.r * 255);
-        g = Mathf.FloorToInt(color.g * 255);
-        b = Mathf.FloorToInt(color.b * 255);
-
-        sb.Clear();
-        sb.Append(droneName);
-        sb.Append("\t");
-        sb.Append(curPos.x);
-        sb.Append("\t");
-        sb.Append(-curPos.z); // 统一取相反数
-        sb.Append("\t");
-        sb.Append(curPos.y);
-        sb.Append("\t");
-        sb.Append(r);
-        sb.Append("\t");
-        sb.Append(g);
-        sb.Append("\t");
-        sb.Append(b);
-        return sb.ToString();
-    }
-
-    private string GetExportInfoWithoutGC(Vector3 curPos, Color color, string droneName)
-    {
-        r = Mathf.FloorToInt(color.r * 255);
-        g = Mathf.FloorToInt(color.g * 255);
-        b = Mathf.FloorToInt(color.b * 255);
-
-        sb.GarbageFreeClear();
-        sb.Append(droneName);
-        sb.Append("\t");
-        sb.Concat(curPos.x, 4);
-        sb.Append("\t");
-        sb.Concat(-curPos.z, 4); // 统一取相反数
-        sb.Append("\t");
-        sb.Concat(curPos.y, 4);
-        sb.Append("\t");
-        sb.Concat(r);
-        sb.Append("\t");
-        sb.Concat(g);
-        sb.Append("\t");
-        sb.Concat(b);
-        string s = m_StringBuildertxt;
-        return s;
     }
 }

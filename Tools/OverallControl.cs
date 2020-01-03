@@ -6,21 +6,28 @@ using DG.Tweening;
 public class OverallControl : SerializedMonoBehaviour
 {
     [LabelText("开始时间")]
+    [HideIf("eventDrive")]
     public float beginTime;
-    [LabelText("呼吸次数")][Tooltip("执行一整组命令算一次")]
-    public int breathTimes;
-    [LabelText("执行的子物体个数")][PropertyRange(0,"childCount")]
+    public bool eventDrive;
+    public int processTimes;
+    public float processInterval;
+    [LabelText("执行的子物体个数")]
+    [PropertyRange(0, "childCount")]
     public int breathChildCount;
-    public float interval = 1;
     public List<Transform> childs = new List<Transform>();
-    public List<ColorOrderBase> colorOrders;
+    [EnumToggleButtons]
+    public OrderType orderType;
+    [ShowIf("useOrderFile")]
+    public OrderData orderData;
+    public List<ColorOrderBase> ColorOrders{get{if(useOrderFile)return orderData.colorOrders;else return colorOrders;}}
+    [HideIf("useOrderFile")]
+    public List<ColorOrderBase>colorOrders;
 
-
-    
+    bool useOrderFile{get{return orderType==OrderType.OrderFile;}}
     float timer;
     bool isBegin;
-    int breathTime;
-    int childCount{get{return childs.Count;}}
+    int childCount { get { return childs.Count; } }
+    int _processTimes;
     void Awake()
     {
         if (childs.Count == 0)
@@ -32,7 +39,7 @@ public class OverallControl : SerializedMonoBehaviour
     }
     void Update()
     {
-        if (isBegin)
+        if (isBegin || eventDrive)
             return;
         if (timer < beginTime)
         {
@@ -42,37 +49,57 @@ public class OverallControl : SerializedMonoBehaviour
         {
             isBegin = true;
             Debug.Log("overallControl begin");
-            if(breathChildCount<childs.Count)
-            StartCoroutine(RandomChild());
-            else
-            StartCoroutine(ControlAll());
+            StartCoroutine(WholeProcess());
+            //SetOrders(colorOrders);
         }
     }
-    IEnumerator RandomChild()
+    IEnumerator WholeProcess()
     {
-        while (breathTime < breathTimes)
+        while(_processTimes<processTimes)
         {
-            for (int i = 0; i < breathChildCount; i++)
-            {
-                int index = Random.Range(0, childs.Count);
-                var point = childs[index].GetComponent<ColorPoint>();
-                point.SetProcessType(colorOrders);
-            }
-            breathTime += 1;
-            yield return new WaitForSeconds(interval);
+            SetOrders(ColorOrders);
+            _processTimes+=1;
+            yield return new WaitForSeconds(processInterval);
         }
     }
-    IEnumerator ControlAll()
+    public void BeginWithOrder(List<ColorOrderBase> orders)
     {
-        while (breathTime < breathTimes)
+        SetOrders(orders);
+    }
+    public void BeginWithFile(OrderData file)
+    {
+        SetOrders(file.colorOrders);
+    }
+    public void BeginWithSelf()
+    {
+        SetOrders(ColorOrders);
+    }
+    public void Test()
+    {
+        Debug.Log("!!");
+    }
+    void SetOrders(List<ColorOrderBase> orders)
+    {
+        if (breathChildCount < childs.Count)
+            RandomChild(orders);
+        else
+            ControlAll(orders);
+    }
+    void RandomChild(List<ColorOrderBase> orders)
+    {
+        for (int i = 0; i < breathChildCount; i++)
         {
-            for (int i = 0; i < childs.Count; i++)
-            {
-                var point = childs[i].GetComponent<ColorPoint>();
-                point.SetProcessType(colorOrders);
-            }
-            breathTime += 1;
-            yield return new WaitForSeconds(interval);
+            int index = Random.Range(0, childs.Count);
+            var point = childs[index].GetComponent<ColorPoint>();
+            point.SetProcessType(orders);
+        }
+    }
+    void ControlAll(List<ColorOrderBase> orders)
+    {
+        for (int i = 0; i < childs.Count; i++)
+        {
+            var point = childs[i].GetComponent<ColorPoint>();
+            point.SetProcessType(orders);
         }
     }
     [Button(ButtonSizes.Large)]

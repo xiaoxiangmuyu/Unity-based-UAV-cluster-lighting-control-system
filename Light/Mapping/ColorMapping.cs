@@ -16,7 +16,7 @@ public class ColorMapping : ColorParent
         Custom
     }
     [Tooltip("是否Log中心点位置")]
-    public bool logCenterPoint;
+    public bool logCenterPoint = false;
     [Tooltip("映射的中心点位置")]
     [ShowIf("IsCircleInOut")]
     public Vector2 centerPoint;
@@ -38,19 +38,29 @@ public class ColorMapping : ColorParent
     private float minY = 0f;
     private bool IsCircleInOut { get { return dirType == DirType.In_Out || dirType == DirType.Out_In; } }
     private bool IsCustomDir { get { return dirType == DirType.Custom; } }
+    List<Transform> filterChildren;
+    [SerializeField]
+    [HideInInspector]
     protected int intMaxX;
+    [SerializeField]
+    [HideInInspector]
     protected int intMaxY;
     public string destTagName = ""; // 需要上色的飞机的标签名，为空表示都上色
-
+    [SerializeField]
+    [HideInInspector]
     protected Dictionary<Transform, Vector2> screenPositions = new Dictionary<Transform, Vector2>();
 
     // Start is called before the first frame update
     void Awake()
     {
-        CoordinateTransformation();
+        if (screenPositions.Count == 0)
+            CoordinateTransformation();
+        if (centerPoint == Vector2.zero)
+            centerPoint = new Vector2(intMaxX / 2, intMaxY / 2);
         if (IsCircleInOut)
             InitCircleDistance();
-        Debug.Log("intMaxX:"+intMaxX+"   intMaxY"+intMaxY);
+        if (logCenterPoint)
+            Debug.Log("intMaxX:" + intMaxX + "   intMaxY" + intMaxY);
     }
 
     // Update is called once per frame
@@ -61,7 +71,9 @@ public class ColorMapping : ColorParent
     void InitCircleDistance()
     {
         if (logCenterPoint)
+        {
             Debug.Log(gameObject.name + "的渐变中心点为" + new Vector2(intMaxX / 2, intMaxY / 2));
+        }
         foreach (var obj in screenPositions.Keys)
         {
             if (Vector2.Distance(screenPositions[obj], centerPoint) > maxDistance)
@@ -71,14 +83,20 @@ public class ColorMapping : ColorParent
     /// <summary>
     /// 将飞机的世界坐标转为屏幕坐标，并计算最大宽度和高度
     /// </summary>
+    [Button(ButtonSizes.Gigantic)]
+    [LabelText("记录映射信息")]
     private void CoordinateTransformation()
     {
+        if (screenPositions.Count != 0)
+            screenPositions.Clear();
+
+
         if (transform.childCount > 0)
         {
             Vector3 axis = Vector3.zero;
             screenPositions.Clear();
             Transform[] children = GetComponentsInChildren<Transform>();
-            List<Transform> filterChildren = new List<Transform>();
+            filterChildren = new List<Transform>();
 
             // 记录需要上色的飞机
             foreach (Transform child in children)
@@ -190,6 +208,15 @@ public class ColorMapping : ColorParent
         }
         Debug.LogError("没有找到映射颜色__" + trans.name);
         return Color.white;
+    }
+    [Button(ButtonSizes.Gigantic)]
+    void AddTagToChildren(string tag)
+    {
+        foreach (var child in GetComponentsInChildren<ColorPoint>())
+        {
+            if (!child.GetComponent<ColorPoint>().filterTags.Contains(tag))
+                child.GetComponent<ColorPoint>().AddTag(tag);
+        }
     }
 
 }

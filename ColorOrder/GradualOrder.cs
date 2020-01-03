@@ -65,6 +65,15 @@ public class DoColor : GradualOrder
                 {
                     targetColor = point.originalColor; break;
                 }
+            case ColorType.Dark:
+                {
+                    Color ori = point.mat.color;
+                    float h, s, v;
+                    Color.RGBToHSV(ori, out h, out s, out v);
+                    s = s / 2;
+                    targetColor = Color.HSVToRGB(h, s, v);
+                    break;
+                }
 
         }
         if (recordColor)

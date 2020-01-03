@@ -1,0 +1,176 @@
+﻿using System.Collections.Generic;
+using System.Text;
+using UnityEngine;
+using System.Collections;
+public class MovementCheck : MonoBehaviour
+{
+    struct info
+    {
+        public info(string name, float x, float z, float y, int r, int g, int b)
+        {
+            this.name = name;
+            this.x = x;
+            this.y = y;
+            this.z = z;
+            this.r = r;
+            this.g = g;
+            this.b = b;
+        }
+        public string name;
+        public float x, y, z;
+        public int r, g, b;
+    }
+    private Queue<info> pointInfo;
+    private Vector3 lastPos;
+    private List<string> infos;
+    private float distance;
+    private float maxDistance;
+    private MovementManager movementManager;
+    private Renderer curRenderer;
+    private Material mat;
+    private StringBuilder sb = new StringBuilder();
+    private int r;
+    private int g;
+    private int b;
+
+    private void Awake()
+    {
+        pointInfo = new Queue<info>();
+        movementManager = GetComponentInParent<MovementManager>();
+        if (!movementManager.isWorking)
+            return;
+        curRenderer = GetComponent<Renderer>();
+        if (curRenderer)
+        {
+            mat = curRenderer.material;
+        }
+        lastPos = TruncVector3(transform.position);
+        infos = new List<string>();
+        maxDistance = 0f;
+
+
+        RecordInfo(lastPos);
+        //StartCoroutine(ProcessModel());
+    }
+
+    // Update is called once per frame
+    void LateUpdate()
+    {
+        if (!movementManager.isWorking)
+            return;
+        if (movementManager.GetIsFinished()) // 动画播放完毕或静态画面达到持续时间后则不再进行检测
+        {
+            return;
+        }
+
+        //Vector3 curPos = TruncVector3(transform.position);
+        Vector3 curPos = transform.position;
+
+        distance = Vector3.Distance(curPos, lastPos);
+
+        if (distance > maxDistance)
+        {
+            maxDistance = distance;
+        }
+
+        lastPos = curPos;
+
+        if (distance <= movementManager.GetLimitedSpeed())
+        {
+            RecordInfo(curPos);
+        }
+        else
+        {
+            Debug.LogError("当前速度:" + distance);
+        }
+    }
+
+    private void RecordInfo(Vector3 curPos)
+    {
+        r = Mathf.FloorToInt(mat.color.r * 255);
+        g = Mathf.FloorToInt(mat.color.g * 255);
+        b = Mathf.FloorToInt(mat.color.b * 255);
+
+        pointInfo.Enqueue(new info(name, curPos.x, -curPos.z, curPos.y, r, g, b));
+        // sb.Clear();
+        // sb.Append(name+"\t"+curPos.x+"\t"+-curPos.z+"\t"+curPos.y+"\t"+r+"\t"+g+"\t"+b);
+        // sb.Append(name);
+        // sb.Append("\t");
+        // sb.Append(curPos.x);
+        // sb.Append("\t");
+        // sb.Append(-curPos.z); // 统一取相反数
+        // sb.Append("\t");
+        // sb.Append(curPos.y);
+        // sb.Append("\t");
+        // sb.Append(r);
+        // sb.Append("\t");
+        // sb.Append(g);
+        // sb.Append("\t");
+        // sb.Append(b);
+        //infos.Add(sb.ToString());
+    }
+
+    public float GetMaxDistance()
+    {
+        return maxDistance;
+    }
+
+    public List<string> GetInfos()
+    {
+        // foreach(var info in pointInfo)
+        // {
+        //     sb.Append(info.name+"\t"+info.x+"\t"+info.z+"\t"+info.y+"\t"+info.r+"\t"+info.g+"\t"+info.b+"\n");
+        // }
+        // infos.Add(sb.ToString());
+        return infos;
+    }
+    string tmp;
+    float result;
+    private float Trunc(float num)
+    {
+        tmp = num.ToString("f4");
+        result = float.Parse(tmp);
+        return result;
+    }
+
+    private Vector3 TruncVector3(Vector3 v)
+    {
+        float x = Trunc(v.x);
+        float y = Trunc(v.y);
+        float z = Trunc(v.z);
+
+        return new Vector3(x, y, z);
+    }
+    public void Process()
+    {
+        var info = pointInfo.Dequeue();
+        sb.Append(info.name + "\t" + info.x + "\t" + info.z + "\t" + info.y + "\t" + info.r + "\t" + info.g + "\t" + info.b + "\n");
+        infos.Add(sb.ToString());
+        if(pointInfo.Count==0&&movementManager.isFinished)
+        {
+            movementManager.WaitProcessChilds.Remove(this);
+        }
+    }
+    private float limitDeltaTime = 0.04f;
+    IEnumerator ProcessModel()
+    {
+
+        while (true)
+        {
+            if (movementManager.isFinished && pointInfo.Count == 0)
+                break;
+            if (movementManager.isFinished)
+                limitDeltaTime = 1;
+            while (pointInfo.Count != 0 && Time.deltaTime <= limitDeltaTime)
+            {
+                var info = pointInfo.Dequeue();
+                sb.Append(info.name + "\t" + info.x + "\t" + info.z + "\t" + info.y + "\t" + info.r + "\t" + info.g + "\t" + info.b + "\n");
+                infos.Add(sb.ToString());
+                yield return new WaitForEndOfFrame();
+            }
+            yield return new WaitForEndOfFrame();
+        }
+        movementManager.childReadyCount += 1;
+        Debug.Log("process finish");
+    }
+}
