@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using DG.Tweening;
 public class SceneEditor : Editor
 {
     [InitializeOnLoadMethod]
@@ -18,6 +19,8 @@ public class SceneEditor : Editor
             GenericMenu menu = new GenericMenu();
             menu.AddItem(new GUIContent("显示"), false, Show, "menu_1");
             menu.AddItem(new GUIContent("隐藏"), false, Hide, "menu_2");
+            menu.AddItem(new GUIContent("Dotween手动模式"), false, DotweenManualUpdate, "menu_2");
+            menu.AddItem(new GUIContent("Dotween普通模式"), false, DotweenNormalUpdate, "menu_2");
             //menu.AddItem(new GUIContent("显示名字"), false, delegate{ShowSceneObjName.Show=true;}, "menu_2");
             //menu.AddItem(new GUIContent("隐藏名字"), false, delegate{ShowSceneObjName.Show=false;}, "menu_2");
 
@@ -39,7 +42,14 @@ public class SceneEditor : Editor
         color.a = 0.01f;
         mat.color = color;
     }
-
+    static void DotweenManualUpdate(object userData)
+    {
+        DOTween.defaultUpdateType=UpdateType.Manual;
+    }
+    static void DotweenNormalUpdate(object userData)
+    {
+        DOTween.defaultUpdateType=UpdateType.Normal;
+    }
     public class ShowSceneObjName : Editor
     {
         public static bool Show;

@@ -11,6 +11,7 @@ public class MovementCheck : MonoBehaviour
     private MovementManager movementManager;
     private Renderer curRenderer;
     private Material mat;
+    private string droneName;
     bool firstFrameIgnore;
 
     private void Awake()
@@ -28,6 +29,7 @@ public class MovementCheck : MonoBehaviour
         colorInfos = new List<Color>();
         maxDistance = 0f;
         //RecordInfo(lastPos, mat.color);
+        droneName = name;
     }
 
     // Update is called once per frame
@@ -44,7 +46,7 @@ public class MovementCheck : MonoBehaviour
         if (!firstFrameIgnore)
         {
             distance = 0;
-            firstFrameIgnore=true;
+            firstFrameIgnore = true;
         }
         else
             distance = Vector3.Distance(curPos, lastPos);
@@ -52,8 +54,8 @@ public class MovementCheck : MonoBehaviour
         if (distance > maxDistance)
         {
             maxDistance = distance;
-            if(maxDistance>movementManager.GetLimitedSpeed()&&movementManager.isSpeedTest)
-            Debug.LogError(gameObject.name+"超速！ "+"最大距离:"+maxDistance);
+            if (maxDistance > movementManager.GetLimitedSpeed() && movementManager.isSpeedTest)
+                Debug.LogError(gameObject.name + "超速！ " + "最大距离:" + maxDistance);
         }
 
         lastPos = curPos;
@@ -85,7 +87,6 @@ public class MovementCheck : MonoBehaviour
     {
         return colorInfos;
     }
-
     string tmp;
     float result;
     private float Trunc(float num)
@@ -102,5 +103,10 @@ public class MovementCheck : MonoBehaviour
         float z = Trunc(v.z);
 
         return new Vector3(x, y, z);
+    }
+
+    public string GetDroneName()
+    {
+        return droneName;
     }
 }

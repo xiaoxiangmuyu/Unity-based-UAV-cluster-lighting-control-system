@@ -7,11 +7,17 @@ public class TxtAnimBehavior : PlayableBehaviour
 {
     public TxtForAnimation script;
     public PlayableDirector director;
+    public MovementManager movementManager;
+    int curframe;
     
     public override void ProcessFrame(Playable playable, FrameData info, object playerData)
     {
-        DOTween.ManualUpdate(0.04f, 0.04f);
+        //DOTween.ManualUpdate(0.04f, 0.04f);
+        if(!movementManager.needExport)
         UpdatePos();
+        else
+        UpdatePosFrameByFrame();
+
     }
     public override void OnBehaviourPlay(Playable playable, FrameData info)
     {
@@ -19,12 +25,23 @@ public class TxtAnimBehavior : PlayableBehaviour
     }
     public override void OnGraphStart(Playable playable)
     {      
-        //Debug.Log("OnGraphStart");
+        //DOTween.KillAll();
+        
     }
     void UpdatePos()
     {
         if(!script)
         return;
-        script.MyUpdate(Mathf.RoundToInt((float)director.time*25));
+        curframe=Mathf.FloorToInt((float)director.time*25);
+        //Debug.Log(curframe);
+        script.MyUpdate(curframe);
+    }
+    void UpdatePosFrameByFrame()
+    {
+        if(!script)
+        return;
+        //Debug.Log(curframe);
+        script.MyUpdate(curframe);
+        curframe+=1;
     }
 }

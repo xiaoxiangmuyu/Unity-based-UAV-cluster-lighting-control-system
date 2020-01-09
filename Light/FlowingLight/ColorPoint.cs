@@ -22,7 +22,7 @@ public class ColorPoint : MonoBehaviour
 
     #region Colors
     public Color TextureColor { get { return GetTextureColor(); } }
-    public Color flowTextureColor { get { var temp = colorParent as OffsetMapping; return temp.GetMappingColor(transform); } }
+    public Color flowTextureColor { get { var temp = colorParent as OffsetMapping;if(!temp){Debug.LogError("flowTextureColor为空");return Color.white;} return temp.GetMappingColor(transform); } }
     //public Color hsvColor { get { return GetColorByHSV(); } }
     public Color randomColor
     {
@@ -90,7 +90,7 @@ public class ColorPoint : MonoBehaviour
             Debug.LogError("碰撞体没有TriggerBase组件");
             return;
         }
-        if (TriggerBase.isRecordMode)
+        if (TriggerBase.record!=null)
         {
             if (TriggerBase.record.objParent == string.Empty)
                 TriggerBase.record.objParent = transform.root.name;
@@ -251,6 +251,11 @@ public class ColorPoint : MonoBehaviour
     private Color GetTextureColor()
     {
         TextureMapping textureMapping = colorParent as TextureMapping;
+        if (!textureMapping)
+        {
+            Debug.LogError(gameObject.name + "TextureMapping为空");
+            return Color.white;
+        }
         texCounter += 1;
         if (texCounter <= textureMapping.texChangeCount)
         {
@@ -273,6 +278,11 @@ public class ColorPoint : MonoBehaviour
     private Color GetMappingColor()
     {
         ColorMapping colorMapping = colorParent as ColorMapping;
+        if (!colorMapping)
+        {
+            Debug.LogError(gameObject.name + "ColorMapping为空");
+            return Color.white;
+        }
         texCounter += 1;
         if (texCounter <= colorMapping.ColorChangeCount)
         {

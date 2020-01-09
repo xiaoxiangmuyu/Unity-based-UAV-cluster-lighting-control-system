@@ -7,7 +7,7 @@ using UnityEngine.Timeline;
 using UnityEngine.Playables;
 public class MovementManager : MonoBehaviour
 {
-    public bool isSpeedTest{get{return GetComponent<Animator>().enabled==true;}}
+    public bool isSpeedTest { get { return GetComponent<Animator>().enabled == true; } }
     public bool isWorking;
     public float staticTime = 10f; // 静态表演时间
     public bool needExport = false; // 是否导出TXT
@@ -33,7 +33,6 @@ public class MovementManager : MonoBehaviour
         "n-m6-static","p-m7-static","r-m8-static","t-m9-static"};
 
     private StringBuilder sb = new StringBuilder(50, 50);
-    string m_StringBuildertxt = string.Empty;
     private int r, g, b;
 
     void Awake()
@@ -41,7 +40,6 @@ public class MovementManager : MonoBehaviour
         if (!isWorking)
             return;
 
-        //m_StringBuildertxt = sb.GetGarbageFreeString();
         animator = GetComponent<Animator>();
         isFinished = false;
         maxDistance = 0f;
@@ -106,6 +104,11 @@ public class MovementManager : MonoBehaviour
         if (movementChecks.Count % 50 != 0)
         {
             Debug.LogError("飞机数量有问题：" + movementChecks.Count);
+            movementChecks.Sort((a,b)=>int.Parse(a.name)-int.Parse(b.name));
+            foreach(var a in movementChecks)
+            {
+                Debug.Log(a.name);
+            }
         }
     }
     void Update()
@@ -198,10 +201,13 @@ public class MovementManager : MonoBehaviour
             {
                 return;
             }
-            if (!GetComponent<TxtForAnimation>().HasFinish)
+            if (GetComponent<TxtForAnimation>())
             {
-                Debug.LogError("导出时间过短，动画没播放完");
-                return;
+                if (!GetComponent<TxtForAnimation>().HasFinish)
+                {
+                    Debug.LogError("导出时间过短，动画没播放完");
+                    return;
+                }
             }
             if (needExport)
             {
@@ -285,7 +291,7 @@ public class MovementManager : MonoBehaviour
                         continue;
                     }
 
-                    droneName = movementCheck.name;
+                    droneName = movementCheck.GetDroneName();
                     path = exportPath + "/" + droneName + ".txt";
 
                     if (File.Exists(path))
@@ -342,7 +348,7 @@ public class MovementManager : MonoBehaviour
 
                 if (movementCheck != null)
                 {
-                    droneName = movementCheck.name;
+                    droneName = movementCheck.GetDroneName();
                     posInfos = movementCheck.GetPosInfos();
                     colorInfos = movementCheck.GetColorInfos();
 
@@ -411,7 +417,7 @@ public class MovementManager : MonoBehaviour
                 if (movementCheck != null)
                 {
                     posInfos = movementCheck.GetPosInfos();
-                    droneName = movementCheck.name;
+                    droneName = movementCheck.GetDroneName();
                 }
 
                 if (posInfos == null)
@@ -477,29 +483,5 @@ public class MovementManager : MonoBehaviour
         sb.Append("\t");
         sb.Append(b);
         return sb.ToString();
-    }
-
-    private string GetExportInfoWithoutGC(Vector3 curPos, Color color, string droneName)
-    {
-        r = Mathf.FloorToInt(color.r * 255);
-        g = Mathf.FloorToInt(color.g * 255);
-        b = Mathf.FloorToInt(color.b * 255);
-
-        sb.GarbageFreeClear();
-        sb.Append(droneName);
-        sb.Append("\t");
-        sb.Concat(curPos.x, 4);
-        sb.Append("\t");
-        sb.Concat(-curPos.z, 4); // 统一取相反数
-        sb.Append("\t");
-        sb.Concat(curPos.y, 4);
-        sb.Append("\t");
-        sb.Concat(r);
-        sb.Append("\t");
-        sb.Concat(g);
-        sb.Append("\t");
-        sb.Concat(b);
-        string s = m_StringBuildertxt;
-        return s;
     }
 }

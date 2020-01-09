@@ -19,7 +19,8 @@ public class RecordBehavior : PlayableBehaviour
     float timer;
     bool hasInit;
     bool needResetState { get { return hasProcess.Exists((x) => x == true); } }
-    int _beginPos { get { if (record.beginPos == 1) return Mathf.RoundToInt(objs.Count * record.beginPos) - 1; else return Mathf.RoundToInt(objs.Count * record.beginPos); } }
+    Vector2 workRange { get { return record.workRange; } }
+
     // Called when the owning graph starts playing
     public override void OnGraphStart(Playable playable)
     {
@@ -28,6 +29,7 @@ public class RecordBehavior : PlayableBehaviour
             Init();
         if (needResetState)
             ResetState();
+        playable.SetDuration(6.66d);
     }
 
     // Called when the owning graph stops playing
@@ -61,7 +63,6 @@ public class RecordBehavior : PlayableBehaviour
 
         //Debug.Log(scriptPlayable.GetHashCode() + "被销毁");
     }
-    int index;
     bool isFinish;
     // Called each frame while the state is set to Play
     public override void ProcessFrame(Playable playable, FrameData info, object playerData)
@@ -81,37 +82,46 @@ public class RecordBehavior : PlayableBehaviour
     }
     void Process(bool isflip)
     {
-        index = 0;
+        int counter=0;
+        int timeIndex=0;
         if (!isflip)
         {
-            for (int i = _beginPos; index < objs.Count; i++)
+            for (int i = (int)workRange.x; i <= (int)workRange.y; i++)
             {
                 if (i > objs.Count - 1)
                 {
                     i = i - objs.Count;
                 }
-                if (timer >= times[index] && hasProcess[i] == false)
+                if (record.timeInit)
+                    timeIndex = counter;
+                else
+                    timeIndex = i;
+                if (timer >= times[timeIndex] && hasProcess[i] == false)
                 {
                     objs[i].GetComponent<ColorPoint>().SetProcessType(orders, record.forceMode);
                     hasProcess[i] = true;
                 }
-                index += 1;
+                counter += 1;
             }
         }
         else
         {
-            for (int i = _beginPos; index < objs.Count; i--)
+            for (int i = (int)workRange.y; i >= (int)workRange.x; i--)
             {
                 if (i < 0)
                 {
                     i = i + objs.Count;
                 }
-                if (timer >= times[index] && hasProcess[i] == false)
+                if (record.timeInit)
+                    timeIndex = counter;
+                else
+                    timeIndex = i;
+                if (timer >= times[timeIndex] && hasProcess[i] == false)
                 {
                     objs[i].GetComponent<ColorPoint>().SetProcessType(orders, record.forceMode);
                     hasProcess[i] = true;
                 }
-                index += 1;
+                counter += 1;
             }
         }
         // if (!hasProcess.Exists((x) => x == false))

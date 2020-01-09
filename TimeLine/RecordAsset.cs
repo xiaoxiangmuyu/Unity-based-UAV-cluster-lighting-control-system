@@ -18,12 +18,14 @@ public class RecordAsset : SerializedScriptableObject, IPlayableAsset
     [BoxGroup("Behavior Property")]
     public float speed = 1;
     [BoxGroup("Behavior Property")]
-    [Range(0, 1)]
-    public float beginPos = 0;
+    [MinMaxSlider(0, "ObjCount",true)]
+    public Vector2 workRange;
     [BoxGroup("Behavior Property")]
     public bool isflip;
     [BoxGroup("Behavior Property")]
     public bool forceMode;
+    [BoxGroup("Behavior Property")]
+    public bool timeInit;
     public double myDuration;
 
 
@@ -50,27 +52,31 @@ public class RecordAsset : SerializedScriptableObject, IPlayableAsset
 
 
     bool useOrderFile { get { return orderType == OrderType.OrderFile; } }
+    int ObjCount { get { if (objs != null) return objs.Count - 1; else return 0; } }
     ScriptPlayable<RecordBehavior> scriptPlayable;
     [Button(ButtonSizes.Large)]
     public void Clear()
     {
         objs = new List<string>();
         times = new List<float>();
-        objParent=string.Empty;
+        objParent = string.Empty;
     }
     public Playable CreatePlayable(PlayableGraph graph, GameObject owner)
     {
-        scriptPlayable = ScriptPlayable<RecordBehavior>.Create(graph);
+        RecordBehavior behavior = new RecordBehavior();
         if (orderType == OrderType.OrderFile)
         {
-            scriptPlayable.GetBehaviour().orders = orderData.colorOrders;
+            behavior.orders = orderData.colorOrders;
         }
         else
         {
-            scriptPlayable.GetBehaviour().orders = colorOrders;
+            behavior.orders = colorOrders;
         }
-        scriptPlayable.GetBehaviour().record = this;
-        scriptPlayable.GetBehaviour().scriptPlayable=scriptPlayable;
+        behavior.record = this;
+        behavior.scriptPlayable = scriptPlayable;
+        scriptPlayable = ScriptPlayable<RecordBehavior>.Create(graph, behavior);
+        if(workRange==Vector2.zero)
+        workRange=new Vector2(0,ObjCount);
         return scriptPlayable;
 
     }

@@ -6,8 +6,6 @@ using DG.Tweening;
 public class TriggerBase : SerializedMonoBehaviour
 {
     public bool useExitOrder;
-    public bool isRecordMode;
-    [ShowIf("isRecordMode")]
     public RecordAsset record;
     [HideInInspector]
     public float recordTimer;
@@ -32,13 +30,14 @@ public class TriggerBase : SerializedMonoBehaviour
 
     protected virtual void Awake()
     {
-        if (isRecordMode)
-        {
-            record.Clear();
-        }
+        
     }
     void Start()
     {
+        if (record!=null)
+        {
+            record.Clear();
+        }
     }
     // Update is called once per frame
     void Update()

@@ -37,6 +37,8 @@ public class TxtForAnimation : MonoBehaviour
     [ReadOnly]
     public int totalFrameCount;
     public bool HasFinish { get { return hasFinish; } }
+    [ShowInInspector]
+    public int childCount{get{if(childs!=null)return childs.Count;else return 0;}}
     #endregion
 
     #region {Private field}
@@ -52,12 +54,18 @@ public class TxtForAnimation : MonoBehaviour
     [SerializeField]
     [HideInInspector]
     private List<Transform> childs;
+    bool isExportMode;
     #endregion
     private void Awake()
     {
         AnimatorCheck();
         if (!hasInit)
             Init();
+    }
+    void Start()
+    {
+        if(GetComponent<MovementManager>().needExport)
+        isExportMode=true;
     }
     void AnimatorCheck()
     {
@@ -132,7 +140,8 @@ public class TxtForAnimation : MonoBehaviour
                 int temp;
                 if (!int.TryParse(tra.GetChild(i).name, out temp))
                     continue;
-                childs.Add(tra.GetChild(i));
+                Transform child=tra.GetChild(i);
+                childs.Add(child);
             }
             else
                 AddChild(tra.GetChild(i));
@@ -154,8 +163,8 @@ public class TxtForAnimation : MonoBehaviour
     // Update is called once per frame
     public void MyUpdate(int frame)
     {
-        // if (hasFinish)
-        //     return;
+        if (hasFinish&&isExportMode)
+            return;
         if (frame >= totalFrameCount)
         {
             Debug.Log("播放完成,共" + frame + "帧");
@@ -173,7 +182,10 @@ public class TxtForAnimation : MonoBehaviour
             // Debug.LogError("i超出范围:"+i.ToString());
             // if(curFrameindex>cords[0].Count-1)
             // Debug.LogError("curFrameindex超出范围:"+curFrameindex.ToString());
-            childs[i].transform.position = cords[i].GetPos(frame);
+            Vector3 pos=cords[i].GetPos(frame);
+            //Debug.Log(pos);
+            childs[i].transform.position = pos;
+            //Debug.Log(childs[i].transform.position);
         }
     }
 }
