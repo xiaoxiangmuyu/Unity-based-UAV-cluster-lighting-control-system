@@ -3,26 +3,33 @@ using System.Collections.Generic;
 using UnityEngine;
 using Sirenix.OdinInspector;
 using DG.Tweening;
-[RequireComponent(typeof(BoxCollider))]
+[RequireComponent(typeof(SphereCollider))]
 public class ColorPoint : MonoBehaviour
 {
-    private Renderer curRenderer;
-    [HideInInspector]
-    public Material mat;
-    protected ColorParent colorParent;
+    Renderer curRenderer;
+    ColorParent colorParent;
     PointState state;
+
+
+    [HideInInspector]
+    public Material mat { get; private set; }
+
+
     [ShowInInspector]
     [PropertyOrder(1)]
     public PointState State { get { return state; } }
+
+
     [ReadOnly]
     public Color originalColor;
+
+
     [PropertyOrder(2)]
     public List<string> filterTags = new List<string>();
 
 
     #region Colors
-    public Color TextureColor { get { return GetTextureColor(); } }
-    public Color flowTextureColor { get { var temp = colorParent as OffsetMapping;if(!temp){Debug.LogError("flowTextureColor为空");return Color.white;} return temp.GetMappingColor(transform); } }
+    public Color flowTextureColor { get { var temp = colorParent as OffsetMapping; if (!temp) { Debug.LogError("flowTextureColor为空"); return Color.white; } return temp.GetMappingColor(transform); } }
     //public Color hsvColor { get { return GetColorByHSV(); } }
     public Color randomColor
     {
@@ -34,21 +41,18 @@ public class ColorPoint : MonoBehaviour
             return new Color(red, green, blue);
         }
     }
-    public Color mappingColor { get { return GetMappingColor(); } }
-    float h, s, v;//for hsv effect
-    float _h, _s, _v;//for dark effect
     #endregion
 
 
-    private void WorkBegin()
+    void WorkBegin()
     {
         state = PointState.Busy;
     }
-    private void WorkComplete()
+    void WorkComplete()
     {
         state = PointState.Idle;
     }
-    protected virtual void Awake()
+    void Awake()
     {
         curRenderer = GetComponent<Renderer>();
 
@@ -71,7 +75,8 @@ public class ColorPoint : MonoBehaviour
         colorParent = GetComponentInParent<ColorParent>();
     }
 
-    private void OnTriggerEnter(Collider other)
+
+    void OnTriggerEnter(Collider other)
     {
         TriggerBase TriggerBase = other.GetComponent<TriggerBase>();
         if (TriggerBase)
@@ -90,7 +95,7 @@ public class ColorPoint : MonoBehaviour
             Debug.LogError("碰撞体没有TriggerBase组件");
             return;
         }
-        if (TriggerBase.record!=null)
+        if (TriggerBase.record != null)
         {
             if (TriggerBase.record.objParent == string.Empty)
                 TriggerBase.record.objParent = transform.root.name;
@@ -120,42 +125,55 @@ public class ColorPoint : MonoBehaviour
             SetProcessType(TriggerBase.colorOrders);
         }
     }
-    private void OnTriggerExit(Collider other)
+
+
+    void OnTriggerExit(Collider other)
+    {
+        if (!isTriggerTarget(other))
+            return;
+        if (other.GetComponent<TriggerBase>().useExitOrder)
+        {
+            SetProcessType(other.GetComponent<TriggerBase>().exitOrders);
+        }
+    }
+    bool isTriggerTarget(Collider other)
     {
         TriggerBase TriggerBase = other.GetComponent<TriggerBase>();
         if (TriggerBase)
         {
             if ((TriggerBase.targetTags.Count != 0) && !FilterCompare(TriggerBase.targetTags))
             {
-                return;
+                return false;
             }
             if ((TriggerBase.ignoreTags.Count != 0) && FilterCompare(TriggerBase.targetTags))
             {
-                return;
+                return false;
             }
         }
         else
         {
             Debug.LogError("碰撞体没有TriggerBase组件");
-            return;
+            return false;
         }
-        if (TriggerBase.useExitOrder)
-        {
-            SetProcessType(TriggerBase.exitOrders);
-        }
+        return true;
     }
 
-    public void SetProcessType(List<ColorOrderBase> colorOrders, bool forceMode = false)
+    bool FilterCompare(List<string> tags)
     {
-        if (state == PointState.Busy && !forceMode)
+        foreach (var tag in tags)
         {
-            return;
+            foreach (var thisTag in this.filterTags)
+            {
+                if (string.Equals(thisTag, tag))
+                {
+                    return true;
+                }
+            }
         }
-        WorkBegin();
-        Sequence sequence = DOTween.Sequence();
-        sequence.Append(ProcessOrder(colorOrders));
-        sequence.AppendCallback(delegate { WorkComplete(); });
+        return false;
     }
+
+
     Sequence ProcessOrder(List<ColorOrderBase> colorOrders)
     {
         Sequence sequence = DOTween.Sequence();
@@ -208,47 +226,11 @@ public class ColorPoint : MonoBehaviour
         }
         return sequence;
     }
-    public void GradualColor(Color color, float during)
-    {
-        Sequence sequence = DOTween.Sequence();
-        sequence.Append(mat.DOColor(color, during));
-    }
-    // public void ShowColorMapping(float during = 0)
-    // {
-    //     colorParent.SetColor(transform);
-    //     if (during == 0)
-    //         return;
-    //     StartCoroutine(DelayFunc(during, delegate { mat.color=Color.black; }));
-    // }
-    private IEnumerator DelayFunc(float delayTime, System.Action callback)
-    {
-        yield return new WaitForSeconds(delayTime);
-        callback();
-    }
 
-    public void SetColor(Color targetColor, bool needResetColor = false, float CDTime = 0.1f)
-    {
-        if (mat)
-        {
-            if (mat.color != targetColor)
-            {
-                originalColor = mat.color;
-                mat.color = targetColor;
 
-                if (needResetColor)
-                {
-                    StartCoroutine(DelayFunc(CDTime, delegate { mat.color = originalColor; }));
-                }
-            }
-        }
-        else
-        {
-            Debug.LogError("Material is null" + gameObject.name);
-        }
-    }
     int texIndex;
     int texCounter;
-    private Color GetTextureColor()
+    public Color GetTextureColor(int targetTexIndex=-1)
     {
         TextureMapping textureMapping = colorParent as TextureMapping;
         if (!textureMapping)
@@ -256,6 +238,9 @@ public class ColorPoint : MonoBehaviour
             Debug.LogError(gameObject.name + "TextureMapping为空");
             return Color.white;
         }
+        if(targetTexIndex!=-1)
+        return textureMapping.GetMappingColor(transform, targetTexIndex);
+
         texCounter += 1;
         if (texCounter <= textureMapping.texChangeCount)
         {
@@ -275,7 +260,9 @@ public class ColorPoint : MonoBehaviour
             return textureMapping.GetMappingColor(transform, texIndex);
         }
     }
-    private Color GetMappingColor()
+
+
+    public Color GetMappingColor(int targetTexIndex=-1)
     {
         ColorMapping colorMapping = colorParent as ColorMapping;
         if (!colorMapping)
@@ -283,6 +270,9 @@ public class ColorPoint : MonoBehaviour
             Debug.LogError(gameObject.name + "ColorMapping为空");
             return Color.white;
         }
+        if(targetTexIndex!=-1)
+        return colorMapping.GetMappingColor(transform, targetTexIndex);
+
         texCounter += 1;
         if (texCounter <= colorMapping.ColorChangeCount)
         {
@@ -302,6 +292,9 @@ public class ColorPoint : MonoBehaviour
             return colorMapping.GetMappingColor(transform, texIndex);
         }
     }
+
+
+    float h, s, v;//for hsv effect
     public Color GetColorByHSV(Vector3 value)
     {
         //Color.RGBToHSV(mat.color, out h, out s, out v);
@@ -314,6 +307,8 @@ public class ColorPoint : MonoBehaviour
         return targetColor;
     }
 
+
+    float _h, _s, _v;//for dark effect
     public Color GetDarkColor(Vector2 value)
     {
         if (Color.Equals(originalColor, new Color(0, 0, 0, 0)))
@@ -322,32 +317,26 @@ public class ColorPoint : MonoBehaviour
         Color targetColor = Color.HSVToRGB(_h, value.x, value.y);
         return targetColor;
     }
-    public Color GetOriginalColor()
+
+
+    public void SetProcessType(List<ColorOrderBase> colorOrders, bool forceMode = false)
     {
-        return originalColor;
-    }
-    public void TurnOff()
-    {
-        mat.color = Color.black;
-    }
-    private bool FilterCompare(List<string> tags)
-    {
-        foreach (var tag in tags)
+        if (state == PointState.Busy && !forceMode)
         {
-            foreach (var thisTag in this.filterTags)
-            {
-                if (string.Equals(thisTag, tag))
-                {
-                    return true;
-                }
-            }
+            return;
         }
-        return false;
+        WorkBegin();
+        Sequence sequence = DOTween.Sequence();
+        sequence.Append(ProcessOrder(colorOrders));
+        sequence.AppendCallback(delegate { WorkComplete(); });
     }
+
+
     [Button(ButtonSizes.Gigantic)]
     public void AddTag(string tag)
     {
         filterTags.Add(tag);
     }
+
 
 }

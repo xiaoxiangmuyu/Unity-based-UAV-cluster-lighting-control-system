@@ -15,25 +15,31 @@ public class DoColor : GradualOrder
 {
     [LabelText("是否记录颜色"), ShowIf("hideGradient")]
     public bool recordColor;
+
     [HideIf("hideColor")]
     [BoxGroup("Color")]
     [PropertyOrder(10)]
     public Color color = Color.white;
+
     [HideIf("hideGradient"), BoxGroup("Color")]
     public Gradient gradient;
+
     [EnumToggleButtons, HideLabel]
     [BoxGroup("Color")]
     [PropertyOrder(10)]
     public ColorType colorType;
+
     [MinValue(0)]
     [HorizontalGroup]
     [LabelText("持续时间")]
     public float during;
+
     [MaxValue(1)]
     [ShowIf("showHSVInfo")]
     [PropertyOrder(1)]
     [BoxGroup("Color")]
     public Vector3 hsvValue;
+
     [MinValue(0)]
     [MaxValue(1)]
     [ShowIf("showDarkInfo")]
@@ -41,12 +47,18 @@ public class DoColor : GradualOrder
     [BoxGroup("Color")]
     public Vector2 darkValue;
 
+    [ShowIf("showTextureMappingInfo")][BoxGroup("Color")]
+    public int textureIndex;
+    [ShowIf("showColorMappingInfo")][BoxGroup("Color")]
+    public int colorIndex;
 
 
     bool hideColor { get { return colorType != ColorType.SingleColor; } }
     bool hideGradient { get { return colorType != ColorType.Gradient; } }
     bool showHSVInfo { get { return colorType == ColorType.HSV; } }
     bool showDarkInfo { get { return colorType == ColorType.Dark; } }
+    bool showColorMappingInfo { get { return colorType == ColorType.ColorMapping; } }
+    bool showTextureMappingInfo{ get { return colorType == ColorType.TextureMapping; } }
 
     public override Tween GetOrder(ColorPoint point)
     {
@@ -59,11 +71,11 @@ public class DoColor : GradualOrder
                 }
             case ColorType.TextureMapping:
                 {
-                    targetColor = point.TextureColor; break;
+                    targetColor = point.GetTextureColor(textureIndex); break;
                 }
             case ColorType.ColorMapping:
                 {
-                    targetColor = point.mappingColor; break;
+                    targetColor = point.GetMappingColor(colorIndex); break;
                 }
             case ColorType.Random:
                 {
@@ -96,8 +108,8 @@ public class DoColor : GradualOrder
 
         if (!hideGradient)
         {
-            if(during==0)
-            Debug.LogError("渐进颜色持续时间不能为0"+point.gameObject.name);
+            if (during == 0)
+                Debug.LogError("渐进颜色持续时间不能为0" + point.gameObject.name);
             return point.mat.DOGradientColor(gradient, during);
         }
         else
@@ -106,10 +118,5 @@ public class DoColor : GradualOrder
         // return null;
     }
 }
-// [System.Serializable][LabelText("命令组")]
-// public class OrderGroup:GradualOrder
-// {
-//     public List<ColorOrderBase>colorOrders=new List<ColorOrderBase>();
 
-//}
 
