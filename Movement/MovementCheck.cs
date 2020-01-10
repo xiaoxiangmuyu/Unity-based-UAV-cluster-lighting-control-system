@@ -95,7 +95,7 @@ public class MovementCheck : MonoBehaviour
         result = float.Parse(tmp);
         return result;
     }
-
+    
     private Vector3 TruncVector3(Vector3 v)
     {
         float x = Trunc(v.x);

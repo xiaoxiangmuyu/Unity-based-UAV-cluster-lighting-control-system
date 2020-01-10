@@ -6,6 +6,7 @@ using DG.Tweening;
 public class TriggerBase : SerializedMonoBehaviour
 {
     public bool useExitOrder;
+    [HideInInspector]
     public RecordAsset record;
     [HideInInspector]
     public float recordTimer;
@@ -18,23 +19,23 @@ public class TriggerBase : SerializedMonoBehaviour
     [HideIf("hideDataOperation")]
     [InlineEditor]
     public OrderData orderFile;
+    [HorizontalGroup("Tags")]
     public List<string> targetTags = new List<string>(); // 影响的飞机的标签
+    [HorizontalGroup("Tags")]
     public List<string> ignoreTags = new List<string>();
     [LabelText("命令序列")]
-    [BoxGroup("MainArea")]
     public List<ColorOrderBase> colorOrders;
     [ShowIf("useExitOrder")]
-    [BoxGroup("MainArea")]
     [LabelText("退出命令序列")]
     public List<ColorOrderBase> exitOrders;
 
     protected virtual void Awake()
     {
-        
+
     }
     void Start()
     {
-        if (record!=null)
+        if (record != null)
         {
             record.Clear();
         }
@@ -53,14 +54,18 @@ public class TriggerBase : SerializedMonoBehaviour
             return;
         }
         colorOrders.Clear();
-        for (int i = 0; i < data.colorOrders.Count; i++)
+        // for (int i = 0; i < data.colorOrders.Count; i++)
+        // {
+        //     if (data.colorOrders[i] is DoColor)
+        //     {
+        //         DoColor temp = new DoColor();
+        //         //temp=data.colorOrders[i] as DoColor;
+        //         colorOrders.Add(temp);
+        //     }
+        // }
+        foreach(var order in data.colorOrders)
         {
-            if (data.colorOrders[i] is DoColor)
-            {
-                DoColor temp = new DoColor();
-                //temp=data.colorOrders[i] as DoColor;
-                colorOrders.Add(temp);
-            }
+            colorOrders.Add(order);
         }
         Debug.Log("读取成功");
     }

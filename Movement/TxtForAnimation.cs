@@ -32,6 +32,7 @@ public class TxtForAnimation : MonoBehaviour
     #region {Public field}
     [ShowInInspector]
     public float time { get { return (float)totalFrameCount / 25; } }
+    public float animBeginTime;
     [FolderPath]
     public string path;
     [ReadOnly]
@@ -55,6 +56,8 @@ public class TxtForAnimation : MonoBehaviour
     [HideInInspector]
     private List<Transform> childs;
     bool isExportMode;
+    float timer;
+    bool hasBegin;
     #endregion
     private void Awake()
     {
@@ -163,16 +166,41 @@ public class TxtForAnimation : MonoBehaviour
     // Update is called once per frame
     public void MyUpdate(int frame)
     {
-        if (hasFinish&&isExportMode)
-            return;
+        // if (hasFinish&&isExportMode)
+        //     return;
         if (frame >= totalFrameCount)
         {
+            if(hasFinish)
+            return;
             Debug.Log("播放完成,共" + frame + "帧");
             hasFinish = true;
             return;
         }
         SetChildPos(frame);
         //curFrameindex++;
+    }
+    void Update()
+    {
+        if(!hasBegin)
+        {
+            timer+=Time.deltaTime;
+            if(timer>=animBeginTime)
+            {
+                hasBegin=true;
+            }
+            else
+            return;
+        }
+        if (curFrameindex >= totalFrameCount)
+        {
+            if(hasFinish)
+            return;
+            Debug.Log("播放完成,共" + curFrameindex + "帧");
+            hasFinish = true;
+            return;
+        }
+        SetChildPos(curFrameindex);
+        curFrameindex++;
     }
     void SetChildPos(int frame)
     {

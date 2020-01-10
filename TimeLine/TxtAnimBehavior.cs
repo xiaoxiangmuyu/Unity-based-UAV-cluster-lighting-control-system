@@ -32,7 +32,7 @@ public class TxtAnimBehavior : PlayableBehaviour
     {
         if(!script)
         return;
-        curframe=Mathf.FloorToInt((float)director.time*25);
+        curframe=Mathf.RoundToInt((float)director.time*25);
         //Debug.Log(curframe);
         script.MyUpdate(curframe);
     }
@@ -40,7 +40,7 @@ public class TxtAnimBehavior : PlayableBehaviour
     {
         if(!script)
         return;
-        //Debug.Log(curframe);
+        Debug.Log(curframe);
         script.MyUpdate(curframe);
         curframe+=1;
     }
