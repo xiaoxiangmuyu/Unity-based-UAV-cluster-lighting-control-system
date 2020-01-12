@@ -9,8 +9,10 @@ public class EfyTools
     [MenuItem("工具/EfyTools/Init", priority = 0)]
     static void Init()
     {
+        SetCamera();
         Material mat = AssetDatabase.LoadAssetAtPath<Material>("Assets/Resources/bai.mat");
         GameObject[] objs = Selection.gameObjects;
+        
         if (objs.Length == 0)
         {
             Debug.LogError("没有选择模型父物体");
@@ -77,5 +79,17 @@ public class EfyTools
         //renderer.receiveShadows = false;
         _renderer.material=mat;
 
+    }
+    //初始化摄像机参数
+    static void SetCamera()
+    {
+        var camera=Camera.main;
+        if(!camera.gameObject.GetComponent<FrameRateManager>())
+        camera.gameObject.AddComponent<FrameRateManager>();
+        camera.clearFlags=CameraClearFlags.SolidColor;
+        camera.backgroundColor=Color.black;
+        camera.orthographic=true;
+        if(camera.orthographicSize==5)
+        camera.orthographicSize=100;    
     }
 }

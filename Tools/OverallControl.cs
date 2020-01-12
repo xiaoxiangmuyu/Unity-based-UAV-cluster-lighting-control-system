@@ -14,7 +14,8 @@ public class OverallControl : SerializedMonoBehaviour
     [LabelText("执行的子物体个数")]
     [PropertyRange(0, "childCount")]
     public int breathChildCount;
-    public List<Transform> childs = new List<Transform>();
+    [SerializeField][ReadOnly]
+    List<Transform> childs = new List<Transform>();
     [EnumToggleButtons]
     public OrderType orderType;
     [ShowIf("useOrderFile")]
@@ -49,7 +50,7 @@ public class OverallControl : SerializedMonoBehaviour
         {
             isBegin = true;
             Debug.Log("overallControl begin");
-            StartCoroutine(WholeProcess());
+            BeginCoroutine();
             //SetOrders(colorOrders);
         }
     }
@@ -73,6 +74,10 @@ public class OverallControl : SerializedMonoBehaviour
     public void BeginWithSelf()
     {
         SetOrders(ColorOrders);
+    }
+    public void BeginCoroutine()
+    {
+        StartCoroutine(WholeProcess());
     }
     public void Test()
     {

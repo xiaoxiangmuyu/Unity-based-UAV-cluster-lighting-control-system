@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using DG.Tweening;
-public class SceneEditor : Editor
+public class MyCustomEditor : Editor
 {
     [InitializeOnLoadMethod]
     static void Init()
@@ -19,8 +19,9 @@ public class SceneEditor : Editor
             GenericMenu menu = new GenericMenu();
             menu.AddItem(new GUIContent("显示"), false, Show, "menu_1");
             menu.AddItem(new GUIContent("隐藏"), false, Hide, "menu_2");
-            menu.AddItem(new GUIContent("Dotween手动模式"), false, DotweenManualUpdate, "menu_2");
-            menu.AddItem(new GUIContent("Dotween普通模式"), false, DotweenNormalUpdate, "menu_2");
+            menu.AddItem(new GUIContent("MoveToView"), false, SetCameraPos, "menu_3");
+           // menu.AddItem(new GUIContent("Dotween手动模式"), false, DotweenManualUpdate, "menu_2");
+            //menu.AddItem(new GUIContent("Dotween普通模式"), false, DotweenNormalUpdate, "menu_2");
             //menu.AddItem(new GUIContent("显示名字"), false, delegate{ShowSceneObjName.Show=true;}, "menu_2");
             //menu.AddItem(new GUIContent("隐藏名字"), false, delegate{ShowSceneObjName.Show=false;}, "menu_2");
 
@@ -41,6 +42,12 @@ public class SceneEditor : Editor
         color = Color.black;
         color.a = 0.01f;
         mat.color = color;
+    }
+    //移动摄像机角度使其与场景视角相同，不需要选中摄像机
+    static void SetCameraPos(object userData)
+    {
+        Selection.activeGameObject=Camera.main.gameObject;
+        SceneView.lastActiveSceneView.AlignWithView();
     }
     static void DotweenManualUpdate(object userData)
     {
