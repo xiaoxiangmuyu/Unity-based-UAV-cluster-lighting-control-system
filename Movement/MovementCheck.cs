@@ -7,7 +7,9 @@ public class MovementCheck : MonoBehaviour
     private List<Vector3> posInfos;
     private List<Color> colorInfos;
     private float distance;
+    private float VecticalDis;
     private float maxDistance;
+    private float maxVecticalDis;
     private MovementManager movementManager;
     private Renderer curRenderer;
     private Material mat;
@@ -54,10 +56,14 @@ public class MovementCheck : MonoBehaviour
         if (distance > maxDistance)
         {
             maxDistance = distance;
-            if (maxDistance > movementManager.GetLimitedSpeed() && movementManager.isSpeedTest)
-                Debug.LogError(gameObject.name + "超速！ " + "最大距离:" + maxDistance);
+            SpeedCheck();
         }
-
+        VecticalDis = Mathf.Abs(lastPos.y - curPos.y);
+        if (VecticalDis > maxVecticalDis)
+        {
+            maxVecticalDis = VecticalDis;
+            VecticalSpeedCheck();
+        }
         lastPos = curPos;
 
         //if (distance <= movementManager.GetLimitedSpeed())
@@ -66,7 +72,16 @@ public class MovementCheck : MonoBehaviour
         //}
 
     }
-
+    void SpeedCheck()
+    {
+        if (maxDistance > movementManager.GetLimitedSpeed() && movementManager.isSpeedTest)
+            Debug.LogError(gameObject.name + "超速！ " + "最大距离:" + maxDistance);
+    }
+    void VecticalSpeedCheck()
+    {
+        if (maxVecticalDis > movementManager.GetLimitedVecticalSpeed() && movementManager.isSpeedTest)
+            Debug.LogError(gameObject.name + "竖直方向超速！ " + "最大距离:" + maxVecticalDis);
+    }
     private void RecordInfo(Vector3 pos, Color color)
     {
         posInfos.Add(pos);
@@ -95,7 +110,7 @@ public class MovementCheck : MonoBehaviour
         result = float.Parse(tmp);
         return result;
     }
-    
+
     private Vector3 TruncVector3(Vector3 v)
     {
         float x = Trunc(v.x);

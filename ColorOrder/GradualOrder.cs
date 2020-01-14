@@ -47,10 +47,13 @@ public class DoColor : GradualOrder
     [BoxGroup("Color")]
     public Vector2 darkValue;
 
-    [ShowIf("showTextureMappingInfo")][BoxGroup("Color")]
-    public int textureIndex;
-    [ShowIf("showColorMappingInfo")][BoxGroup("Color")]
-    public int colorIndex;
+    [ShowIf("showTextureMappingInfo")]
+    [ShowIf("showColorMappingInfo")]
+    [BoxGroup("Color")]
+    public bool isWithIndex;
+    [ShowIf("isWithIndex")]
+    [BoxGroup("Color")]
+    public int targetIndex;
 
 
     bool hideColor { get { return colorType != ColorType.SingleColor; } }
@@ -58,7 +61,7 @@ public class DoColor : GradualOrder
     bool showHSVInfo { get { return colorType == ColorType.HSV; } }
     bool showDarkInfo { get { return colorType == ColorType.Dark; } }
     bool showColorMappingInfo { get { return colorType == ColorType.ColorMapping; } }
-    bool showTextureMappingInfo{ get { return colorType == ColorType.TextureMapping; } }
+    bool showTextureMappingInfo { get { return colorType == ColorType.TextureMapping; } }
 
     public override Tween GetOrder(ColorPoint point)
     {
@@ -71,11 +74,25 @@ public class DoColor : GradualOrder
                 }
             case ColorType.TextureMapping:
                 {
-                    targetColor = point.GetTextureColor(textureIndex); break;
+                    if (isWithIndex)
+                    {
+                        targetColor = point.GetTextureColor(targetIndex); break;
+                    }
+                    else
+                    {
+                        targetColor = point.GetTextureColor(); break;
+                    }
                 }
             case ColorType.ColorMapping:
                 {
-                    targetColor = point.GetMappingColor(colorIndex); break;
+                    if (isWithIndex)
+                    {
+                        targetColor = point.GetMappingColor(targetIndex); break;
+                    }
+                    else
+                    {
+                        targetColor = point.GetMappingColor(); break;
+                    }
                 }
             case ColorType.Random:
                 {

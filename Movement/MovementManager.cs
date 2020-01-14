@@ -461,6 +461,10 @@ public class MovementManager : MonoBehaviour
     {
         return limitedSpeed;
     }
+    public float GetLimitedVecticalSpeed()
+    {
+        return 0.08f;
+    }
 
     private string GetExportInfo(Vector3 curPos, Color color, string droneName)
     {

@@ -117,12 +117,12 @@ public class ColorPoint : MonoBehaviour
         }
         if (TriggerBase.orderFile != null)
         {
-            SetProcessType(TriggerBase.orderFile.colorOrders);
+            SetProcessType(TriggerBase.orderFile.colorOrders,TriggerBase.forceMode);
 
         }
         else
         {
-            SetProcessType(TriggerBase.colorOrders);
+            SetProcessType(TriggerBase.colorOrders,TriggerBase.forceMode);
         }
     }
 
@@ -133,7 +133,7 @@ public class ColorPoint : MonoBehaviour
             return;
         if (other.GetComponent<TriggerBase>().useExitOrder)
         {
-            SetProcessType(other.GetComponent<TriggerBase>().exitOrders);
+            SetProcessType(other.GetComponent<TriggerBase>().exitOrders,other.GetComponent<TriggerBase>().exitForceMode);
         }
     }
     bool isTriggerTarget(Collider other)
@@ -230,7 +230,7 @@ public class ColorPoint : MonoBehaviour
 
     int texIndex;
     int texCounter;
-    public Color GetTextureColor(int targetTexIndex=-1)
+    public Color GetTextureColor(int targetTexIndex=0)
     {
         TextureMapping textureMapping = colorParent as TextureMapping;
         if (!textureMapping)
@@ -238,9 +238,16 @@ public class ColorPoint : MonoBehaviour
             Debug.LogError(gameObject.name + "TextureMapping为空");
             return Color.white;
         }
-        if(targetTexIndex!=-1)
-        return textureMapping.GetMappingColor(transform, targetTexIndex);
-
+        return textureMapping.GetMappingColor(transform, targetTexIndex);      
+    }
+    public Color GetTextureColor()
+    {
+        TextureMapping textureMapping = colorParent as TextureMapping;
+        if (!textureMapping)
+        {
+            Debug.LogError(gameObject.name + "TextureMapping为空");
+            return Color.white;
+        }
         texCounter += 1;
         if (texCounter <= textureMapping.texChangeCount)
         {
@@ -262,7 +269,7 @@ public class ColorPoint : MonoBehaviour
     }
 
 
-    public Color GetMappingColor(int targetTexIndex=-1)
+    public Color GetMappingColor(int targetTexIndex=0)
     {
         ColorMapping colorMapping = colorParent as ColorMapping;
         if (!colorMapping)
@@ -270,9 +277,16 @@ public class ColorPoint : MonoBehaviour
             Debug.LogError(gameObject.name + "ColorMapping为空");
             return Color.white;
         }
-        if(targetTexIndex!=-1)
         return colorMapping.GetMappingColor(transform, targetTexIndex);
-
+    }
+    public Color GetMappingColor()
+    {
+        ColorMapping colorMapping = colorParent as ColorMapping;
+        if (!colorMapping)
+        {
+            Debug.LogError(gameObject.name + "ColorMapping为空");
+            return Color.white;
+        }
         texCounter += 1;
         if (texCounter <= colorMapping.ColorChangeCount)
         {

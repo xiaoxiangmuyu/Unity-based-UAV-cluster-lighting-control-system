@@ -5,6 +5,9 @@ using Sirenix.OdinInspector;
 using DG.Tweening;
 public class TriggerBase : SerializedMonoBehaviour
 {
+    public bool forceMode;
+    [ShowIf("useExitOrder")]
+    public bool exitForceMode;
     public bool useExitOrder;
     [HideInInspector]
     public RecordAsset record;
@@ -12,11 +15,6 @@ public class TriggerBase : SerializedMonoBehaviour
     public float recordTimer;
 
 
-
-    [SerializeField]
-    [ShowInInspector]
-    private bool hideDataOperation = true;
-    [HideIf("hideDataOperation")]
     [InlineEditor]
     public OrderData orderFile;
     [HorizontalGroup("Tags")]
@@ -44,8 +42,7 @@ public class TriggerBase : SerializedMonoBehaviour
     void Update()
     {
     }
-    [Button(ButtonSizes.Gigantic)]
-    [HideIf("hideDataOperation")]
+    [Button(ButtonSizes.Gigantic)][PropertyOrder(-1)][FoldoutGroup("灯效文件读写模块")]
     public void ReadOrderData(OrderData data)
     {
         if (!data)
@@ -54,23 +51,13 @@ public class TriggerBase : SerializedMonoBehaviour
             return;
         }
         colorOrders.Clear();
-        // for (int i = 0; i < data.colorOrders.Count; i++)
-        // {
-        //     if (data.colorOrders[i] is DoColor)
-        //     {
-        //         DoColor temp = new DoColor();
-        //         //temp=data.colorOrders[i] as DoColor;
-        //         colorOrders.Add(temp);
-        //     }
-        // }
         foreach(var order in data.colorOrders)
         {
             colorOrders.Add(order);
         }
         Debug.Log("读取成功");
     }
-    [Button(ButtonSizes.Gigantic)]
-    [HideIf("hideDataOperation")]
+    [Button(ButtonSizes.Gigantic)][PropertyOrder(-2)][FoldoutGroup("灯效文件读写模块")]
     public void WriteData(OrderData data)
     {
         if (!data)
