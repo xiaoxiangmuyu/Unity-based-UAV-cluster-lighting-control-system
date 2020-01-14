@@ -5,11 +5,17 @@ using Sirenix.OdinInspector;
 using DG.Tweening;
 public class TriggerBase : SerializedMonoBehaviour
 {
+    [ShowInInspector][BoxGroup("Time")][PropertyOrder(-1)]
+    public float TotalTime { get { return animTime + OrderTime; } }
+    [ShowInInspector][BoxGroup("Time")][PropertyOrder(-1)]
+    public float animTime { get {if(GetComponent<DOTweenAnimation>()) return GetComponent<DOTweenAnimation>().duration;else return GetComponent<DOTweenPath>().duration;} }
+    [ShowInInspector][BoxGroup("Time")][PropertyOrder(-1)]
+    public float OrderTime { get { if (orderFile != null) return orderFile.totalTime; else return Tools.GetTotalTime(colorOrders); } }
+    [Header("Property")]
     public bool forceMode;
     [ShowIf("useExitOrder")]
     public bool exitForceMode;
     public bool useExitOrder;
-    [HideInInspector]
     public RecordAsset record;
     [HideInInspector]
     public float recordTimer;
@@ -42,7 +48,9 @@ public class TriggerBase : SerializedMonoBehaviour
     void Update()
     {
     }
-    [Button(ButtonSizes.Gigantic)][PropertyOrder(-1)][FoldoutGroup("灯效文件读写模块")]
+    [Button(ButtonSizes.Gigantic)]
+    [PropertyOrder(-1)]
+    [FoldoutGroup("灯效文件读写模块")]
     public void ReadOrderData(OrderData data)
     {
         if (!data)
@@ -51,13 +59,15 @@ public class TriggerBase : SerializedMonoBehaviour
             return;
         }
         colorOrders.Clear();
-        foreach(var order in data.colorOrders)
+        foreach (var order in data.colorOrders)
         {
             colorOrders.Add(order);
         }
         Debug.Log("读取成功");
     }
-    [Button(ButtonSizes.Gigantic)][PropertyOrder(-2)][FoldoutGroup("灯效文件读写模块")]
+    [Button(ButtonSizes.Gigantic)]
+    [PropertyOrder(-2)]
+    [FoldoutGroup("灯效文件读写模块")]
     public void WriteData(OrderData data)
     {
         if (!data)

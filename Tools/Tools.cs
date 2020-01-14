@@ -4,10 +4,10 @@ using UnityEngine;
 
 public class Tools : MonoBehaviour
 {
-    public static double GetTotalTime(List<ColorOrderBase> orders)
+    public static float GetTotalTime(List<ColorOrderBase> orders)
     {
         double temp = ProcessOrder(orders);
-        return double.Parse(temp.ToString("f2"));
+        return float.Parse(temp.ToString("f2"));
     }
     static double ProcessOrder(List<ColorOrderBase> orders)
     {

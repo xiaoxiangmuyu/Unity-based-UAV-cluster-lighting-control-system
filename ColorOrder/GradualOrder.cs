@@ -47,8 +47,7 @@ public class DoColor : GradualOrder
     [BoxGroup("Color")]
     public Vector2 darkValue;
 
-    [ShowIf("showTextureMappingInfo")]
-    [ShowIf("showColorMappingInfo")]
+    [ShowIf("isMapping")]
     [BoxGroup("Color")]
     public bool isWithIndex;
     [ShowIf("isWithIndex")]
@@ -62,7 +61,7 @@ public class DoColor : GradualOrder
     bool showDarkInfo { get { return colorType == ColorType.Dark; } }
     bool showColorMappingInfo { get { return colorType == ColorType.ColorMapping; } }
     bool showTextureMappingInfo { get { return colorType == ColorType.TextureMapping; } }
-
+    bool isMapping{get{return colorType == ColorType.TextureMapping||colorType==ColorType.ColorMapping;}}
     public override Tween GetOrder(ColorPoint point)
     {
         Color targetColor = Color.white;
