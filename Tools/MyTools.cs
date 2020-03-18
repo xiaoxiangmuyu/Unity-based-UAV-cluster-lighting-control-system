@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Tools : MonoBehaviour
+public class MyTools
 {
     public static float GetTotalTime(List<ColorOrderBase> orders)
     {
@@ -50,4 +50,6 @@ public class Tools : MonoBehaviour
         }
         return totalTime;
     }
+    
+ 
 }

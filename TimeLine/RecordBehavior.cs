@@ -24,6 +24,7 @@ public class RecordBehavior : PlayableBehaviour
     // Called when the owning graph starts playing
     public override void OnGraphStart(Playable playable)
     {
+        Debug.Log("OnGraphStart");
         //record.RefreshDuring();
         if (!hasInit)
             Init();
@@ -44,6 +45,7 @@ public class RecordBehavior : PlayableBehaviour
     // Called when the state of the playable is set to Play
     public override void OnBehaviourPlay(Playable playable, FrameData info)
     {
+        Debug.Log("OnBehaviourPlay");
         // if(!Application.isPlaying)
         // return;
         // objs.RemoveAt(0);
@@ -132,10 +134,12 @@ public class RecordBehavior : PlayableBehaviour
         objs = new List<GameObject>();
         times = new List<float>();
         hasProcess = new List<bool>();
-        Transform parent = GameObject.Find(record.objParent).transform;
+        GameObject parent = GameObject.Find(record.objParent);
+        if(parent==null)
+        Debug.LogError("没有找到父物体 "+record.objParent);
         foreach (var name in record.objs)
         {
-            FindChild(parent, name);
+            FindChild(parent.transform, name);
             if (!tempObj)
                 Debug.LogError("没有找到" + name);
             objs.Add(tempObj.gameObject);

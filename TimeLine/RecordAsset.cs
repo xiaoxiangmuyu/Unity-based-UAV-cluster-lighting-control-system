@@ -86,11 +86,11 @@ public class RecordAsset : SerializedScriptableObject, IPlayableAsset
         double temp;
         if (useOrderFile)
         {
-            temp = Tools.GetTotalTime(orderData.colorOrders);
+            temp = MyTools.GetTotalTime(orderData.colorOrders);
         }
         else
         {
-            temp = Tools.GetTotalTime(colorOrders);
+            temp = MyTools.GetTotalTime(colorOrders);
         }
         scriptPlayable.SetDuration(temp);
     }
@@ -114,9 +114,9 @@ public class RecordAsset : SerializedScriptableObject, IPlayableAsset
     double GetTotalTime()
     {
         if (orderType == OrderType.Custom && colorOrders != null)
-            return Tools.GetTotalTime(colorOrders);
+            return MyTools.GetTotalTime(colorOrders);
         else if (orderType == OrderType.OrderFile && orderData != null)
-            return Tools.GetTotalTime(orderData.colorOrders);
+            return MyTools.GetTotalTime(orderData.colorOrders);
         else
             return 0;
     }

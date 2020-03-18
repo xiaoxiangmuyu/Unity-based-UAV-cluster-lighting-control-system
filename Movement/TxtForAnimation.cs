@@ -42,6 +42,7 @@ public class TxtForAnimation : MonoBehaviour
     public int childCount{get{if(childs!=null)return childs.Count;else return 0;}}
     #endregion
 
+
     #region {Private field}
     private int curFrameindex;
     [SerializeField]
@@ -55,7 +56,6 @@ public class TxtForAnimation : MonoBehaviour
     [SerializeField]
     [HideInInspector]
     private List<Transform> childs;
-    bool isExportMode;
     float timer;
     bool hasBegin;
     #endregion
@@ -67,8 +67,7 @@ public class TxtForAnimation : MonoBehaviour
     }
     void Start()
     {
-        if(GetComponent<MovementManager>().needExport)
-        isExportMode=true;
+        
     }
     void AnimatorCheck()
     {

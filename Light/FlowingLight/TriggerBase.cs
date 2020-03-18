@@ -10,7 +10,7 @@ public class TriggerBase : SerializedMonoBehaviour
     [ShowInInspector][BoxGroup("Time")][PropertyOrder(-1)]
     public float animTime { get {if(GetComponent<DOTweenAnimation>()) return GetComponent<DOTweenAnimation>().duration;else return GetComponent<DOTweenPath>().duration;} }
     [ShowInInspector][BoxGroup("Time")][PropertyOrder(-1)]
-    public float OrderTime { get { if (orderFile != null) return orderFile.totalTime; else return Tools.GetTotalTime(colorOrders); } }
+    public float OrderTime { get { if (orderFile != null) return orderFile.totalTime; else return MyTools.GetTotalTime(colorOrders); } }
     [Header("Property")]
     public bool forceMode;
     [ShowIf("useExitOrder")]

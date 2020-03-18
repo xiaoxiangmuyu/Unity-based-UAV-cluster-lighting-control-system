@@ -45,9 +45,13 @@ public class MyCustomEditor : Editor
     }
     //移动摄像机角度使其与场景视角相同，不需要选中摄像机
     static void SetCameraPos(object userData)
-    {
-        Selection.activeGameObject=Camera.main.gameObject;
+    {   
+        GameObject obj=Camera.main.gameObject;
+        Selection.activeGameObject=obj;
         SceneView.lastActiveSceneView.AlignWithView();
+        obj.transform.SetParent(null);
+        obj.transform.SetAsFirstSibling();
+
     }
     static void DotweenManualUpdate(object userData)
     {
