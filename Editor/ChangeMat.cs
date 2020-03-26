@@ -12,7 +12,7 @@ public class ChangeMat : MonoBehaviour
         GameObject obj = Selection.activeGameObject;
         foreach (Renderer it in obj.transform.GetComponentsInChildren<MeshRenderer>())
         {
-            Material mat = AssetDatabase.LoadAssetAtPath<Material>("Assets/Material/utilityMaterial.mat");
+            Material mat = AssetDatabase.LoadAssetAtPath<Material>("Assets/Resources/bai.mat");
             Material[] bufMat = new Material[it.sharedMaterials.Length];
             for (int i = 0; i < it.sharedMaterials.Length; i++)
             {
