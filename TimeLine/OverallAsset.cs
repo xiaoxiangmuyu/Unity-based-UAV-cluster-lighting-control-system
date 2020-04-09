@@ -2,19 +2,25 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Sirenix.OdinInspector;
-using DG.Tweening;
-public class OverallControl : SerializedMonoBehaviour
+using UnityEngine.Playables;
+[CreateAssetMenu(menuName = "创建组控制", fileName = "新动画序列")]
+public class OverallAsset : SerializedScriptableObject, IPlayableAsset
 {
-    [LabelText("开始时间")]
-    [HideIf("eventDrive")]
-    public float beginTime;
-    public bool eventDrive;
+    #region  IPlayableAsset
+    public double duration { get; }
+    public IEnumerable<PlayableBinding> outputs { get; }
+    #endregion
+    public string targetName;
+
+
+    [LabelText("执行次数")] 
     public int processTimes;
+    [LabelText("执行间隔")]
     public float processInterval;
     [LabelText("执行的子物体个数")]
     [PropertyRange(0, "childCount")]
-    public int breathChildCount;
-    [SerializeField][ReadOnly]
+    public int ChildCount;
+    [ReadOnly][ShowInInspector]
     List<Transform> childs = new List<Transform>();
     [EnumToggleButtons]
     public OrderType orderType;
@@ -26,32 +32,49 @@ public class OverallControl : SerializedMonoBehaviour
 
     bool useOrderFile{get{return orderType==OrderType.OrderFile;}}
     float timer;
-    bool isBegin;
     int childCount { get { return childs.Count; } }
     int _processTimes;
-    void Awake()
+
+    public Playable CreatePlayable(PlayableGraph graph, GameObject owner)
     {
-        if (childs.Count == 0)
-            AddChild(transform);
+        var scriptPlayable = ScriptPlayable<OverallBehavior>.Create(graph);
+        scriptPlayable.GetBehaviour().script = this;
+        scriptPlayable.GetBehaviour().GraphParent=owner;
+        if(childs==null||childs.Count==0)
+        GetChilds();
+        return scriptPlayable;
     }
-    void Start()
+    public double GetDuring()
     {
-        //StartCoroutine(RandomChild());
+        return MyTools.GetTotalTime(ColorOrders);
     }
-    void Update()
+    public void Begin()
     {
-        if (isBegin || eventDrive)
-            return;
-        if (timer < beginTime)
-        {
-            timer += Time.deltaTime;
-        }
+        Reset();
+        ProjectManager.instance.GetComponent<MonoBehaviour>().StartCoroutine(WholeProcess());
+    }
+    void SetOrders(List<ColorOrderBase> orders)
+    {
+        if (ChildCount < childs.Count)
+            RandomChild(orders);
         else
+            ControlAll(orders);
+    }
+     void ControlAll(List<ColorOrderBase> orders)
+    {
+        for (int i = 0; i < childs.Count; i++)
         {
-            isBegin = true;
-            Debug.Log("overallControl begin");
-            BeginCoroutine();
-            //SetOrders(colorOrders);
+            var point = childs[i].GetComponent<ColorPoint>();
+            point.SetProcessType(orders);
+        }
+    }
+    void RandomChild(List<ColorOrderBase> orders)
+    {
+        for (int i = 0; i < ChildCount; i++)
+        {
+            int index = Random.Range(0, childs.Count);
+            var point = childs[index].GetComponent<ColorPoint>();
+            point.SetProcessType(orders);
         }
     }
     IEnumerator WholeProcess()
@@ -63,52 +86,12 @@ public class OverallControl : SerializedMonoBehaviour
             yield return new WaitForSeconds(processInterval);
         }
     }
-    public void BeginWithOrder(List<ColorOrderBase> orders)
-    {
-        SetOrders(orders);
-    }
-    public void BeginWithFile(OrderData file)
-    {
-        SetOrders(file.colorOrders);
-    }
-    public void BeginWithSelf()
-    {
-        SetOrders(ColorOrders);
-    }
-    public void BeginCoroutine()
-    {
-        StartCoroutine(WholeProcess());
-    }
-    void SetOrders(List<ColorOrderBase> orders)
-    {
-        if (breathChildCount < childs.Count)
-            RandomChild(orders);
-        else
-            ControlAll(orders);
-    }
-    void RandomChild(List<ColorOrderBase> orders)
-    {
-        for (int i = 0; i < breathChildCount; i++)
-        {
-            int index = Random.Range(0, childs.Count);
-            var point = childs[index].GetComponent<ColorPoint>();
-            point.SetProcessType(orders);
-        }
-    }
-    void ControlAll(List<ColorOrderBase> orders)
-    {
-        for (int i = 0; i < childs.Count; i++)
-        {
-            var point = childs[i].GetComponent<ColorPoint>();
-            point.SetProcessType(orders);
-        }
-    }
     [Button(ButtonSizes.Large)]
     void GetChilds()
     {
         if (childs != null && childs.Count != 0)
             childs.Clear();
-        AddChild(transform);
+        AddChild(GameObject.Find(targetName).transform);
         childs.Sort((a, b) => int.Parse(a.name) - int.Parse(b.name));
     }
     void AddChild(Transform tra)
@@ -126,5 +109,10 @@ public class OverallControl : SerializedMonoBehaviour
             else
                 AddChild(tra.GetChild(i));
         }
+    }
+    void Reset()
+    {
+        _processTimes=0;
+        timer=0;
     }
 }

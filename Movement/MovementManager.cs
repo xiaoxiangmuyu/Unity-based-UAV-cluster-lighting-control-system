@@ -294,7 +294,7 @@ public class MovementManager : MonoBehaviour
                 FrameExport("/StartFrame.txt", FrameType.start);
                 FrameExport("/EndFrame.txt", FrameType.end);
             }
-            Debug.Log("导出完成");
+            Debug.Log("<<<<<    导出完成    >>>>>");
             AssetDatabase.Refresh();
         }
     }
@@ -359,7 +359,7 @@ public class MovementManager : MonoBehaviour
 
                 writer.Flush();
                 writer.Close();
-                Debug.LogErrorFormat("Export is finished: {0}", path);
+                //Debug.LogErrorFormat("Export is finished: {0}", path);
             }
         }
     }

@@ -14,9 +14,9 @@ public class TxtAnimBehavior : PlayableBehaviour
     {
         //DOTween.ManualUpdate(0.04f, 0.04f);
         if(!movementManager.isWorking)
-        UpdatePos();
+        UpdatePos();//编辑模式,会跳帧或者不连续播放
         else
-        UpdatePosFrameByFrame();
+        UpdatePosFrameByFrame();//导出模式，逐帧播放，不允许丢帧或者跳跃
 
     }
     public override void OnBehaviourPlay(Playable playable, FrameData info)
@@ -28,6 +28,7 @@ public class TxtAnimBehavior : PlayableBehaviour
         //DOTween.KillAll();
         
     }
+    //随时间轴进度条更新位置
     void UpdatePos()
     {
         if(!script)
@@ -36,11 +37,12 @@ public class TxtAnimBehavior : PlayableBehaviour
         //Debug.Log(curframe);
         script.MyUpdate(curframe);
     }
+    //逐帧更新位置
     void UpdatePosFrameByFrame()
     {
         if(!script)
         return;
-        Debug.Log(curframe);
+        //Debug.Log(curframe);
         script.MyUpdate(curframe);
         curframe+=1;
     }

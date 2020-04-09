@@ -1,8 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
-public class MyTools
+using UnityEngine.Timeline;
+using UnityEngine.Playables;
+public static class MyTools
 {
     public static float GetTotalTime(List<ColorOrderBase> orders)
     {
@@ -50,6 +51,36 @@ public class MyTools
         }
         return totalTime;
     }
-    
- 
+    public static void UpdateDuring(GameObject obj)
+    {
+        PlayableDirector playableDirector = obj.GetComponentInParent<PlayableDirector>();
+        // if(!playableDirector)
+        // playableDirector=obj.GetComponentInParent<PlayableDirector>();
+        var timeLineAsset = playableDirector.playableAsset as TimelineAsset;
+        foreach (var track in timeLineAsset.GetOutputTracks())
+        {
+            foreach (var clip in track.GetClips())
+            {
+                var temp=clip.asset as RecordAsset;
+                if(temp!=null)
+                {
+                    clip.duration=temp.GetDuring();
+                }
+                else
+                {
+                    var temp2=clip.asset as TxtAnimAsset;
+                    if(temp2!=null)
+                    clip.duration=temp2.totalFrameCount/25+temp2.safeSeconds;
+                    else
+                    {
+                        var temp3=clip.asset as OverallAsset;
+                        clip.duration=temp3.processTimes*temp3.processInterval+temp3.GetDuring();
+                    }
+                }
+            }
+
+        }
+    }
+
+
 }

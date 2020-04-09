@@ -11,7 +11,7 @@ public class RecordBehavior : PlayableBehaviour
     public List<ColorOrderBase> orders;
     public RecordAsset record;
     public ScriptPlayable<RecordBehavior> scriptPlayable;
-
+    public GameObject GraphParent;
 
     List<GameObject> objs;
     List<float> times;
@@ -25,6 +25,7 @@ public class RecordBehavior : PlayableBehaviour
     public override void OnGraphStart(Playable playable)
     {
         Debug.Log("OnGraphStart");
+        MyTools.UpdateDuring(GraphParent);
         //record.RefreshDuring();
         if (!hasInit)
             Init();

@@ -178,29 +178,29 @@ public class TxtForAnimation : MonoBehaviour
         SetChildPos(frame);
         //curFrameindex++;
     }
-    void Update()
-    {
-        if(!hasBegin)
-        {
-            timer+=Time.deltaTime;
-            if(timer>=animBeginTime)
-            {
-                hasBegin=true;
-            }
-            else
-            return;
-        }
-        if (curFrameindex >= totalFrameCount)
-        {
-            if(hasFinish)
-            return;
-            Debug.Log("播放完成,共" + curFrameindex + "帧");
-            hasFinish = true;
-            return;
-        }
-        SetChildPos(curFrameindex);
-        curFrameindex++;
-    }
+    // void Update()
+    // {
+    //     if(!hasBegin)
+    //     {
+    //         timer+=Time.deltaTime;
+    //         if(timer>=animBeginTime)
+    //         {
+    //             hasBegin=true;
+    //         }
+    //         else
+    //         return;
+    //     }
+    //     if (curFrameindex >= totalFrameCount)
+    //     {
+    //         if(hasFinish)
+    //         return;
+    //         Debug.Log("播放完成,共" + curFrameindex + "帧");
+    //         hasFinish = true;
+    //         return;
+    //     }
+    //     SetChildPos(curFrameindex);
+    //     curFrameindex++;
+    // }
     void SetChildPos(int frame)
     {
         for (int i = 0; i < childs.Count; i++)

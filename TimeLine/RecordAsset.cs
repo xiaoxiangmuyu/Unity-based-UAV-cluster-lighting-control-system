@@ -5,7 +5,7 @@ using Sirenix.OdinInspector;
 using UnityEngine.Playables;
 using UnityEngine.Timeline;
 [CreateAssetMenu(menuName = "创建记录容器", fileName = "新位置序列")]
-public class RecordAsset : SerializedScriptableObject, IPlayableAsset
+public class RecordAsset : SerializedScriptableObject,IPlayableAsset
 {
     #region  IPlayableAsset
     public double duration { get; }
@@ -41,7 +41,7 @@ public class RecordAsset : SerializedScriptableObject, IPlayableAsset
     [ShowInInspector]
     [PropertyOrder(1)]
     [LabelText("总用时")]
-    public double totalTime { get { return GetTotalTime(); } }
+    public double totalTime { get { return GetDuring(); } }
     [ShowIf("useOrderFile")]
     [PropertyOrder(2)]
     [InlineEditor]
@@ -49,6 +49,7 @@ public class RecordAsset : SerializedScriptableObject, IPlayableAsset
     [HideIf("useOrderFile")]
     [PropertyOrder(2)]
     public List<ColorOrderBase> colorOrders;
+
 
 
     bool useOrderFile { get { return orderType == OrderType.OrderFile; } }
@@ -74,14 +75,14 @@ public class RecordAsset : SerializedScriptableObject, IPlayableAsset
         }
         behavior.record = this;
         behavior.scriptPlayable = scriptPlayable;
+        behavior.GraphParent=owner;
         scriptPlayable = ScriptPlayable<RecordBehavior>.Create(graph, behavior);
         if(workRange==Vector2.zero)
         workRange=new Vector2(0,ObjCount);
         return scriptPlayable;
 
     }
-    [Button(ButtonSizes.Large)]
-    public void RefreshDuring()
+    public double GetDuring()
     {
         double temp;
         if (useOrderFile)
@@ -92,14 +93,7 @@ public class RecordAsset : SerializedScriptableObject, IPlayableAsset
         {
             temp = MyTools.GetTotalTime(colorOrders);
         }
-        scriptPlayable.SetDuration(temp);
-    }
-    [Button(ButtonSizes.Large)]
-    void LogDuration()
-    {
-        Debug.Log(scriptPlayable.GetDuration());
-        Debug.Log(scriptPlayable.GetHashCode());
-
+        return temp;
     }
     [Button(ButtonSizes.Large)]
     void ReadOrderFile()
@@ -110,15 +104,6 @@ public class RecordAsset : SerializedScriptableObject, IPlayableAsset
             colorOrders.Add(order);
         }
         Debug.Log("!");
-    }
-    double GetTotalTime()
-    {
-        if (orderType == OrderType.Custom && colorOrders != null)
-            return MyTools.GetTotalTime(colorOrders);
-        else if (orderType == OrderType.OrderFile && orderData != null)
-            return MyTools.GetTotalTime(orderData.colorOrders);
-        else
-            return 0;
     }
 }
 

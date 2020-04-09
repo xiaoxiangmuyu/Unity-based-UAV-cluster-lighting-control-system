@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.Playables;
 using Sirenix.OdinInspector;
 using DG.Tweening;
+using UnityEngine.Timeline;
 [CreateAssetMenu(menuName = "创建动画序列", fileName = "新动画序列")]
 public class TxtAnimAsset : SerializedScriptableObject, IPlayableAsset
 {
@@ -11,6 +12,7 @@ public class TxtAnimAsset : SerializedScriptableObject, IPlayableAsset
     public double duration { get; }
     public IEnumerable<PlayableBinding> outputs { get; }
     #endregion
+    public float safeSeconds=5;
     [ReadOnly]
     public int totalFrameCount;
     TxtForAnimation script;
@@ -25,7 +27,6 @@ public class TxtAnimAsset : SerializedScriptableObject, IPlayableAsset
         }
         scriptPlayable.GetBehaviour().director = owner.GetComponent<PlayableDirector>();
         scriptPlayable.GetBehaviour().movementManager=owner.GetComponent<MovementManager>();
-        //scriptPlayable.SetDuration(owner.GetComponent<TxtForAnimation>().totalFrameCount / 25);
         return scriptPlayable;
     }
     [Button(ButtonSizes.Gigantic)]
@@ -33,4 +34,5 @@ public class TxtAnimAsset : SerializedScriptableObject, IPlayableAsset
     {
         DOTween.KillAll();
     }
+
 }
