@@ -140,10 +140,10 @@ public class MovementManager : MonoBehaviour
         {
             Debug.LogError("导出路径不合法");
         }
-        if (transform.position != ProjectManager.instance.PosInfo)
-        {
-            Debug.LogError(gameObject.name + "位置与其他图案不一致");
-        }
+        // if (transform.position != ProjectManager.instance.PosInfo)
+        // {
+        //     Debug.LogError(gameObject.name + "位置与其他图案不一致");
+        // }
         if (transform.rotation != ProjectManager.instance.RotationInfo)
         {
             Debug.LogError(gameObject.name + "旋转信息与其他图案不一致");
@@ -178,11 +178,11 @@ public class MovementManager : MonoBehaviour
                 return false;
             }
         }
-        if (transform.position != ProjectManager.instance.PosInfo)
-        {
-            Debug.LogError(gameObject.name + "位置与其他图案不一致");
-            return false;
-        }
+        // if (transform.position != ProjectManager.instance.PosInfo)
+        // {
+        //     Debug.LogError(gameObject.name + "位置与其他图案不一致");
+        //     return false;
+        // }
         if (transform.rotation != ProjectManager.instance.RotationInfo)
         {
             Debug.LogError(gameObject.name + "旋转信息与其他图案不一致");
