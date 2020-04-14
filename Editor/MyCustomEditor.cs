@@ -20,6 +20,7 @@ public class MyCustomEditor : Editor
             menu.AddItem(new GUIContent("显示"), false, Show, "menu_1");
             menu.AddItem(new GUIContent("隐藏"), false, Hide, "menu_2");
             menu.AddItem(new GUIContent("MoveToView"), false, SetCameraPos, "menu_3");
+            menu.AddItem(new GUIContent("取消所有动画"),false,CancelTween,"menu_4");
            // menu.AddItem(new GUIContent("Dotween手动模式"), false, DotweenManualUpdate, "menu_2");
             //menu.AddItem(new GUIContent("Dotween普通模式"), false, DotweenNormalUpdate, "menu_2");
             //menu.AddItem(new GUIContent("显示名字"), false, delegate{ShowSceneObjName.Show=true;}, "menu_2");
@@ -52,6 +53,10 @@ public class MyCustomEditor : Editor
         obj.transform.SetParent(null);
         obj.transform.SetAsFirstSibling();
 
+    }
+    static void CancelTween(object userData)
+    {
+        ProjectManager.ResetAllColorAndTween();
     }
     static void DotweenManualUpdate(object userData)
     {

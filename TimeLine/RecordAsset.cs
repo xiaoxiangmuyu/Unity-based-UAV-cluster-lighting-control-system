@@ -11,8 +11,7 @@ public class RecordAsset : SerializedScriptableObject,IPlayableAsset
     public double duration { get; }
     public IEnumerable<PlayableBinding> outputs { get; }
     #endregion
-
-
+    public float animTime;
     [EnumToggleButtons]
     public OrderType orderType;
     [BoxGroup("Behavior Property")]
@@ -26,15 +25,14 @@ public class RecordAsset : SerializedScriptableObject,IPlayableAsset
     public bool forceMode;
     [BoxGroup("Behavior Property")]
     public bool timeInit;
-    public double myDuration;
 
 
     #region Record
-    [ReadOnly]
+    //[ReadOnly]
     public string objParent;
-    [ReadOnly]
+    //[ReadOnly]
     public List<string> objs;
-    [ReadOnly]
+    //[ReadOnly]
     public List<float> times;
     #endregion
 
@@ -48,7 +46,7 @@ public class RecordAsset : SerializedScriptableObject,IPlayableAsset
     public OrderData orderData;
     [HideIf("useOrderFile")]
     [PropertyOrder(2)]
-    public List<ColorOrderBase> colorOrders;
+    public List<ColorOrderBase> colorOrders=new List<ColorOrderBase>();
 
 
 
@@ -93,7 +91,7 @@ public class RecordAsset : SerializedScriptableObject,IPlayableAsset
         {
             temp = MyTools.GetTotalTime(colorOrders);
         }
-        return temp;
+        return temp+animTime;
     }
     [Button(ButtonSizes.Large)]
     void ReadOrderFile()

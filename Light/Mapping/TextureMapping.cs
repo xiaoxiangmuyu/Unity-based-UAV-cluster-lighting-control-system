@@ -23,8 +23,10 @@ public class TextureMapping : ColorParent
     protected float timer = 0f;
     protected int intMaxX;
     protected int intMaxY;
+    [SerializeField][ShowInInspector]
     protected Dictionary<Transform, Vector2> screenPositions = new Dictionary<Transform, Vector2>();
     protected bool isFinished = false;
+    [SerializeField][ShowInInspector]
     protected List<Texture2D> destTexs = new List<Texture2D>();
 
 
@@ -39,9 +41,11 @@ public class TextureMapping : ColorParent
     protected virtual void Awake()
     {
         // 飞机的世界坐标转屏幕坐标
+        if(screenPositions==null||screenPositions.Count==0)
         CoordinateTransformation();
 
         // 生成可容纳所有飞机显示的图片
+        if(destTexs==null||destTexs.Count==0)
         InitTex();
 
         // 飞机上色。注意：在delayTime=0时上色会有1帧的延迟，办法是在Awake中上色
@@ -50,6 +54,7 @@ public class TextureMapping : ColorParent
             SetColor();
         }
     }
+    [Button]
     protected void InitTex()
     {
         if (scrTexs.Count == 0)
@@ -57,6 +62,9 @@ public class TextureMapping : ColorParent
             Debug.LogError("没有设置贴图" + gameObject.name);
             return;
         }
+        
+        scrTexs.Sort(Sort);
+
         for (int i = 0; i < scrTexs.Count; i++)
         {
             if (scrTexs[i].isReadable == false)
@@ -173,6 +181,7 @@ public class TextureMapping : ColorParent
         }
 
     }
+    [Button]
     /// <summary>
     /// 将飞机的世界坐标转为屏幕坐标，并计算最大宽度和高度
     /// </summary>
@@ -366,5 +375,10 @@ public class TextureMapping : ColorParent
         }
 
         return color;
+    }
+    [Button(ButtonSizes.Gigantic)]
+    int Sort(Texture2D a, Texture2D b)
+    {
+        return int.Parse(a.name) - int.Parse(b.name);
     }
 }

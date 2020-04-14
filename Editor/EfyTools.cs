@@ -71,10 +71,10 @@ public class EfyTools
             {
                 if (childCount != maxChildCount)
                     Debug.LogError(obj.name + "图案飞机数量与其他图案不一致" + childCount + "  " + maxChildCount);
-                if (obj.transform.position != PosInfo)
-                    Debug.LogError(obj.name + "图案位置信息与其他图案不一致");
-                if (obj.transform.rotation != RotationInfo)
-                    Debug.LogError(obj.name + "图案旋转信息与其他图案不一致");
+                // if (obj.transform.position != PosInfo)
+                //     Debug.LogError(obj.name + "图案位置信息与其他图案不一致");
+                // if (obj.transform.rotation != RotationInfo)
+                //     Debug.LogError(obj.name + "图案旋转信息与其他图案不一致");
             }
 
         }
@@ -119,7 +119,7 @@ public class EfyTools
             camera.orthographicSize = 100;
         if (!camera.GetComponent<ProjectManager>())
         {
-            Undo.AddComponent<ProjectManager>(camera.gameObject).Init();
+            Undo.AddComponent<ProjectManager>(camera.gameObject);
         }
     }
 }

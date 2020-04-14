@@ -3,30 +3,40 @@ using System.IO;
 using System.Text;
 using UnityEditor;
 using UnityEngine;
+using Sirenix.OdinInspector;
 public class MovementManager : MonoBehaviour
 {
+    public enum ExportType { Time, Frame }
     public bool isWorking;
-    [Header("导出时间")]
+    [EnumToggleButtons]
+    public ExportType exportType = ExportType.Time;
+    [LabelText("导出时间")][ShowIf("IsExportByTime")]
     public float ExportTime = 10f; // 静态表演时间
+    [LabelText("导出帧数")][HideIf("IsExportByTime")]
+    public int ExportFrame = 0;
     public const float LimitedVecticalSpeed = 0.08f;
     public const float LimitedSpeed = 0.12f; // 飞机速度限制为每秒不超过3米，1秒为25帧，所以每帧限速为 3 / 25 = 0.12
     public string projectName;
 
 
-
-    private Animator animator;
-    private AnimatorStateInfo info;
-    private string exportPath;
-    private List<MovementCheck> movementChecks;
-    private float staticTimer = 0f; // 静态表演计时器
-    private enum FrameType
+    bool IsExportByTime{get{return exportType==ExportType.Time;}}
+    Animator animator;
+    AnimatorStateInfo info;
+    string exportPath;
+    List<MovementCheck> movementChecks;
+    float timer = 0f; // 静态表演计时器
+    int frame = 0;
+    enum FrameType
     {
         start = 1,
         end = 2,
     }
-    private StringBuilder sb = new StringBuilder(50, 50);
-    private int r, g, b;
-
+    StringBuilder sb = new StringBuilder(50, 50);
+    int r, g, b;
+    void OnEnable()
+    {
+        ProjectManager.SetOperateTarget(this);
+    }
     void Start()
     {
         // if (!isWorking)
@@ -102,13 +112,26 @@ public class MovementManager : MonoBehaviour
         }
         else // 输出模式
         {
-            staticTimer += Time.deltaTime;
-
-            if (staticTimer >= ExportTime)
+            if (exportType == ExportType.Time)
             {
-                isWorking = false;
-                if (ExportCheck())
-                    Export();
+                timer += Time.deltaTime;
+
+                if (timer >= ExportTime)
+                {
+                    isWorking = false;
+                    if (ExportCheck())
+                        Export();
+                }
+            }
+            else
+            {
+                frame += 1;
+                if (frame == ExportFrame)
+                {
+                    isWorking = false;
+                    if (ExportCheck())
+                        Export();
+                }
             }
         }
     }
@@ -144,10 +167,10 @@ public class MovementManager : MonoBehaviour
         // {
         //     Debug.LogError(gameObject.name + "位置与其他图案不一致");
         // }
-        if (transform.rotation != ProjectManager.instance.RotationInfo)
-        {
-            Debug.LogError(gameObject.name + "旋转信息与其他图案不一致");
-        }
+        // if (transform.rotation != ProjectManager.instance.RotationInfo)
+        // {
+        //     Debug.LogError(gameObject.name + "旋转信息与其他图案不一致");
+        // }
         if (movementChecks.Count != ProjectManager.instance.ChildCount)
         {
             Debug.LogError(gameObject.name + "子物体数量与其他图案不一致" + movementChecks.Count);
@@ -162,7 +185,7 @@ public class MovementManager : MonoBehaviour
     {
         if (!FrameCheck())
         {
-           //Debug.LogError("txt行数不一致");
+            //Debug.LogError("txt行数不一致");
             return false;
         }
         if (!CheckExportPath())
@@ -183,11 +206,11 @@ public class MovementManager : MonoBehaviour
         //     Debug.LogError(gameObject.name + "位置与其他图案不一致");
         //     return false;
         // }
-        if (transform.rotation != ProjectManager.instance.RotationInfo)
-        {
-            Debug.LogError(gameObject.name + "旋转信息与其他图案不一致");
-            return false;
-        }
+        // if (transform.rotation != ProjectManager.instance.RotationInfo)
+        // {
+        //     Debug.LogError(gameObject.name + "旋转信息与其他图案不一致");
+        //     return false;
+        // }
         if (movementChecks.Count != ProjectManager.instance.ChildCount)
         {
             Debug.LogError(gameObject.name + "子物体数量与其他图案不一致" + movementChecks.Count);
@@ -207,10 +230,10 @@ public class MovementManager : MonoBehaviour
             return false;
         }
         int temp = movementChecks[0].GetPosInfos().Count;
-        if(movementChecks.Exists((a) => a.GetPosInfos().Count != temp))
+        if (movementChecks.Exists((a) => a.GetPosInfos().Count != temp))
         {
-            string name =movementChecks.Find((a) => a.GetPosInfos().Count != temp).gameObject.name;
-            Debug.LogError(name+"导出的txt行数有问题,是否中途被关闭?");
+            string name = movementChecks.Find((a) => a.GetPosInfos().Count != temp).gameObject.name;
+            Debug.LogError(name + "导出的txt行数有问题,是否中途被关闭?");
             return false;
         }
         return true;
@@ -398,5 +421,12 @@ public class MovementManager : MonoBehaviour
     public void SetProjectName(string name)
     {
         projectName = name;
+    }
+    public void ResetAllColor()
+    {
+        foreach (var point in movementChecks)
+        {
+            point.GetComponent<MeshRenderer>().material.color = Color.black;
+        }
     }
 }

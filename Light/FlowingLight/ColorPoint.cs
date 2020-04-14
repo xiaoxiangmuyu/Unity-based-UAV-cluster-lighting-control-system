@@ -125,18 +125,74 @@ public class ColorPoint : MonoBehaviour
             SetProcessType(TriggerBase.colorOrders,TriggerBase.forceMode);
         }
     }
-
-
-    void OnTriggerExit(Collider other)
+    void OnTriggerEnter2D(Collider2D other)
     {
-        if (!isTriggerTarget(other))
+        TriggerBase TriggerBase = other.GetComponent<TriggerBase>();
+        if (TriggerBase)
+        {
+            if ((TriggerBase.targetTags.Count != 0) && !FilterCompare(TriggerBase.targetTags))
+            {
+                return;
+            }
+            if ((TriggerBase.ignoreTags.Count != 0) && FilterCompare(TriggerBase.ignoreTags))
+            {
+                return;
+            }
+        }
+        else
+        {
+            Debug.LogError("碰撞体没有TriggerBase组件");
+            return;
+        }
+        if (TriggerBase.record != null)
+        {
+            if (TriggerBase.record.objParent == string.Empty)
+                TriggerBase.record.objParent = transform.root.name;
+            if (TriggerBase.record.objs.Exists((x) => x == gameObject.name))
+                return;
+            if (TriggerBase.recordTimer == 0)
+            {
+                TriggerBase.record.objs.Add(gameObject.name);
+                TriggerBase.record.times.Add(0);
+                TriggerBase.recordTimer = Time.time;
+            }
+            else
+            {
+                TriggerBase.record.times.Add(Time.time - TriggerBase.recordTimer);
+                TriggerBase.record.objs.Add(gameObject.name);
+            }
+            mat.DOColor(Color.red, 0.5f);
+            return;
+        }
+        if (TriggerBase.orderFile != null)
+        {
+            SetProcessType(TriggerBase.orderFile.colorOrders,TriggerBase.forceMode);
+
+        }
+        else
+        {
+            SetProcessType(TriggerBase.colorOrders,TriggerBase.forceMode);
+        }
+    }
+void OnTriggerExit2D(Collider2D other)
+    {
+        if (!isTriggerTarget(other.gameObject))
             return;
         if (other.GetComponent<TriggerBase>().useExitOrder)
         {
             SetProcessType(other.GetComponent<TriggerBase>().exitOrders,other.GetComponent<TriggerBase>().exitForceMode);
         }
     }
-    bool isTriggerTarget(Collider other)
+    void OnTriggerExit(Collider other)
+    {
+        if (!isTriggerTarget(other.gameObject))
+            return;
+        if (other.GetComponent<TriggerBase>().useExitOrder)
+        {
+            SetProcessType(other.GetComponent<TriggerBase>().exitOrders,other.GetComponent<TriggerBase>().exitForceMode);
+        }
+    }
+    bool isTriggerTarget(GameObject other)
     {
         TriggerBase TriggerBase = other.GetComponent<TriggerBase>();
         if (TriggerBase)

@@ -26,12 +26,10 @@ public class RecordBehavior : PlayableBehaviour
     {
         Debug.Log("OnGraphStart");
         MyTools.UpdateDuring(GraphParent);
-        //record.RefreshDuring();
         if (!hasInit)
             Init();
-        if (needResetState)
-            ResetState();
-        playable.SetDuration(6.66d);
+        // if (needResetState)
+        //     ResetState();
     }
 
     // Called when the owning graph stops playing
@@ -46,7 +44,11 @@ public class RecordBehavior : PlayableBehaviour
     // Called when the state of the playable is set to Play
     public override void OnBehaviourPlay(Playable playable, FrameData info)
     {
+        if(!Application.isPlaying)
+        return;
         Debug.Log("OnBehaviourPlay");
+        if (needResetState)
+            ResetState();
         // if(!Application.isPlaying)
         // return;
         // objs.RemoveAt(0);
@@ -66,14 +68,12 @@ public class RecordBehavior : PlayableBehaviour
 
         //Debug.Log(scriptPlayable.GetHashCode() + "被销毁");
     }
-    bool isFinish;
     // Called each frame while the state is set to Play
     public override void ProcessFrame(Playable playable, FrameData info, object playerData)
     {
         if (!Application.isPlaying)
             return;
-        if (isFinish)
-            return;
+        DOTween.ManualUpdate(0.04f, 0.04f);
         timer += Time.deltaTime * record.speed;
         if (objs.Count == 0 || times.Count == 0)
         {
@@ -157,6 +157,8 @@ public class RecordBehavior : PlayableBehaviour
             hasProcess[i] = false;
         }
         timer = 0;
+        ProjectManager.ResetAllColorAndTween();
+        Debug.Log("ResetState");
     }
     Transform tempObj;
     void FindChild(Transform tran, string childName)

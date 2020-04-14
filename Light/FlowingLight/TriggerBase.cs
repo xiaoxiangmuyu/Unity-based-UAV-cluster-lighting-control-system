@@ -5,12 +5,12 @@ using Sirenix.OdinInspector;
 using DG.Tweening;
 public class TriggerBase : SerializedMonoBehaviour
 {
-    [ShowInInspector][BoxGroup("Time")][PropertyOrder(-1)]
-    public float TotalTime { get { return animTime + OrderTime; } }
-    [ShowInInspector][BoxGroup("Time")][PropertyOrder(-1)]
-    public float animTime { get {if(GetComponent<DOTweenAnimation>()) return GetComponent<DOTweenAnimation>().duration;else return GetComponent<DOTweenPath>().duration;} }
-    [ShowInInspector][BoxGroup("Time")][PropertyOrder(-1)]
-    public float OrderTime { get { if (orderFile != null) return orderFile.totalTime; else return MyTools.GetTotalTime(colorOrders); } }
+    // [ShowInInspector][BoxGroup("Time")][PropertyOrder(-1)]
+    // public float TotalTime { get { return animTime + OrderTime; } }
+    // [ShowInInspector][BoxGroup("Time")][PropertyOrder(-1)]
+    // public float animTime { get {if(GetComponent<DOTweenAnimation>()) return GetComponent<DOTweenAnimation>().duration;else return GetComponent<DOTweenPath>().duration;} }
+    // [ShowInInspector][BoxGroup("Time")][PropertyOrder(-1)]
+    // public float OrderTime { get { if (orderFile != null) return orderFile.totalTime; else return MyTools.GetTotalTime(colorOrders); } }
     [Header("Property")]
     public bool forceMode;
     [ShowIf("useExitOrder")]
@@ -35,7 +35,8 @@ public class TriggerBase : SerializedMonoBehaviour
 
     protected virtual void Awake()
     {
-
+        if(record!=null)
+        record.animTime=GetComponent<DOTweenAnimation>()?GetComponent<DOTweenAnimation>().duration:0;
     }
     void Start()
     {
