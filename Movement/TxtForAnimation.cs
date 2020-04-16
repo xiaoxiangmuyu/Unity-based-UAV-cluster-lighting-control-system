@@ -29,11 +29,12 @@ public class TxtForAnimation : MonoBehaviour
             return posList[frameIndex];
         }
     }
+
+
     #region {Public field}
     [ShowInInspector]
     public float time { get { return (float)totalFrameCount / 25; } }
-    public float animBeginTime;
-    [FolderPath]
+    [FolderPath(AbsolutePath=true)]
     public string path;
     [ReadOnly]
     public int totalFrameCount;
@@ -45,25 +46,20 @@ public class TxtForAnimation : MonoBehaviour
 
     #region {Private field}
     private int curFrameindex;
-    [SerializeField]
-    [ReadOnly]
-    private bool hasInit;
     private bool hasCount;
     private bool hasFinish;
     [SerializeField]
     [HideInInspector]
-    private List<PointInfo> cords;
+    private List<PointInfo> cords=new List<PointInfo>();
     [SerializeField]
     [HideInInspector]
-    private List<Transform> childs;
+    private List<Transform> childs=new List<Transform>();
     float timer;
     bool hasBegin;
     #endregion
     private void Awake()
     {
         AnimatorCheck();
-        if (!hasInit)
-            Init();
     }
     void Start()
     {
@@ -152,14 +148,11 @@ public class TxtForAnimation : MonoBehaviour
     [Button(ButtonSizes.Gigantic)]
     public void Init()
     {
-        if (hasInit)
-        {
-            cords.Clear();
-            childs.Clear();
-        }
+
+        cords.Clear();
+        childs.Clear();
         ReadTxtFile();
         GetChilds();
-        hasInit = true;
         Debug.Log("Init Success");
     }
     // Update is called once per frame

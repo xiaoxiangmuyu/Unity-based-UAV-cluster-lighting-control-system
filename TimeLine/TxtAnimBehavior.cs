@@ -26,7 +26,6 @@ public class TxtAnimBehavior : PlayableBehaviour
     public override void OnGraphStart(Playable playable)
     {      
         //DOTween.KillAll();
-        
     }
     //随时间轴进度条更新位置
     void UpdatePos()
