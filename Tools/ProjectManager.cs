@@ -3,16 +3,31 @@ using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 using UnityEngine.Playables;
+using Sirenix.OdinInspector;
 public class ProjectManager : MonoBehaviour
 {
     static MovementManager currentTarget;
+
+    const string ProjectParentPath="Projects/";
+    static ProjectManager instance;
+    public static ProjectManager Instance{get{
+        if(instance==null)instance=Camera.main.GetComponent<ProjectManager>();
+        return instance;
+        }}
+    RecordProject recordProject;
+    public RecordProject RecordProject{get{
+        if(recordProject==null)
+        recordProject=Resources.Load<RecordProject>(ProjectParentPath+ProjectManager.instance.projectName+"/RecordParent");
+        return recordProject;
+    }}
 
 
 
     public  Quaternion RotationInfo;
     public  Vector3 PosInfo;
     public  int ChildCount;
-    public static ProjectManager instance;
+    public string projectName;
+    
 
 
 
@@ -36,10 +51,19 @@ public class ProjectManager : MonoBehaviour
     {
         currentTarget=mr;
     }
+    public static MovementManager GetCurrentMR()
+    {
+        return ProjectManager.currentTarget;
+    }
     public static void ResetAllColorAndTween()
     {
         DOTween.CompleteAll();
         currentTarget.ResetAllColor();   
+    }
+    [Button(ButtonSizes.Gigantic)]
+    void Load()
+    {
+        recordProject=Resources.Load<RecordProject>(ProjectParentPath+ProjectManager.instance.projectName+"/RecordParent");
     }
 
 }

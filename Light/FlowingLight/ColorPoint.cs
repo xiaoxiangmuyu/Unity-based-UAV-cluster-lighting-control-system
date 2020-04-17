@@ -95,39 +95,37 @@ public class ColorPoint : MonoBehaviour
             Debug.LogError("碰撞体没有TriggerBase组件");
             return;
         }
-        if (TriggerBase.record != null)
-        {
-            if (TriggerBase.record.objParent == string.Empty)
-                TriggerBase.record.objParent = transform.root.name;
-            if (TriggerBase.record.objs.Exists((x) => x == gameObject.name))
-                return;
-            if (TriggerBase.recordTimer == 0)
-            {
-                TriggerBase.record.objs.Add(gameObject.name);
-                TriggerBase.record.times.Add(0);
-                TriggerBase.recordTimer = Time.time;
-            }
-            else
-            {
-                TriggerBase.record.times.Add(Time.time - TriggerBase.recordTimer);
-                TriggerBase.record.objs.Add(gameObject.name);
-            }
-            mat.DOColor(Color.red, 0.5f);
-            return;
-        }
-        if (TriggerBase.orderFile != null)
-        {
-            SetProcessType(TriggerBase.orderFile.colorOrders,TriggerBase.forceMode);
 
+            TriggerBase.data.parentName = transform.root.name;
+        if (TriggerBase.data.ObjNames.Exists((x) => x == gameObject.name))
+            return;
+        if (TriggerBase.recordTimer == 0)
+        {
+            TriggerBase.data.ObjNames.Add(gameObject.name);
+            TriggerBase.data.times.Add(0);
+            TriggerBase.recordTimer = Time.time;
         }
         else
         {
-            SetProcessType(TriggerBase.colorOrders,TriggerBase.forceMode);
+            TriggerBase.data.times.Add(Time.time - TriggerBase.recordTimer);
+            TriggerBase.data.ObjNames.Add(gameObject.name);
         }
+        mat.DOColor(Color.red, 0.5f);
+        return;
+
+        // if (TriggerBase.orderFile != null)
+        // {
+        //     SetProcessType(TriggerBase.orderFile.colorOrders, TriggerBase.forceMode);
+
+        // }
+        // else
+        // {
+        //     SetProcessType(TriggerBase.colorOrders, TriggerBase.forceMode);
+        // }
     }
     void OnTriggerEnter2D(Collider2D other)
     {
-        TriggerBase TriggerBase = other.GetComponent<TriggerBase>();
+                TriggerBase TriggerBase = other.GetComponent<TriggerBase>();
         if (TriggerBase)
         {
             if ((TriggerBase.targetTags.Count != 0) && !FilterCompare(TriggerBase.targetTags))
@@ -144,53 +142,51 @@ public class ColorPoint : MonoBehaviour
             Debug.LogError("碰撞体没有TriggerBase组件");
             return;
         }
-        if (TriggerBase.record != null)
-        {
-            if (TriggerBase.record.objParent == string.Empty)
-                TriggerBase.record.objParent = transform.root.name;
-            if (TriggerBase.record.objs.Exists((x) => x == gameObject.name))
-                return;
-            if (TriggerBase.recordTimer == 0)
-            {
-                TriggerBase.record.objs.Add(gameObject.name);
-                TriggerBase.record.times.Add(0);
-                TriggerBase.recordTimer = Time.time;
-            }
-            else
-            {
-                TriggerBase.record.times.Add(Time.time - TriggerBase.recordTimer);
-                TriggerBase.record.objs.Add(gameObject.name);
-            }
-            mat.DOColor(Color.red, 0.5f);
-            return;
-        }
-        if (TriggerBase.orderFile != null)
-        {
-            SetProcessType(TriggerBase.orderFile.colorOrders,TriggerBase.forceMode);
 
+            TriggerBase.data.parentName = transform.root.name;
+        if (TriggerBase.data.ObjNames.Exists((x) => x == gameObject.name))
+            return;
+        if (TriggerBase.recordTimer == 0)
+        {
+            TriggerBase.data.ObjNames.Add(gameObject.name);
+            TriggerBase.data.times.Add(0);
+            TriggerBase.recordTimer = Time.time;
         }
         else
         {
-            SetProcessType(TriggerBase.colorOrders,TriggerBase.forceMode);
+            TriggerBase.data.times.Add(Time.time - TriggerBase.recordTimer);
+            TriggerBase.data.ObjNames.Add(gameObject.name);
         }
+        mat.DOColor(Color.red, 0.5f);
+        return;
+
+        // if (TriggerBase.orderFile != null)
+        // {
+        //     SetProcessType(TriggerBase.orderFile.colorOrders, TriggerBase.forceMode);
+
+        // }
+        // else
+        // {
+        //     SetProcessType(TriggerBase.colorOrders, TriggerBase.forceMode);
+        // }
     }
-void OnTriggerExit2D(Collider2D other)
+    void OnTriggerExit2D(Collider2D other)
     {
-        if (!isTriggerTarget(other.gameObject))
-            return;
-        if (other.GetComponent<TriggerBase>().useExitOrder)
-        {
-            SetProcessType(other.GetComponent<TriggerBase>().exitOrders,other.GetComponent<TriggerBase>().exitForceMode);
-        }
+        // if (!isTriggerTarget(other.gameObject))
+        //     return;
+        // if (other.GetComponent<TriggerBase>().useExitOrder)
+        // {
+        //     SetProcessType(other.GetComponent<TriggerBase>().exitOrders, other.GetComponent<TriggerBase>().exitForceMode);
+        // }
     }
     void OnTriggerExit(Collider other)
     {
-        if (!isTriggerTarget(other.gameObject))
-            return;
-        if (other.GetComponent<TriggerBase>().useExitOrder)
-        {
-            SetProcessType(other.GetComponent<TriggerBase>().exitOrders,other.GetComponent<TriggerBase>().exitForceMode);
-        }
+        // if (!isTriggerTarget(other.gameObject))
+        //     return;
+        // if (other.GetComponent<TriggerBase>().useExitOrder)
+        // {
+        //     SetProcessType(other.GetComponent<TriggerBase>().exitOrders, other.GetComponent<TriggerBase>().exitForceMode);
+        // }
     }
     bool isTriggerTarget(GameObject other)
     {
@@ -286,7 +282,7 @@ void OnTriggerExit2D(Collider2D other)
 
     int texIndex;
     int texCounter;
-    public Color GetTextureColor(int targetTexIndex=0)
+    public Color GetTextureColor(int targetTexIndex = 0)
     {
         TextureMapping textureMapping = colorParent as TextureMapping;
         if (!textureMapping)
@@ -294,7 +290,7 @@ void OnTriggerExit2D(Collider2D other)
             Debug.LogError(gameObject.name + "TextureMapping为空");
             return Color.white;
         }
-        return textureMapping.GetMappingColor(transform, targetTexIndex);      
+        return textureMapping.GetMappingColor(transform, targetTexIndex);
     }
     public Color GetTextureColor()
     {
@@ -325,7 +321,7 @@ void OnTriggerExit2D(Collider2D other)
     }
 
 
-    public Color GetMappingColor(int targetTexIndex=0)
+    public Color GetMappingColor(int targetTexIndex = 0)
     {
         ColorMapping colorMapping = colorParent as ColorMapping;
         if (!colorMapping)

@@ -2,8 +2,12 @@
 using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
+using System.IO;
+using UnityEngine.Playables;
+using UnityEngine.Timeline;
 public class EfyTools
 {
+    const string projectPath = "Assets/Resources/Projects/";
     static MeshRenderer _renderer;
     static MovementCheck movementCheck;
     static int maxChildCount;
@@ -27,6 +31,9 @@ public class EfyTools
             return;
         }
 
+        string projectName = SceneManager.GetActiveScene().name;
+        ProjectManager.Instance.projectName = projectName;
+        RecordProject recordProject = CreatRecordProject(projectName);
         int childName;
         foreach (var obj in objs)
         {
@@ -34,9 +41,12 @@ public class EfyTools
 
             if (obj.GetComponent<MovementManager>() == null)
             {
-                Undo.AddComponent<MovementManager>(obj).projectName = SceneManager.GetActiveScene().name;
+                Undo.AddComponent<MovementManager>(obj).projectName = projectName;
+                if (!recordProject.RecordDic.ContainsKey(obj.name))
+                    recordProject.RecordDic.Add(obj.name, new List<RecordData>());
+                // =recordProject.ProjectRecords[obj.name];
             }
-
+            AddPlayable(obj,projectName);
             Transform[] children = obj.GetComponentsInChildren<Transform>();
 
             if (children == null || children.Length < 1)
@@ -62,9 +72,9 @@ public class EfyTools
                 RotationInfo = obj.transform.rotation;
                 PosInfo = obj.transform.position;
                 maxChildCount = childCount;
-                ProjectManager.instance.RotationInfo = RotationInfo;
-                ProjectManager.instance.PosInfo = PosInfo;
-                ProjectManager.instance.ChildCount = maxChildCount;
+                //ProjectManager.instance.RotationInfo = RotationInfo;
+                //ProjectManager.instance.PosInfo = PosInfo;
+                ProjectManager.Instance.ChildCount = maxChildCount;
                 Debug.Log("本项目共" + maxChildCount + "架飞机");
             }
             else
@@ -121,5 +131,27 @@ public class EfyTools
         {
             Undo.AddComponent<ProjectManager>(camera.gameObject);
         }
+    }
+    static RecordProject CreatRecordProject(string projectName)
+    {
+        RecordProject recordProject = ScriptableObject.CreateInstance<RecordProject>();
+        recordProject.RecordDic = new Dictionary<string, List<RecordData>>();
+        if (!Directory.Exists(projectPath + projectName))
+        //AssetDatabase.CreateFolder(projectPath, projectName);
+        Directory.CreateDirectory(projectPath + projectName);
+        AssetDatabase.CreateAsset(recordProject, projectPath + projectName + "/RecordParent.asset");
+        return recordProject;
+
+    }
+    static void AddPlayable(GameObject obj, string projectName)
+    {
+        var asset = TimelineAsset.CreateInstance<TimelineAsset>();
+        asset.editorSettings.fps=25;
+        AssetDatabase.CreateAsset(asset, projectPath + projectName+"/"+obj.name+".playable");
+        if (!obj.GetComponent<PlayableDirector>())
+        {
+            obj.AddComponent<PlayableDirector>().playableAsset=asset;
+        }
+        AssetDatabase.SaveAssets();
     }
 }

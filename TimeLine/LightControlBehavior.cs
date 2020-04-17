@@ -6,11 +6,11 @@ using Sirenix.OdinInspector;
 using UnityEngine.Timeline;
 using DG.Tweening;
 // A behaviour that is attached to a playable
-public class RecordBehavior : PlayableBehaviour
+public class LightControlBehavior : PlayableBehaviour
 {
     public List<ColorOrderBase> orders;
-    public RecordAsset record;
-    public ScriptPlayable<RecordBehavior> scriptPlayable;
+    public LightControlAsset record;
+    public ScriptPlayable<LightControlBehavior> scriptPlayable;
     public GameObject GraphParent;
 
     List<GameObject> objs;
@@ -132,13 +132,15 @@ public class RecordBehavior : PlayableBehaviour
     }
     void Init()
     {
+        if(record.data.ObjNames==null)
+        return;
         objs = new List<GameObject>();
         times = new List<float>();
         hasProcess = new List<bool>();
-        GameObject parent = GameObject.Find(record.objParent);
+        GameObject parent = GameObject.Find(record.data.parentName);
         if(parent==null)
-        Debug.LogError("没有找到父物体 "+record.objParent);
-        foreach (var name in record.objs)
+        Debug.LogError("没有找到父物体 "+record.data.parentName);
+        foreach (var name in record.data.ObjNames)
         {
             FindChild(parent.transform, name);
             if (!tempObj)
@@ -146,7 +148,7 @@ public class RecordBehavior : PlayableBehaviour
             objs.Add(tempObj.gameObject);
             hasProcess.Add(false);
         }
-        foreach (var time in record.times)
+        foreach (var time in record.data.times)
             times.Add(time);
         hasInit = true;
     }

@@ -18,7 +18,6 @@ public class MovementManager : MonoBehaviour
     public const float LimitedSpeed = 0.12f; // 飞机速度限制为每秒不超过3米，1秒为25帧，所以每帧限速为 3 / 25 = 0.12
     public string projectName;
 
-
     bool IsExportByTime{get{return exportType==ExportType.Time;}}
     Animator animator;
     AnimatorStateInfo info;
@@ -171,7 +170,7 @@ public class MovementManager : MonoBehaviour
         // {
         //     Debug.LogError(gameObject.name + "旋转信息与其他图案不一致");
         // }
-        if (movementChecks.Count != ProjectManager.instance.ChildCount)
+        if (movementChecks.Count != ProjectManager.Instance.ChildCount)
         {
             Debug.LogError(gameObject.name + "子物体数量与其他图案不一致" + movementChecks.Count);
         }
@@ -211,7 +210,7 @@ public class MovementManager : MonoBehaviour
         //     Debug.LogError(gameObject.name + "旋转信息与其他图案不一致");
         //     return false;
         // }
-        if (movementChecks.Count != ProjectManager.instance.ChildCount)
+        if (movementChecks.Count != ProjectManager.Instance.ChildCount)
         {
             Debug.LogError(gameObject.name + "子物体数量与其他图案不一致" + movementChecks.Count);
         }

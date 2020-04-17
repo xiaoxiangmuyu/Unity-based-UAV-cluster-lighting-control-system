@@ -61,9 +61,12 @@ public static class MyTools
         {
             foreach (var clip in track.GetClips())
             {
-                var temp=clip.asset as RecordAsset;
+                var temp=clip.asset as LightControlAsset;
                 if(temp!=null)
-                {
+                {   
+                    if(temp.data.ObjNames==null)
+                    clip.duration=3;
+                    else
                     clip.duration=temp.GetDuring();
                 }
                 else
@@ -74,6 +77,9 @@ public static class MyTools
                     else
                     {
                         var temp3=clip.asset as OverallAsset;
+                        if(temp3.targetName==null||temp3.targetName=="")
+                        clip.duration=3;
+                        else
                         clip.duration=temp3.processTimes*temp3.processInterval+temp3.GetDuring();
                     }
                 }

@@ -5,7 +5,7 @@ using Sirenix.OdinInspector;
 using UnityEngine.Playables;
 using UnityEngine.Timeline;
 [CreateAssetMenu(menuName = "创建记录容器", fileName = "新位置序列")]
-public class RecordAsset : SerializedScriptableObject,IPlayableAsset
+public class LightControlAsset : SerializedScriptableObject, IPlayableAsset
 {
     #region  IPlayableAsset
     public double duration { get; }
@@ -17,7 +17,7 @@ public class RecordAsset : SerializedScriptableObject,IPlayableAsset
     [BoxGroup("Behavior Property")]
     public float speed = 1;
     [BoxGroup("Behavior Property")]
-    [MinMaxSlider(0, "ObjCount",true)]
+    [MinMaxSlider(0, "ObjCount", true)]
     public Vector2 workRange;
     [BoxGroup("Behavior Property")]
     public bool isflip;
@@ -29,13 +29,14 @@ public class RecordAsset : SerializedScriptableObject,IPlayableAsset
 
     #region Record
     //[ReadOnly]
-    public string objParent;
+    //public string objParent;
     //[ReadOnly]
-    public List<string> objs;
+    //public List<string> objs;
     //[ReadOnly]
-    public List<float> times;
+    //public List<float> times;
+    public List<RecordData> recordGroup;
+    public RecordData data;
     #endregion
-
     [ShowInInspector]
     [PropertyOrder(1)]
     [LabelText("总用时")]
@@ -46,23 +47,17 @@ public class RecordAsset : SerializedScriptableObject,IPlayableAsset
     public OrderData orderData;
     [HideIf("useOrderFile")]
     [PropertyOrder(2)]
-    public List<ColorOrderBase> colorOrders=new List<ColorOrderBase>();
+    public List<ColorOrderBase> colorOrders = new List<ColorOrderBase>();
 
 
 
     bool useOrderFile { get { return orderType == OrderType.OrderFile; } }
-    int ObjCount { get { if (objs != null) return objs.Count - 1; else return 0; } }
-    ScriptPlayable<RecordBehavior> scriptPlayable;
-    [Button(ButtonSizes.Large)]
-    public void Clear()
-    {
-        objs = new List<string>();
-        times = new List<float>();
-        objParent = string.Empty;
-    }
+    int ObjCount { get { if (data.ObjNames != null) return data.ObjNames.Count - 1; else return 0; } }
+    ScriptPlayable<LightControlBehavior> scriptPlayable;
     public Playable CreatePlayable(PlayableGraph graph, GameObject owner)
     {
-        RecordBehavior behavior = new RecordBehavior();
+        recordGroup = ProjectManager.Instance.RecordProject.RecordDic[owner.name];
+        LightControlBehavior behavior = new LightControlBehavior();
         if (orderType == OrderType.OrderFile)
         {
             behavior.orders = orderData.colorOrders;
@@ -73,10 +68,10 @@ public class RecordAsset : SerializedScriptableObject,IPlayableAsset
         }
         behavior.record = this;
         behavior.scriptPlayable = scriptPlayable;
-        behavior.GraphParent=owner;
-        scriptPlayable = ScriptPlayable<RecordBehavior>.Create(graph, behavior);
-        if(workRange==Vector2.zero)
-        workRange=new Vector2(0,ObjCount);
+        behavior.GraphParent = owner;
+        scriptPlayable = ScriptPlayable<LightControlBehavior>.Create(graph, behavior);
+        if (workRange == Vector2.zero)
+            workRange = new Vector2(0, ObjCount);
         return scriptPlayable;
 
     }
@@ -91,18 +86,32 @@ public class RecordAsset : SerializedScriptableObject,IPlayableAsset
         {
             temp = MyTools.GetTotalTime(colorOrders);
         }
-        return temp+animTime;
+        return temp + animTime;
     }
     [Button(ButtonSizes.Large)]
-    void ReadOrderFile()
+    void ReadRecordData()
     {
-        colorOrders.Clear();
-        foreach (var order in orderData.colorOrders)
+        for(int i=0;i<recordGroup.Count;i++)
         {
-            colorOrders.Add(order);
+            if (recordGroup[i].isSelect)
+            {
+                this.data.CopyFrom(recordGroup[i]);
+                animTime=recordGroup[i].animTime;
+                return;
+            }
+            Debug.LogError("没有选中要读取的数据");
         }
-        Debug.Log("!");
     }
+    // [Button(ButtonSizes.Large)]
+    // void ReadOrderFile()
+    // {
+    //     colorOrders.Clear();
+    //     foreach (var order in orderData.colorOrders)
+    //     {
+    //         colorOrders.Add(order);
+    //     }
+    //     Debug.Log("!");
+    // }
 }
 
 

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Sirenix.OdinInspector;
 using UnityEngine.Playables;
-[CreateAssetMenu(menuName = "创建组控制", fileName = "新动画序列")]
+[CreateAssetMenu(menuName = "创建OverAllControlAsset", fileName = "新动画序列")]
 public class OverallAsset : SerializedScriptableObject, IPlayableAsset
 {
     #region  IPlayableAsset
@@ -40,8 +40,9 @@ public class OverallAsset : SerializedScriptableObject, IPlayableAsset
         var scriptPlayable = ScriptPlayable<OverallBehavior>.Create(graph);
         scriptPlayable.GetBehaviour().script = this;
         scriptPlayable.GetBehaviour().GraphParent=owner;
-        if(childs==null||childs.Count==0)
-        GetChilds();
+        // if(targetName!=string.Empty&&targetName!="")
+        // if(childs==null||childs.Count==0)
+        // GetChilds();
         return scriptPlayable;
     }
     public double GetDuring()
@@ -51,7 +52,7 @@ public class OverallAsset : SerializedScriptableObject, IPlayableAsset
     public void Begin()
     {
         Reset();
-        ProjectManager.instance.GetComponent<MonoBehaviour>().StartCoroutine(WholeProcess());
+        ProjectManager.Instance.GetComponent<MonoBehaviour>().StartCoroutine(WholeProcess());
     }
     void SetOrders(List<ColorOrderBase> orders)
     {

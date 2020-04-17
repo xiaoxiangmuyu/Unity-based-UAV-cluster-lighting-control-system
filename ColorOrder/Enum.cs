@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using Sirenix.OdinInspector;
 public enum ColorType
 {
     SingleColor,//指定显示单一颜色
@@ -24,3 +24,6 @@ public enum PointState
     Idle,//空闲状态
     Busy,//繁忙状态
 }
+
+
+
