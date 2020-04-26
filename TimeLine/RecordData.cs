@@ -2,16 +2,25 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Sirenix.OdinInspector;
-public struct RecordData
+[System.Serializable]
+public class RecordData
 {
-    
+    [SerializeField]
     public string dataName;
-    public string parentName;
-    public bool isSelect;
-    [ReadOnly]
+    [SerializeField]
     public float animTime;
+
+    [SerializeField]
     public List<string>ObjNames;
+    [SerializeField]
     public List<float>times;
+    public RecordData(string name="")
+    {
+        dataName=name;
+        animTime=1;
+        ObjNames=new List<string>();
+        times=new List<float>();
+    }
     public void Clear()
     {
         ObjNames.Clear();
@@ -27,8 +36,7 @@ public struct RecordData
     {
         Init();
         dataName=data.dataName;
-        parentName=data.parentName;
-        animTime=data.animTime;
+        //parentName=data.parentName;
         ObjNames=new List<string>(data.ObjNames.ToArray());
         times=new List<float>(data.times.ToArray());
     }

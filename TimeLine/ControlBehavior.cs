@@ -6,11 +6,11 @@ using Sirenix.OdinInspector;
 using UnityEngine.Timeline;
 using DG.Tweening;
 // A behaviour that is attached to a playable
-public class LightControlBehavior : PlayableBehaviour
+public class ControlBehavior : PlayableBehaviour
 {
     public List<ColorOrderBase> orders;
-    public LightControlAsset record;
-    public ScriptPlayable<LightControlBehavior> scriptPlayable;
+    public ControlBlock record;
+    public ScriptPlayable<ControlBehavior> scriptPlayable;
     public GameObject GraphParent;
 
     List<GameObject> objs;
@@ -20,10 +20,13 @@ public class LightControlBehavior : PlayableBehaviour
     bool hasInit;
     bool needResetState { get { return hasProcess.Exists((x) => x == true); } }
     Vector2 workRange { get { return record.workRange; } }
+    string currentTarget{get{return ProjectManager.GetCurrentMR().gameObject.name;}}
 
     // Called when the owning graph starts playing
     public override void OnGraphStart(Playable playable)
     {
+        if(!Application.isPlaying)
+        return;
         Debug.Log("OnGraphStart");
         MyTools.UpdateDuring(GraphParent);
         if (!hasInit)
@@ -91,7 +94,7 @@ public class LightControlBehavior : PlayableBehaviour
         {
             for (int i = (int)workRange.x; i <= (int)workRange.y; i++)
             {
-                if (i > objs.Count - 1)
+                 if (i > objs.Count - 1)
                 {
                     i = i - objs.Count;
                 }
@@ -137,9 +140,9 @@ public class LightControlBehavior : PlayableBehaviour
         objs = new List<GameObject>();
         times = new List<float>();
         hasProcess = new List<bool>();
-        GameObject parent = GameObject.Find(record.data.parentName);
+        GameObject parent = GameObject.Find(currentTarget);
         if(parent==null)
-        Debug.LogError("没有找到父物体 "+record.data.parentName);
+        Debug.LogError("没有找到父物体 "+currentTarget);
         foreach (var name in record.data.ObjNames)
         {
             FindChild(parent.transform, name);

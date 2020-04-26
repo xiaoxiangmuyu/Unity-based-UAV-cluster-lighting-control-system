@@ -41,12 +41,18 @@ public class EfyTools
 
             if (obj.GetComponent<MovementManager>() == null)
             {
-                Undo.AddComponent<MovementManager>(obj).projectName = projectName;
-                if (!recordProject.RecordDic.ContainsKey(obj.name))
-                    recordProject.RecordDic.Add(obj.name, new List<RecordData>());
-                // =recordProject.ProjectRecords[obj.name];
+                obj.AddComponent<MovementManager>().projectName = projectName;
             }
-            AddPlayable(obj,projectName);
+
+            if (!recordProject.RecordDic.ContainsKey(obj.name))
+            {
+                recordProject.RecordDic.Add(obj.name, new List<RecordData>());
+                RecordData temp = new RecordData("all");
+                recordProject.RecordDic[obj.name].Add(temp);
+            }
+
+            CreateTimeLine(obj, projectName);
+
             Transform[] children = obj.GetComponentsInChildren<Transform>();
 
             if (children == null || children.Length < 1)
@@ -65,6 +71,11 @@ public class EfyTools
                 HandleMovementCheck(children[i]);
                 HandleRenderer(children[i], mat);
                 HandleColorPoint(children[i]);
+                if (children[i].gameObject.layer != LayerMask.NameToLayer("TriggerIgnore"))
+                {
+                    recordProject.RecordDic[obj.name][0].ObjNames.Add(children[i].name);
+                    recordProject.RecordDic[obj.name][0].times.Add(0);
+                }
             }
             if (!isCountFinish)
             {
@@ -88,6 +99,8 @@ public class EfyTools
             }
 
         }
+        EditorUtility.SetDirty(recordProject);
+        AssetDatabase.SaveAssets();
         Debug.Log("初始化完成");
     }
     static void HandleColorPoint(Transform obj)
@@ -116,6 +129,7 @@ public class EfyTools
         _renderer.material = mat;
 
     }
+
     //初始化摄像机参数
     static void SetCamera()
     {
@@ -137,21 +151,19 @@ public class EfyTools
         RecordProject recordProject = ScriptableObject.CreateInstance<RecordProject>();
         recordProject.RecordDic = new Dictionary<string, List<RecordData>>();
         if (!Directory.Exists(projectPath + projectName))
-        //AssetDatabase.CreateFolder(projectPath, projectName);
-        Directory.CreateDirectory(projectPath + projectName);
+            Directory.CreateDirectory(projectPath + projectName);
         AssetDatabase.CreateAsset(recordProject, projectPath + projectName + "/RecordParent.asset");
         return recordProject;
 
     }
-    static void AddPlayable(GameObject obj, string projectName)
+    static void CreateTimeLine(GameObject obj, string projectName)
     {
         var asset = TimelineAsset.CreateInstance<TimelineAsset>();
-        asset.editorSettings.fps=25;
-        AssetDatabase.CreateAsset(asset, projectPath + projectName+"/"+obj.name+".playable");
+        asset.editorSettings.fps = 25;
+        AssetDatabase.CreateAsset(asset, projectPath + projectName + "/" + obj.name + ".playable");
         if (!obj.GetComponent<PlayableDirector>())
         {
-            obj.AddComponent<PlayableDirector>().playableAsset=asset;
+            obj.AddComponent<PlayableDirector>().playableAsset = asset;
         }
-        AssetDatabase.SaveAssets();
     }
 }

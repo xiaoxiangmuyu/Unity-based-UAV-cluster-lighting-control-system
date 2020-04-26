@@ -117,44 +117,6 @@ public class TextureMapping : ColorParent
             }
         }
     }
-    protected void SetColorDes(Texture2D destTex)
-    {
-        if (destTex == null)
-        {
-            Debug.LogError("贴图为空！");
-            return;
-        }
-
-        if (screenPositions != null && screenPositions.Count > 0)
-        {
-            Renderer curRenderer;
-            Material mat;
-
-            foreach (var child in screenPositions.Keys)
-            {
-                if (child)
-                {
-                    if (child.GetComponent<ColorPoint>().State==PointState.Busy)
-                        return;
-                    curRenderer = child.GetComponent<Renderer>();
-
-                    if (curRenderer)
-                    {
-                        mat = curRenderer.material;
-
-                        if (mat)
-                        {
-                            // 飞机的屏幕坐标映射到图片上，取那一点的颜色作为飞机的颜色。
-                            // 向上取整会造成边界点的颜色取到对面边界的颜色，所以改为向下取整。
-                            Color color = destTex.GetPixel(Mathf.FloorToInt(screenPositions[child].x), Mathf.FloorToInt(screenPositions[child].y));
-                            child.GetComponent<ColorPoint>().originalColor = color;
-                            mat.color = color;
-                        }
-                    }
-                }
-            }
-        }
-    }
     protected void SetColor(Color color)
     {
 
@@ -360,7 +322,6 @@ public class TextureMapping : ColorParent
     {
         isFinished = true;
     }
-
     public Color GetColor(Transform trans)
     {
         Color color = Color.clear;
@@ -376,7 +337,6 @@ public class TextureMapping : ColorParent
 
         return color;
     }
-    [Button(ButtonSizes.Gigantic)]
     int Sort(Texture2D a, Texture2D b)
     {
         return int.Parse(a.name) - int.Parse(b.name);

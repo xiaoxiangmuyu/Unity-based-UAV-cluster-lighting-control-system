@@ -4,6 +4,7 @@ using UnityEngine;
 using Sirenix.OdinInspector;
 public class RecordProject : SerializedScriptableObject
 {
+    [SerializeField]
     public Dictionary<string, List<RecordData>> RecordDic;
     public void AddData(string key, RecordData data)
     {

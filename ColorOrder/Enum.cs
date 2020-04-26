@@ -24,6 +24,11 @@ public enum PointState
     Idle,//空闲状态
     Busy,//繁忙状态
 }
+public enum TriggerType
+{
+    Circle,
+    Rect
+}
 
 
 

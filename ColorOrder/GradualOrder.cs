@@ -129,7 +129,7 @@ public class DoColor : GradualOrder
             return point.mat.DOGradientColor(gradient, during);
         }
         else
-            return point.mat.DOColor(targetColor, during);
+            return point.mat.DOBlendableColor(targetColor, during);
         // Debug.LogError("colorType未选择!");
         // return null;
     }

@@ -4,14 +4,14 @@ using UnityEngine;
 using Sirenix.OdinInspector;
 using UnityEngine.Playables;
 using UnityEngine.Timeline;
-[CreateAssetMenu(menuName = "创建记录容器", fileName = "新位置序列")]
-public class LightControlAsset : SerializedScriptableObject, IPlayableAsset
+[CreateAssetMenu(menuName = "创建ControlBlock", fileName = "new_ControlBlock")]
+public class ControlBlock : SerializedScriptableObject, IPlayableAsset
 {
     #region  IPlayableAsset
     public double duration { get; }
     public IEnumerable<PlayableBinding> outputs { get; }
     #endregion
-    public float animTime;
+
     [EnumToggleButtons]
     public OrderType orderType;
     [BoxGroup("Behavior Property")]
@@ -28,14 +28,10 @@ public class LightControlAsset : SerializedScriptableObject, IPlayableAsset
 
 
     #region Record
-    //[ReadOnly]
-    //public string objParent;
-    //[ReadOnly]
-    //public List<string> objs;
-    //[ReadOnly]
-    //public List<float> times;
-    public List<RecordData> recordGroup;
+    [BoxGroup("数据处理模块")]
     public RecordData data;
+    [BoxGroup("数据处理模块")]
+    public IDataProcesser processer;
     #endregion
     [ShowInInspector]
     [PropertyOrder(1)]
@@ -49,15 +45,17 @@ public class LightControlAsset : SerializedScriptableObject, IPlayableAsset
     [PropertyOrder(2)]
     public List<ColorOrderBase> colorOrders = new List<ColorOrderBase>();
 
-
-
     bool useOrderFile { get { return orderType == OrderType.OrderFile; } }
     int ObjCount { get { if (data.ObjNames != null) return data.ObjNames.Count - 1; else return 0; } }
-    ScriptPlayable<LightControlBehavior> scriptPlayable;
+    ScriptPlayable<ControlBehavior> scriptPlayable;
     public Playable CreatePlayable(PlayableGraph graph, GameObject owner)
     {
-        recordGroup = ProjectManager.Instance.RecordProject.RecordDic[owner.name];
-        LightControlBehavior behavior = new LightControlBehavior();
+        if (!Application.isPlaying)
+            return ScriptPlayable<ControlBehavior>.Create(graph);
+
+
+        //recordGroup = ProjectManager.Instance.RecordProject.RecordDic[owner.name];
+        ControlBehavior behavior = new ControlBehavior();
         if (orderType == OrderType.OrderFile)
         {
             behavior.orders = orderData.colorOrders;
@@ -69,7 +67,7 @@ public class LightControlAsset : SerializedScriptableObject, IPlayableAsset
         behavior.record = this;
         behavior.scriptPlayable = scriptPlayable;
         behavior.GraphParent = owner;
-        scriptPlayable = ScriptPlayable<LightControlBehavior>.Create(graph, behavior);
+        scriptPlayable = ScriptPlayable<ControlBehavior>.Create(graph, behavior);
         if (workRange == Vector2.zero)
             workRange = new Vector2(0, ObjCount);
         return scriptPlayable;
@@ -86,22 +84,25 @@ public class LightControlAsset : SerializedScriptableObject, IPlayableAsset
         {
             temp = MyTools.GetTotalTime(colorOrders);
         }
-        return temp + animTime;
+        return temp + data.animTime;
     }
-    [Button(ButtonSizes.Large)]
-    void ReadRecordData()
-    {
-        for(int i=0;i<recordGroup.Count;i++)
-        {
-            if (recordGroup[i].isSelect)
-            {
-                this.data.CopyFrom(recordGroup[i]);
-                animTime=recordGroup[i].animTime;
-                return;
-            }
-            Debug.LogError("没有选中要读取的数据");
-        }
-    }
+    // [Button(ButtonSizes.Large)]
+    // void ReadRecordData()
+    // {
+    //     for(int i=0;i<recordGroup.Count;i++)
+    //     {
+    //         if (recordGroup[i].isSelect)
+    //         {
+    //             this.data.CopyFrom(recordGroup[i]);
+    //             animTime=recordGroup[i].animTime;
+    //             return;
+    //         }
+    //         Debug.LogError("没有选中要读取的数据");
+    //     }
+    // }
+
+
+
     // [Button(ButtonSizes.Large)]
     // void ReadOrderFile()
     // {
@@ -112,6 +113,27 @@ public class LightControlAsset : SerializedScriptableObject, IPlayableAsset
     //     }
     //     Debug.Log("!");
     // }
+    [BoxGroup("数据处理模块")]
+    [Button(ButtonSizes.Large)]
+    void ProcessData()
+    {
+        processer.Process(ref data, data.animTime);
+        Debug.Log("数据处理完成");
+    }
+    [Button(ButtonSizes.Large)]
+    void FindData(string dataName)
+    {
+        var result = ProjectManager.Instance.RecordProject.RecordDic[ProjectManager.GetCurrentMR().name].Find((a) => a.dataName == dataName);
+        if (result != null)
+        {
+            data.CopyFrom(result);
+            ProcessData();
+        }
+        else
+        {
+            Debug.LogError("没有找到该数据");
+        }
+    }
 }
 
 

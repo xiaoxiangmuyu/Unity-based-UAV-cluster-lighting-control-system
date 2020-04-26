@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Timeline;
 using UnityEngine.Playables;
-public static class MyTools
+public class MyTools
 {
     public static float GetTotalTime(List<ColorOrderBase> orders)
     {
@@ -61,7 +61,7 @@ public static class MyTools
         {
             foreach (var clip in track.GetClips())
             {
-                var temp=clip.asset as LightControlAsset;
+                var temp=clip.asset as ControlBlock;
                 if(temp!=null)
                 {   
                     if(temp.data.ObjNames==null)
@@ -85,6 +85,37 @@ public static class MyTools
                 }
             }
 
+        }
+    }
+    public static List<GameObject> FindObjs(List<string>names)
+    {
+        List<GameObject> objects = new List<GameObject>();
+        Transform parent = ProjectManager.GetCurrentMR().transform;
+        foreach (var name in names)
+        {
+            MyTools.FindChild(parent, name);
+            if (tempObj == null)
+                Debug.LogError("没有找到" + name);
+            objects.Add(tempObj.gameObject);
+        }
+        return objects;
+
+    }
+    static Transform tempObj;
+    static void FindChild(Transform tran, string childName)
+    {
+        Transform target = tran.Find(childName);
+        if (target)
+        {
+            tempObj = target;
+            return;
+        }
+        else
+        {
+            for (int i = 0; i < tran.childCount; i++)
+            {
+                FindChild(tran.GetChild(i), childName);
+            }
         }
     }
 

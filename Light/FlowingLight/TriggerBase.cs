@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Sirenix.OdinInspector;
 using DG.Tweening;
+using UnityEditor;
 public class TriggerBase : SerializedMonoBehaviour
 {
     public List<RecordData> recordGroup;
@@ -15,6 +16,9 @@ public class TriggerBase : SerializedMonoBehaviour
     public List<string> targetTags = new List<string>(); // 影响的飞机的标签
     [HorizontalGroup("Tags")]
     public List<string> ignoreTags = new List<string>();
+
+
+    string currentTarget{get{return ProjectManager.GetCurrentMR().gameObject.name;}}
     protected virtual void Awake()
     {
 
@@ -22,7 +26,7 @@ public class TriggerBase : SerializedMonoBehaviour
     void Start()
     {
         data.Init();
-        recordGroup = ProjectManager.Instance.RecordProject.RecordDic[data.parentName];
+        recordGroup = ProjectManager.Instance.RecordProject.RecordDic[currentTarget];
     }
     // Update is called once per frame
     void Update()
@@ -32,8 +36,10 @@ public class TriggerBase : SerializedMonoBehaviour
     [Button(ButtonSizes.Gigantic)]
     void Push()
     {
-        ProjectManager.Instance.RecordProject.AddData(data.parentName,data);
+        ProjectManager.Instance.RecordProject.AddData(currentTarget,data);
         data.Clear();
+        EditorUtility.SetDirty(ProjectManager.Instance.RecordProject);
+        AssetDatabase.SaveAssets();
     }
 
     // [Button(ButtonSizes.Gigantic)]

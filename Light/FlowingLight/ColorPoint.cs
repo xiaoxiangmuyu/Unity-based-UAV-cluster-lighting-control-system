@@ -96,7 +96,7 @@ public class ColorPoint : MonoBehaviour
             return;
         }
 
-            TriggerBase.data.parentName = transform.root.name;
+            //TriggerBase.data.parentName = transform.root.name;
         if (TriggerBase.data.ObjNames.Exists((x) => x == gameObject.name))
             return;
         if (TriggerBase.recordTimer == 0)
@@ -143,7 +143,7 @@ public class ColorPoint : MonoBehaviour
             return;
         }
 
-            TriggerBase.data.parentName = transform.root.name;
+            //TriggerBase.data.parentName = transform.root.name;
         if (TriggerBase.data.ObjNames.Exists((x) => x == gameObject.name))
             return;
         if (TriggerBase.recordTimer == 0)

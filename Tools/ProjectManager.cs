@@ -4,6 +4,7 @@ using UnityEngine;
 using DG.Tweening;
 using UnityEngine.Playables;
 using Sirenix.OdinInspector;
+using UnityEditor;
 public class ProjectManager : MonoBehaviour
 {
     static MovementManager currentTarget;
@@ -53,17 +54,21 @@ public class ProjectManager : MonoBehaviour
     }
     public static MovementManager GetCurrentMR()
     {
+        if(ProjectManager.currentTarget==null)
+        {
+            MovementManager[] mm=GameObject.FindObjectsOfType<MovementManager>();
+            foreach(var m in mm)
+            {
+                if(m.enabled)
+                ProjectManager.currentTarget=m;
+            }
+        }
         return ProjectManager.currentTarget;
     }
     public static void ResetAllColorAndTween()
     {
         DOTween.CompleteAll();
         currentTarget.ResetAllColor();   
-    }
-    [Button(ButtonSizes.Gigantic)]
-    void Load()
-    {
-        recordProject=Resources.Load<RecordProject>(ProjectParentPath+ProjectManager.instance.projectName+"/RecordParent");
     }
 
 }
