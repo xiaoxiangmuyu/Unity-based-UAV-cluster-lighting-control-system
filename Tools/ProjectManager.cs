@@ -43,10 +43,10 @@ public class ProjectManager : MonoBehaviour
     }
     void Update()
     {
-        if(needUpdateTween)
-        {
-            DOTween.ManualUpdate(0.04f, 0.04f);
-        }
+        // if(needUpdateTween)
+        // {
+        //     DOTween.ManualUpdate(0.04f, 0.04f);
+        // }
     }
     public static void SetOperateTarget(MovementManager mr)
     {

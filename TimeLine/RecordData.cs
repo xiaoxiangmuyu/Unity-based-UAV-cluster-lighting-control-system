@@ -5,15 +5,17 @@ using Sirenix.OdinInspector;
 [System.Serializable]
 public class RecordData
 {
-    [SerializeField]
+    [SerializeField][OnValueChanged("EventDispatch")]
     public string dataName;
-    [SerializeField]
+    [SerializeField][OnValueChanged("EventDispatch")][MinValue(0.1f)]
     public float animTime;
 
     [SerializeField]
     public List<string>ObjNames;
     [SerializeField]
     public List<float>times;
+
+    List<System.Action>Actions;
     public RecordData(string name="")
     {
         dataName=name;
@@ -31,6 +33,7 @@ public class RecordData
     {
         ObjNames=new List<string>();
         times=new List<float>();
+
     }
     public void CopyFrom(RecordData data)
     {
@@ -40,4 +43,27 @@ public class RecordData
         ObjNames=new List<string>(data.ObjNames.ToArray());
         times=new List<float>(data.times.ToArray());
     }
+    public void AddListener(System.Action action)
+    {
+        if(Actions==null)
+        Actions=new List<System.Action>();
+
+        if(Actions.Contains(action))
+        return;
+
+        Actions.Add(action);
+    }
+    void EventDispatch()
+    {
+        if(Actions==null)
+        {
+            Debug.Log("Action为空");
+            return;
+        }
+        foreach(var action in Actions)
+        {
+            action();
+        }
+    }
+     
 }

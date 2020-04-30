@@ -25,10 +25,10 @@ public class ControlBehavior : PlayableBehaviour
     // Called when the owning graph starts playing
     public override void OnGraphStart(Playable playable)
     {
+        MyTools.UpdateDuring(GraphParent);
         if(!Application.isPlaying)
         return;
         Debug.Log("OnGraphStart");
-        MyTools.UpdateDuring(GraphParent);
         if (!hasInit)
             Init();
         // if (needResetState)
@@ -76,7 +76,7 @@ public class ControlBehavior : PlayableBehaviour
     {
         if (!Application.isPlaying)
             return;
-        DOTween.ManualUpdate(0.04f, 0.04f);
+        //DOTween.ManualUpdate(0.04f, 0.04f);
         timer += Time.deltaTime * record.speed;
         if (objs.Count == 0 || times.Count == 0)
         {

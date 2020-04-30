@@ -129,9 +129,10 @@ public class DoColor : GradualOrder
             return point.mat.DOGradientColor(gradient, during);
         }
         else
-            return point.mat.DOBlendableColor(targetColor, during);
-        // Debug.LogError("colorType未选择!");
-        // return null;
+            return point.mat.DOColor(targetColor, during);
+            //颜色混合在连续灯光命令中会发生内部融合导致灯光变化不正确
+            //return point.mat.DOBlendableColor(targetColor, during);
+
     }
 }
 

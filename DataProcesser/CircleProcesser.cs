@@ -4,13 +4,13 @@ using UnityEngine;
 using Sirenix.OdinInspector;
 public class CircleProcesser : IDataProcesser
 {
-    [BoxGroup("Behavior Property")]
+    [OnValueChanged("EventDispatch")]
     [Range(0, 1)]
     public float center_X;
-    [BoxGroup("Behavior Property")]
+    [OnValueChanged("EventDispatch")]
     [Range(0, 1)]
     public float center_Y;
-    void IDataProcesser.Process(ref RecordData data, float animTime)
+    public override void Process(ref RecordData data, float animTime)
     {
         if (animTime == 0)
         {
@@ -27,25 +27,16 @@ public class CircleProcesser : IDataProcesser
         foreach (var obj in objects)
         {
             Vector2 screenPos = mainCamera.WorldToScreenPoint(obj.transform.position);
-            if (!xMax.HasValue)
+            if (!xMax.HasValue||screenPos.x > xMax.Value)
                 xMax = screenPos.x;
-            if (!xMin.HasValue)
+            if (!xMin.HasValue||screenPos.x < xMin.Value)
                 xMin = screenPos.x;
-            if (!yMin.HasValue)
+            if (!yMin.HasValue||screenPos.y < yMin.Value)
                 yMin = screenPos.y;
-            if (!yMax.HasValue)
+            if (!yMax.HasValue||screenPos.y > yMax.Value)
                 yMax = screenPos.y;
 
-            if (screenPos.x > xMax.Value)
-                xMax = screenPos.x;
-            if (screenPos.x < xMin.Value)
-                xMin = screenPos.x;
-            if (screenPos.y > yMax.Value)
-                yMax = screenPos.y;
-            if (screenPos.y < yMin.Value)
-                yMin = screenPos.y;
         }
-        Rect rect = new Rect(xMin.Value + (xMax.Value - xMax.Value) / 2, yMin.Value + (yMax.Value - yMin.Value) / 2, xMax.Value - xMin.Value, yMax.Value - yMin.Value);
         Vector2 anchorPoint = new Vector2(xMin.Value + (xMax.Value - xMin.Value) * center_X, yMin.Value + (yMax.Value - yMin.Value) * center_Y);
         float maxDistance = 0;
         for (int i = 0; i < objects.Count; i++)

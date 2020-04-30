@@ -40,6 +40,8 @@ public class TriggerBase : SerializedMonoBehaviour
         data.Clear();
         EditorUtility.SetDirty(ProjectManager.Instance.RecordProject);
         AssetDatabase.SaveAssets();
+        GetComponent<Collider>().enabled=false;
+        recordTimer=0;
     }
 
     // [Button(ButtonSizes.Gigantic)]
