@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Playables;
 using Sirenix.OdinInspector;
-using UnityEngine.Timeline;
 using DG.Tweening;
 // A behaviour that is attached to a playable
 public class ControlBehavior : PlayableBehaviour

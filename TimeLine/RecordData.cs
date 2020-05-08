@@ -7,7 +7,7 @@ public class RecordData
 {
     [SerializeField][OnValueChanged("EventDispatch")]
     public string dataName;
-    [SerializeField][OnValueChanged("EventDispatch")][MinValue(0.1f)]
+    [SerializeField][OnValueChanged("EventDispatch")]
     public float animTime;
 
     [SerializeField]
@@ -33,7 +33,13 @@ public class RecordData
     {
         ObjNames=new List<string>();
         times=new List<float>();
-
+    }
+    public bool IsEmpty()
+    {
+        if(ObjNames.Count!=0&&times.Count!=0)
+        return false;
+        else 
+        return true;
     }
     public void CopyFrom(RecordData data)
     {

@@ -15,12 +15,12 @@ public class RectProcesser : IDataProcesser
     float B { get { return -1; } }
     float C { get { return offset; } }
 
-    public override void Process(ref RecordData data, float animTime)
+    public override bool Process(ref RecordData data, float animTime)
     {
         if (animTime == 0)
         {
             Debug.LogError("animTime为0");
-            return;
+            return false;
         }
         Camera mainCamera = Camera.main;
         List<GameObject> objects = MyTools.FindObjs(data.ObjNames);
@@ -102,5 +102,6 @@ public class RectProcesser : IDataProcesser
         }
         data.ObjNames = tempNames;
         data.times = tempTimes;
+        return true;
     }
 }

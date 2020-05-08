@@ -27,6 +27,7 @@ public class TriggerBase : SerializedMonoBehaviour
     {
         data.Init();
         recordGroup = ProjectManager.Instance.RecordProject.RecordDic[currentTarget];
+        data.animTime=GetComponent<DOTweenAnimation>()?GetComponent<DOTweenAnimation>().duration:GetComponent<DOTweenPath>().duration;
     }
     // Update is called once per frame
     void Update()

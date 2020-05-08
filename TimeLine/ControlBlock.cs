@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using Sirenix.OdinInspector;
 using UnityEngine.Playables;
-using UnityEngine.Timeline;
 [CreateAssetMenu(menuName = "创建ControlBlock", fileName = "new_ControlBlock")]
 public class ControlBlock : SerializedScriptableObject, IPlayableAsset
 {
@@ -29,9 +28,11 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
 
     #region Record
     bool needProcess;
-    [BoxGroup("数据处理模块")][OnValueChanged("Register")]
+    [BoxGroup("数据处理模块")]
+    [OnValueChanged("Register")]
     public RecordData data;
-    [BoxGroup("数据处理模块")][OnValueChanged("Register")]
+    [BoxGroup("数据处理模块")]
+    [OnValueChanged("Register")]
     public IDataProcesser processer;
     #endregion
     [ShowInInspector]
@@ -116,14 +117,17 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
     // }
 
     [BoxGroup("数据处理模块")]
-    [Button(ButtonSizes.Large),GUIColor(1,0.2f,0)][ShowIf("needProcess")]
+    [Button(ButtonSizes.Large), GUIColor(1, 0.2f, 0)]
+    [ShowIf("needProcess")]
     void ProcessData()
     {
-        processer.Process(ref data, data.animTime);
-        needProcess=false;
-        Debug.Log("数据处理完成");
+        if (processer.Process(ref data, data.animTime))
+        {
+            needProcess = false;
+            Debug.Log("数据处理完成");
+        }
     }
-    
+
     [Button(ButtonSizes.Large)]
     void FindData(string dataName)
     {
@@ -131,8 +135,8 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
         if (result != null)
         {
             data.CopyFrom(result);
-            if(processer!=null)
-            ProcessData();
+            if (processer != null)
+                ProcessData();
             Register();
         }
         else
@@ -143,15 +147,15 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
     [Button]
     void Register()
     {
-        if(data!=null)
-        data.AddListener(BtnSwitch);
-        if(processer!=null)
-        processer.AddListener(BtnSwitch);
+        if (data != null)
+            data.AddListener(BtnSwitch);
+        if (processer != null)
+            processer.AddListener(BtnSwitch);
         Debug.Log("注册完成");
     }
     void BtnSwitch()
     {
-        needProcess=true;
+        needProcess = true;
     }
 }
 

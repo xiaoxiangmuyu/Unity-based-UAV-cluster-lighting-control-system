@@ -5,7 +5,7 @@ using UnityEngine;
 public abstract class IDataProcesser 
 {
     public List<System.Action>Actions;
-    public abstract void Process(ref RecordData data,float animTime);
+    public abstract bool Process(ref RecordData data,float animTime);
     public virtual void EventDispatch()
     {
         foreach(var action in Actions)

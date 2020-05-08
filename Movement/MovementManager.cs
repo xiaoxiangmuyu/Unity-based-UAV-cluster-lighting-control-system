@@ -162,14 +162,14 @@ public class MovementManager : MonoBehaviour
         {
             Debug.LogError("导出路径不合法");
         }
-        // if (transform.position != ProjectManager.instance.PosInfo)
-        // {
-        //     Debug.LogError(gameObject.name + "位置与其他图案不一致");
-        // }
-        // if (transform.rotation != ProjectManager.instance.RotationInfo)
-        // {
-        //     Debug.LogError(gameObject.name + "旋转信息与其他图案不一致");
-        // }
+        if (transform.position != ProjectManager.Instance.PosInfo)
+        {
+            Debug.LogError(gameObject.name + "位置与其他图案不一致");
+        }
+        if (transform.rotation != ProjectManager.Instance.RotationInfo)
+        {
+            Debug.LogError(gameObject.name + "旋转信息与其他图案不一致");
+        }
         if (movementChecks.Count != ProjectManager.Instance.ChildCount)
         {
             Debug.LogError(gameObject.name + "子物体数量与其他图案不一致" + movementChecks.Count);
@@ -184,7 +184,7 @@ public class MovementManager : MonoBehaviour
     {
         if (!FrameCheck())
         {
-            //Debug.LogError("txt行数不一致");
+            Debug.LogError("txt行数不一致");
             return false;
         }
         if (!CheckExportPath())
@@ -200,16 +200,16 @@ public class MovementManager : MonoBehaviour
                 return false;
             }
         }
-        // if (transform.position != ProjectManager.instance.PosInfo)
-        // {
-        //     Debug.LogError(gameObject.name + "位置与其他图案不一致");
-        //     return false;
-        // }
-        // if (transform.rotation != ProjectManager.instance.RotationInfo)
-        // {
-        //     Debug.LogError(gameObject.name + "旋转信息与其他图案不一致");
-        //     return false;
-        // }
+        if (transform.position != ProjectManager.Instance.PosInfo)
+        {
+            Debug.LogError(gameObject.name + "位置与其他图案不一致");
+            return false;
+        }
+        if (transform.rotation != ProjectManager.Instance.RotationInfo)
+        {
+            Debug.LogError(gameObject.name + "旋转信息与其他图案不一致");
+            return false;
+        }
         if (movementChecks.Count != ProjectManager.Instance.ChildCount)
         {
             Debug.LogError(gameObject.name + "子物体数量与其他图案不一致" + movementChecks.Count);

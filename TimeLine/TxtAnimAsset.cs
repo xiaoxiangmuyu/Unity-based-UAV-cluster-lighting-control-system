@@ -4,7 +4,6 @@ using UnityEngine;
 using UnityEngine.Playables;
 using Sirenix.OdinInspector;
 using DG.Tweening;
-using UnityEngine.Timeline;
 [CreateAssetMenu(menuName = "创建动画序列", fileName = "新动画序列")]
 public class TxtAnimAsset : SerializedScriptableObject, IPlayableAsset
 {

@@ -10,12 +10,12 @@ public class CircleProcesser : IDataProcesser
     [OnValueChanged("EventDispatch")]
     [Range(0, 1)]
     public float center_Y;
-    public override void Process(ref RecordData data, float animTime)
+    public override bool Process(ref RecordData data, float animTime)
     {
         if (animTime == 0)
         {
             Debug.LogError("animTime为0");
-            return;
+            return false;
         }
         Camera mainCamera = Camera.main;
         List<GameObject> objects = MyTools.FindObjs(data.ObjNames);
@@ -73,5 +73,6 @@ public class CircleProcesser : IDataProcesser
         }
         data.ObjNames = tempNames;
         data.times = tempTimes;
+        return true;
     }
 }

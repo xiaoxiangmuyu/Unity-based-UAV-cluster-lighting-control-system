@@ -20,11 +20,9 @@ public class MyCustomEditor : Editor
             menu.AddItem(new GUIContent("显示"), false, Show, "menu_1");
             menu.AddItem(new GUIContent("隐藏"), false, Hide, "menu_2");
             menu.AddItem(new GUIContent("MoveToView"), false, SetCameraPos, "menu_3");
-            menu.AddItem(new GUIContent("取消所有动画"),false,CancelTween,"menu_4");
-           // menu.AddItem(new GUIContent("Dotween手动模式"), false, DotweenManualUpdate, "menu_2");
-            //menu.AddItem(new GUIContent("Dotween普通模式"), false, DotweenNormalUpdate, "menu_2");
-            //menu.AddItem(new GUIContent("显示名字"), false, delegate{ShowSceneObjName.Show=true;}, "menu_2");
-            //menu.AddItem(new GUIContent("隐藏名字"), false, delegate{ShowSceneObjName.Show=false;}, "menu_2");
+            menu.AddItem(new GUIContent("创建组"),false,CreatGroup,"menu_4");
+            //menu.AddItem(new GUIContent("取消所有动画"),false,CancelTween,"menu_4");
+
 
             menu.ShowAsContext();
         }
@@ -58,13 +56,16 @@ public class MyCustomEditor : Editor
     {
         ProjectManager.ResetAllColorAndTween();
     }
-    static void DotweenManualUpdate(object userData)
+    static void CreatGroup(object userData)
     {
-        DOTween.defaultUpdateType=UpdateType.Manual;
-    }
-    static void DotweenNormalUpdate(object userData)
-    {
-        DOTween.defaultUpdateType=UpdateType.Normal;
+        RecordData tempdata=new RecordData();
+        foreach(var point in Selection.objects)
+        {
+            tempdata.ObjNames.Add(point.name);
+            tempdata.times.Add(0);
+        }
+        ProjectManager.Instance.RecordProject.AddData(ProjectManager.GetCurrentMR().name,tempdata);
+        Debug.Log("创建组成功");
     }
     public class ShowSceneObjName : Editor
     {

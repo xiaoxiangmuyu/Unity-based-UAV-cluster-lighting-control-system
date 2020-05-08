@@ -1,8 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Timeline;
 using UnityEngine.Playables;
+using UnityEngine.Timeline;
 public class MyTools
 {
     public static float GetTotalTime(List<ColorOrderBase> orders)
@@ -64,7 +64,7 @@ public class MyTools
                 var temp=clip.asset as ControlBlock;
                 if(temp!=null)
                 {   
-                    if(temp.data.ObjNames==null)
+                    if(temp.GetDuring()==0)
                     clip.duration=3;
                     else
                     clip.duration=temp.GetDuring();
