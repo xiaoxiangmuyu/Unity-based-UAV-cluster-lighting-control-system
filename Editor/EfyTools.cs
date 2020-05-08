@@ -83,8 +83,8 @@ public class EfyTools
                 RotationInfo = obj.transform.rotation;
                 PosInfo = obj.transform.position;
                 maxChildCount = childCount;
-                //ProjectManager.instance.RotationInfo = RotationInfo;
-                //ProjectManager.instance.PosInfo = PosInfo;
+                ProjectManager.Instance.RotationInfo = RotationInfo;
+                ProjectManager.Instance.PosInfo = PosInfo;
                 ProjectManager.Instance.ChildCount = maxChildCount;
                 Debug.Log("本项目共" + maxChildCount + "架飞机");
             }
@@ -92,10 +92,10 @@ public class EfyTools
             {
                 if (childCount != maxChildCount)
                     Debug.LogError(obj.name + "图案飞机数量与其他图案不一致" + childCount + "  " + maxChildCount);
-                // if (obj.transform.position != PosInfo)
-                //     Debug.LogError(obj.name + "图案位置信息与其他图案不一致");
-                // if (obj.transform.rotation != RotationInfo)
-                //     Debug.LogError(obj.name + "图案旋转信息与其他图案不一致");
+                if (obj.transform.position != PosInfo)
+                    Debug.LogError(obj.name + "图案位置信息与其他图案不一致");
+                if (obj.transform.rotation != RotationInfo)
+                    Debug.LogError(obj.name + "图案旋转信息与其他图案不一致");
             }
 
         }
@@ -152,18 +152,36 @@ public class EfyTools
         recordProject.RecordDic = new Dictionary<string, List<RecordData>>();
         if (!Directory.Exists(projectPath + projectName))
             Directory.CreateDirectory(projectPath + projectName);
-        AssetDatabase.CreateAsset(recordProject, projectPath + projectName + "/RecordParent.asset");
+        if (!File.Exists(projectPath + projectName + "/RecordParent.asset"))
+            AssetDatabase.CreateAsset(recordProject, projectPath + projectName + "/RecordParent.asset");
         return recordProject;
 
     }
     static void CreateTimeLine(GameObject obj, string projectName)
     {
-        var asset = TimelineAsset.CreateInstance<TimelineAsset>();
-        asset.editorSettings.fps = 25;
-        AssetDatabase.CreateAsset(asset, projectPath + projectName + "/" + obj.name + ".playable");
-        if (!obj.GetComponent<PlayableDirector>())
+        TimelineAsset asset;
+        if (File.Exists(projectPath + projectName + "/" + obj.name + ".playable"))
         {
-            obj.AddComponent<PlayableDirector>().playableAsset = asset;
+            Debug.Log(projectPath + projectName + "/" + obj.name + ".playable" + "已存在");
+            asset=Resources.Load<TimelineAsset>("Projects/" + projectName + "/" + obj.name);
+            if (!obj.GetComponent<PlayableDirector>())
+            {
+                obj.AddComponent<PlayableDirector>().playableAsset = asset;
+            }
+            else
+            obj.GetComponent<PlayableDirector>().playableAsset=asset;
+        }
+        else
+        {
+            asset = TimelineAsset.CreateInstance<TimelineAsset>();
+            asset.editorSettings.fps = 25;
+            AssetDatabase.CreateAsset(asset, projectPath + projectName + "/" + obj.name + ".playable");
+            if (!obj.GetComponent<PlayableDirector>())
+            {
+                obj.AddComponent<PlayableDirector>().playableAsset = asset;
+            }
+            else
+            obj.GetComponent<PlayableDirector>().playableAsset=asset;
         }
     }
 }
