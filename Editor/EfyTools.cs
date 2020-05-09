@@ -148,13 +148,20 @@ public class EfyTools
     }
     static RecordProject CreatRecordProject(string projectName)
     {
-        RecordProject recordProject = ScriptableObject.CreateInstance<RecordProject>();
-        recordProject.RecordDic = new Dictionary<string, List<RecordData>>();
+        RecordProject recordProject;
         if (!Directory.Exists(projectPath + projectName))
             Directory.CreateDirectory(projectPath + projectName);
         if (!File.Exists(projectPath + projectName + "/RecordParent.asset"))
+        {
+            recordProject = ScriptableObject.CreateInstance<RecordProject>();
+            recordProject.RecordDic = new Dictionary<string, List<RecordData>>();
             AssetDatabase.CreateAsset(recordProject, projectPath + projectName + "/RecordParent.asset");
-        return recordProject;
+        }
+        else
+        {
+            recordProject=Resources.Load<RecordProject>("Projects/"+projectName + "/RecordParent");
+        }
+            return recordProject;
 
     }
     static void CreateTimeLine(GameObject obj, string projectName)
@@ -163,13 +170,13 @@ public class EfyTools
         if (File.Exists(projectPath + projectName + "/" + obj.name + ".playable"))
         {
             Debug.Log(projectPath + projectName + "/" + obj.name + ".playable" + "已存在");
-            asset=Resources.Load<TimelineAsset>("Projects/" + projectName + "/" + obj.name);
+            asset = Resources.Load<TimelineAsset>("Projects/" + projectName + "/" + obj.name);
             if (!obj.GetComponent<PlayableDirector>())
             {
                 obj.AddComponent<PlayableDirector>().playableAsset = asset;
             }
             else
-            obj.GetComponent<PlayableDirector>().playableAsset=asset;
+                obj.GetComponent<PlayableDirector>().playableAsset = asset;
         }
         else
         {
@@ -181,7 +188,7 @@ public class EfyTools
                 obj.AddComponent<PlayableDirector>().playableAsset = asset;
             }
             else
-            obj.GetComponent<PlayableDirector>().playableAsset=asset;
+                obj.GetComponent<PlayableDirector>().playableAsset = asset;
         }
     }
 }
