@@ -16,7 +16,7 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
     [BoxGroup("Behavior Property")]
     public float speed = 1;
     [BoxGroup("Behavior Property")]
-    [MinMaxSlider(0, "ObjCount", true)]
+    [MinMaxSlider(0, "ObjMaxIndex", true)]
     public Vector2 workRange;
     [BoxGroup("Behavior Property")]
     public bool isflip;
@@ -48,7 +48,7 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
     public List<ColorOrderBase> colorOrders = new List<ColorOrderBase>();
 
     bool useOrderFile { get { return orderType == OrderType.OrderFile; } }
-    int ObjCount { get { if (data.ObjNames != null) return data.ObjNames.Count - 1; else return 0; } }
+    int ObjMaxIndex { get { if (data.ObjNames != null) return data.ObjNames.Count - 1; else return 0; } }
     ScriptPlayable<ControlBehavior> scriptPlayable;
     public Playable CreatePlayable(PlayableGraph graph, GameObject owner)
     {
@@ -71,7 +71,7 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
         behavior.GraphParent = owner;
         scriptPlayable = ScriptPlayable<ControlBehavior>.Create(graph, behavior);
         if (workRange == Vector2.zero)
-            workRange = new Vector2(0, ObjCount);
+            workRange = new Vector2(0, ObjMaxIndex);
         return scriptPlayable;
 
     }
@@ -119,7 +119,7 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
     [BoxGroup("数据处理模块")]
     [Button(ButtonSizes.Large), GUIColor(1, 0.2f, 0)]
     [ShowIf("needProcess")]
-    void ProcessData()
+    public void ProcessData()
     {
         if (processer.Process(ref data, data.animTime))
         {
@@ -129,7 +129,7 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
     }
 
     [Button(ButtonSizes.Large)]
-    void FindData(string dataName)
+    public void FindData(string dataName)
     {
         var result = ProjectManager.Instance.RecordProject.RecordDic[ProjectManager.GetCurrentMR().name].Find((a) => a.dataName == dataName);
         if (result != null)
@@ -143,6 +143,10 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
         {
             Debug.LogError("没有找到该数据");
         }
+    }
+    public void SetWorkRangeMax()
+    {
+        workRange.y=ObjMaxIndex;
     }
     [Button]
     void Register()
