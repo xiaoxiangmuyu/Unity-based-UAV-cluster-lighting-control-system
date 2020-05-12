@@ -311,11 +311,11 @@ public class MovementManager : MonoBehaviour
                     }
                 }
             }
-            if (GetComponent<TxtForAnimation>())
-            {
-                FrameExport("/StartFrame.txt", FrameType.start);
-                FrameExport("/EndFrame.txt", FrameType.end);
-            }
+            // if (GetComponent<TxtForAnimation>())
+            // {
+            //     FrameExport("/StartFrame.txt", FrameType.start);
+            //     FrameExport("/EndFrame.txt", FrameType.end);
+            // }
             Debug.Log("<<<<<    导出完成    >>>>>");
             AssetDatabase.Refresh();
         }
