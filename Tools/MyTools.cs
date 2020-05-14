@@ -77,7 +77,7 @@ public class MyTools
                     else
                     {
                         var temp3=clip.asset as OverallAsset;
-                        if(temp3.targetName==null||temp3.targetName=="")
+                        if(temp3.processTimes*temp3.processInterval+temp3.GetDuring()==0)
                         clip.duration=3;
                         else
                         clip.duration=temp3.processTimes*temp3.processInterval+temp3.GetDuring();
