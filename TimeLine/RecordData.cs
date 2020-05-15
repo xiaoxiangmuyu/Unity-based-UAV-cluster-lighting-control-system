@@ -19,7 +19,7 @@ public class RecordData
     public RecordData(string name="")
     {
         dataName=name;
-        animTime=1;
+        animTime=0;
         ObjNames=new List<string>();
         times=new List<float>();
     }

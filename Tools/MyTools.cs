@@ -73,7 +73,10 @@ public class MyTools
                 {
                     var temp2=clip.asset as TxtAnimAsset;
                     if(temp2!=null)
+                    {
                     clip.duration=temp2.totalFrameCount/25+temp2.safeSeconds;
+                    temp2.SetStartFrame(Mathf.RoundToInt((float)clip.start*25));
+                    }
                     else
                     {
                         var temp3=clip.asset as OverallAsset;

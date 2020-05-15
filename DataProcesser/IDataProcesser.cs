@@ -5,6 +5,7 @@ using UnityEngine;
 public abstract class IDataProcesser 
 {
     public List<System.Action>Actions;
+    public event System.Action OnProcessComplete; 
     public abstract bool Process(ref RecordData data,float animTime);
     public virtual void EventDispatch()
     {
@@ -20,7 +21,12 @@ public abstract class IDataProcesser
         
         if(Actions.Contains(action))
         return;
-        
         Actions.Add(action);
+        
+    }
+    public virtual void ProcessComplete()
+    {
+        if(OnProcessComplete!=null)
+        OnProcessComplete();
     }
 }

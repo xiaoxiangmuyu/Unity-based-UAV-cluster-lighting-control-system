@@ -28,7 +28,7 @@ public class OverallAsset : SerializedScriptableObject, IPlayableAsset
     public OrderData orderData;
     public List<ColorOrderBase> ColorOrders{get{if(useOrderFile)return orderData.colorOrders;else return colorOrders;}}
     [HideIf("useOrderFile")]
-    public List<ColorOrderBase>colorOrders;
+    public List<ColorOrderBase>colorOrders=new List<ColorOrderBase>();
 
     bool useOrderFile{get{return orderType==OrderType.OrderFile;}}
     float timer;

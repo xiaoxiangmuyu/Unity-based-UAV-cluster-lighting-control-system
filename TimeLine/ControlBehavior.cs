@@ -7,19 +7,14 @@ using DG.Tweening;
 // A behaviour that is attached to a playable
 public class ControlBehavior : PlayableBehaviour
 {
-    public List<ColorOrderBase> orders;
     public ControlBlock record;
-    public ScriptPlayable<ControlBehavior> scriptPlayable;
     public GameObject GraphParent;
 
-    List<GameObject> objs;
-    List<float> times;
     List<bool> hasProcess;
     float timer;
-    bool hasInit;
+    List<float> times{get{return record.data.times;}}
     bool needResetState { get { return hasProcess.Exists((x) => x == true); } }
     Vector2 workRange { get { return record.workRange; } }
-    string currentTarget{get{return ProjectManager.GetCurrentMR().gameObject.name;}}
 
     // Called when the owning graph starts playing
     public override void OnGraphStart(Playable playable)
@@ -27,9 +22,14 @@ public class ControlBehavior : PlayableBehaviour
         MyTools.UpdateDuring(GraphParent);
         if(!Application.isPlaying)
         return;
-        Debug.Log("OnGraphStart");
-        if (!hasInit)
-            Init();
+        if(hasProcess==null)
+        {
+            hasProcess=new List<bool>();
+            for(int i=0;i<record.data.ObjNames.Count;i++)
+            {
+                hasProcess.Add(false);
+            }
+        }
         // if (needResetState)
         //     ResetState();
     }
@@ -77,11 +77,6 @@ public class ControlBehavior : PlayableBehaviour
             return;
         //DOTween.ManualUpdate(0.04f, 0.04f);
         timer += Time.deltaTime * record.speed;
-        if (objs.Count == 0 || times.Count == 0)
-        {
-            Debug.Log("执行物体为空");
-            return;
-        }
         Process(record.isflip);
 
     }
@@ -93,9 +88,9 @@ public class ControlBehavior : PlayableBehaviour
         {
             for (int i = (int)workRange.x; i <= (int)workRange.y; i++)
             {
-                 if (i > objs.Count - 1)
+                 if (i > record.objs.Count - 1)
                 {
-                    i = i - objs.Count;
+                    i = i - record.objs.Count;
                 }
                 if (record.timeInit)
                     timeIndex = counter;
@@ -103,7 +98,7 @@ public class ControlBehavior : PlayableBehaviour
                     timeIndex = i;
                 if (timer >= times[timeIndex] && hasProcess[i] == false)
                 {
-                    objs[i].GetComponent<ColorPoint>().SetProcessType(orders, record.forceMode);
+                    record.objs[i].GetComponent<ColorPoint>().SetProcessType(record.colorOrders, record.forceMode);
                     hasProcess[i] = true;
                 }
                 counter += 1;
@@ -115,7 +110,7 @@ public class ControlBehavior : PlayableBehaviour
             {
                 if (i < 0)
                 {
-                    i = i + objs.Count;
+                    i = i + record.objs.Count;
                 }
                 if (record.timeInit)
                     timeIndex = counter;
@@ -123,7 +118,7 @@ public class ControlBehavior : PlayableBehaviour
                     timeIndex = i;
                 if (timer >= times[timeIndex] && hasProcess[i] == false)
                 {
-                    objs[i].GetComponent<ColorPoint>().SetProcessType(orders, record.forceMode);
+                    record.objs[i].GetComponent<ColorPoint>().SetProcessType(record.colorOrders, record.forceMode);
                     hasProcess[i] = true;
                 }
                 counter += 1;
@@ -132,28 +127,7 @@ public class ControlBehavior : PlayableBehaviour
         // if (!hasProcess.Exists((x) => x == false))
         //     isFinish = true;
     }
-    void Init()
-    {
-        if(record.data.ObjNames==null)
-        return;
-        objs = new List<GameObject>();
-        times = new List<float>();
-        hasProcess = new List<bool>();
-        GameObject parent = GameObject.Find(currentTarget);
-        if(parent==null)
-        Debug.LogError("没有找到父物体 "+currentTarget);
-        foreach (var name in record.data.ObjNames)
-        {
-            FindChild(parent.transform, name);
-            if (!tempObj)
-                Debug.LogError("没有找到" + name);
-            objs.Add(tempObj.gameObject);
-            hasProcess.Add(false);
-        }
-        foreach (var time in record.data.times)
-            times.Add(time);
-        hasInit = true;
-    }
+    
     void ResetState()
     {
         for (int i = 0; i < hasProcess.Count; i++)
@@ -164,21 +138,5 @@ public class ControlBehavior : PlayableBehaviour
         ProjectManager.ResetAllColorAndTween();
         Debug.Log("ResetState");
     }
-    Transform tempObj;
-    void FindChild(Transform tran, string childName)
-    {
-        Transform target = tran.Find(childName);
-        if (target)
-        {
-            tempObj = target;
-            return;
-        }
-        else
-        {
-            for (int i = 0; i < tran.childCount; i++)
-            {
-                FindChild(tran.GetChild(i), childName);
-            }
-        }
-    }
+    
 }

@@ -18,14 +18,16 @@ public class TxtAnimAsset : SerializedScriptableObject, IPlayableAsset
     [LabelText("总时长")]
     public float seconds{get{return totalFrameCount/25;}}
     TxtForAnimation script;
+    ScriptPlayable<TxtAnimBehavior>scriptPlayable;
     public Playable CreatePlayable(PlayableGraph graph, GameObject owner)
     {
-        var scriptPlayable = ScriptPlayable<TxtAnimBehavior>.Create(graph);
+        scriptPlayable = ScriptPlayable<TxtAnimBehavior>.Create(graph);
         script = owner.GetComponent<TxtForAnimation>();
         if (script!=null)
         {
             totalFrameCount = script.totalFrameCount;
             scriptPlayable.GetBehaviour().script = script;
+            scriptPlayable.GetBehaviour().GraphParent=owner;
         }
         scriptPlayable.GetBehaviour().director = owner.GetComponent<PlayableDirector>();
         scriptPlayable.GetBehaviour().movementManager=owner.GetComponent<MovementManager>();
@@ -35,6 +37,10 @@ public class TxtAnimAsset : SerializedScriptableObject, IPlayableAsset
     void ResetTween()
     {
         DOTween.KillAll();
+    }
+    public void SetStartFrame(int frame)
+    {
+        scriptPlayable.GetBehaviour().startFrame=frame;
     }
 
 }

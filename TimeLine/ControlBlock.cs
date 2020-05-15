@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Sirenix.OdinInspector;
 using UnityEngine.Playables;
+using UnityEngine.Events;
 [CreateAssetMenu(menuName = "创建ControlBlock", fileName = "new_ControlBlock")]
 public class ControlBlock : SerializedScriptableObject, IPlayableAsset
 {
@@ -26,6 +27,7 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
     public bool timeInit;
 
 
+
     #region Record
     bool needProcess;
     [BoxGroup("数据处理模块")]
@@ -46,30 +48,20 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
     [HideIf("useOrderFile")]
     [PropertyOrder(2)]
     public List<ColorOrderBase> colorOrders = new List<ColorOrderBase>();
+    public List<GameObject> objs;
 
     bool useOrderFile { get { return orderType == OrderType.OrderFile; } }
     int ObjMaxIndex { get { if (data.ObjNames != null) return data.ObjNames.Count - 1; else return 0; } }
-    ScriptPlayable<ControlBehavior> scriptPlayable;
+    ControlBehavior behavior;
     public Playable CreatePlayable(PlayableGraph graph, GameObject owner)
     {
         // if (!Application.isPlaying)
         //     return ScriptPlayable<ControlBehavior>.Create(graph);
-
-
         //recordGroup = ProjectManager.Instance.RecordProject.RecordDic[owner.name];
-        ControlBehavior behavior = new ControlBehavior();
-        if (orderType == OrderType.OrderFile)
-        {
-            behavior.orders = orderData.colorOrders;
-        }
-        else
-        {
-            behavior.orders = colorOrders;
-        }
+        behavior = new ControlBehavior();
         behavior.record = this;
-        behavior.scriptPlayable = scriptPlayable;
         behavior.GraphParent = owner;
-        scriptPlayable = ScriptPlayable<ControlBehavior>.Create(graph, behavior);
+        var scriptPlayable = ScriptPlayable<ControlBehavior>.Create(graph, behavior);
         if (workRange == Vector2.zero)
             workRange = new Vector2(0, ObjMaxIndex);
         return scriptPlayable;
@@ -123,8 +115,8 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
     {
         if (processer.Process(ref data, data.animTime))
         {
+
             needProcess = false;
-            Debug.Log("数据处理完成");
         }
     }
 
@@ -146,7 +138,7 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
     }
     public void SetWorkRangeMax()
     {
-        workRange.y=ObjMaxIndex;
+        workRange.y = ObjMaxIndex;
     }
     [Button]
     void Register()
@@ -154,12 +146,49 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
         if (data != null)
             data.AddListener(BtnSwitch);
         if (processer != null)
+        {
             processer.AddListener(BtnSwitch);
+            processer.OnProcessComplete += Init;
+        }
+        else
+        Init();
         Debug.Log("注册完成");
     }
     void BtnSwitch()
     {
         needProcess = true;
+    }
+    public void Init()
+    {
+        objs = new List<GameObject>();
+        GameObject parent = GameObject.Find(ProjectManager.GetCurrentMR().gameObject.name);
+        if (parent == null)
+            Debug.LogError("没有找到父物体 " + ProjectManager.GetCurrentMR().gameObject.name);
+        foreach (var name in data.ObjNames)
+        {
+            FindChild(parent.transform, name);
+            if (!tempObj)
+                Debug.LogError("没有找到" + name);
+            objs.Add(tempObj.gameObject);
+        }
+        Debug.Log("Init finish");
+    }
+    Transform tempObj;
+    void FindChild(Transform tran, string childName)
+    {
+        Transform target = tran.Find(childName);
+        if (target)
+        {
+            tempObj = target;
+            return;
+        }
+        else
+        {
+            for (int i = 0; i < tran.childCount; i++)
+            {
+                FindChild(tran.GetChild(i), childName);
+            }
+        }
     }
 }
 

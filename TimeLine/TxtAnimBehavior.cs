@@ -5,9 +5,11 @@ using UnityEngine.Playables;
 using DG.Tweening;
 public class TxtAnimBehavior : PlayableBehaviour
 {
+    public GameObject GraphParent;
     public TxtForAnimation script;
     public PlayableDirector director;
     public MovementManager movementManager;
+    public int startFrame;
     int curframe;
     
     public override void ProcessFrame(Playable playable, FrameData info, object playerData)
@@ -21,20 +23,21 @@ public class TxtAnimBehavior : PlayableBehaviour
     }
     public override void OnBehaviourPlay(Playable playable, FrameData info)
     {
-        //Debug.Log("OnBehaviourPlay");
+        
     }
     public override void OnGraphStart(Playable playable)
     {      
-        //DOTween.KillAll();
+        MyTools.UpdateDuring(GraphParent);
     }
     //随时间轴进度条更新位置
     void UpdatePos()
     {
         if(!script)
         return;
-        curframe=Mathf.RoundToInt((float)director.time*25);
+        curframe=Mathf.RoundToInt((float)director.time*25)-startFrame;
         //Debug.Log(curframe);
         script.MyUpdate(curframe);
+        //Debug.LogFormat("startFrame:{0}",startFrame);
     }
     //逐帧更新位置
     void UpdatePosFrameByFrame()
