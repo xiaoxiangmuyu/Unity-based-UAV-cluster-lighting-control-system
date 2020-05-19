@@ -64,6 +64,7 @@ public class MyTools
                 var temp=clip.asset as ControlBlock;
                 if(temp!=null)
                 {   
+                    temp.Register();
                     if(temp.GetDuring()==0)
                     clip.duration=3;
                     else

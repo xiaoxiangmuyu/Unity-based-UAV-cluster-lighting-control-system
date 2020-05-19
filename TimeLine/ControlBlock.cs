@@ -141,18 +141,18 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
         workRange.y = ObjMaxIndex;
     }
     [Button]
-    void Register()
+    public void Register()
     {
         if (data != null)
             data.AddListener(BtnSwitch);
         if (processer != null)
         {
-            processer.AddListener(BtnSwitch);
-            processer.OnProcessComplete += Init;
+            processer.AddValueChangeListener(BtnSwitch);
+            processer.AddProcessCompleteListener(Init);
         }
-        else
+        else if(objs==null||objs.Count==0)
         Init();
-        Debug.Log("注册完成");
+        //Debug.Log("注册完成");
     }
     void BtnSwitch()
     {
@@ -171,7 +171,7 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
                 Debug.LogError("没有找到" + name);
             objs.Add(tempObj.gameObject);
         }
-        Debug.Log("Init finish");
+        Debug.Log("Find GameObjects");
     }
     Transform tempObj;
     void FindChild(Transform tran, string childName)

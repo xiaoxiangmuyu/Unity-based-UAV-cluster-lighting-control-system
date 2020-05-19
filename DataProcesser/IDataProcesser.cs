@@ -1,32 +1,64 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
-public abstract class IDataProcesser 
+using DG.Tweening;
+using Sirenix.OdinInspector;
+using UnityEngine.Events;
+public abstract class IDataProcesser
 {
-    public List<System.Action>Actions;
-    public event System.Action OnProcessComplete; 
-    public abstract bool Process(ref RecordData data,float animTime);
+    [OnValueChanged("EventDispatch")]
+    public Ease easeType;
+    public abstract bool Process(ref RecordData data, float animTime);
+
+
+    protected List<System.Action> OnValueChangeActions;
+    protected List<System.Action> OnProcessCompleteActions;
+    protected bool isProcessed;
+    protected List<string> tempNames;
+    protected List<float> tempTimes;
+    protected List<int> index;
+    protected List<GameObject> objects;
+    protected Camera mainCamera;
+    protected float timer;
+    protected RecordData data;
+
+
     public virtual void EventDispatch()
     {
-        foreach(var action in Actions)
+        foreach (var action in OnValueChangeActions)
         {
             action();
         }
     }
-    public virtual void AddListener(System.Action action)
+    public virtual void AddValueChangeListener(System.Action action)
     {
-        if(Actions==null)
-        Actions=new List<System.Action>();
-        
-        if(Actions.Contains(action))
-        return;
-        Actions.Add(action);
-        
+        if (OnValueChangeActions == null)
+            OnValueChangeActions = new List<System.Action>();
+
+        if (OnValueChangeActions.Contains(action))
+            return;
+
+        OnValueChangeActions.Add(action);
+
+    }
+    public virtual void AddProcessCompleteListener(System.Action action)
+    {
+        if (OnProcessCompleteActions == null)
+            OnProcessCompleteActions = new List<System.Action>();
+
+        if (OnProcessCompleteActions.Contains(action))
+            return;
+
+        OnProcessCompleteActions.Add(action);
+
+
+
     }
     public virtual void ProcessComplete()
     {
-        if(OnProcessComplete!=null)
-        OnProcessComplete();
+        foreach(var action in OnProcessCompleteActions)
+        {
+            action();
+        }
     }
 }

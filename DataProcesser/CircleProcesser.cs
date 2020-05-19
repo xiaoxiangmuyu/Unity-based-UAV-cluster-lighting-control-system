@@ -11,18 +11,9 @@ public class CircleProcesser : IDataProcesser
     [OnValueChanged("EventDispatch")]
     [Range(0, 1)]
     public float center_Y;
-    [OnValueChanged("EventDispatch")]
-    public Ease easeType = Ease.OutQuad;
 
-
-    List<string> tempNames = new List<string>();
-    List<float> tempTimes = new List<float>();
-    List<int> index = new List<int>();
-    List<GameObject> objects;
-    Camera mainCamera;
     Vector2 anchorPoint;
-    float timer;
-    RecordData data;
+
 
     public override bool Process(ref RecordData data, float animTime)
     {
@@ -31,6 +22,7 @@ public class CircleProcesser : IDataProcesser
             Debug.LogError("animTime为0");
             return false;
         }
+        isProcessed=false;
         this.data = data;
         mainCamera = Camera.main;
         objects = MyTools.FindObjs(data.ObjNames);
@@ -65,7 +57,7 @@ public class CircleProcesser : IDataProcesser
         DOVirtual.Float(0, maxDistance, animTime, OnValueUpdate).SetEase(easeType);
         Debug.Log("处理中...");
         return true;
-    }   
+    }
     void OnValueUpdate(float value)
     {
         //Debug.Log(value);
@@ -81,12 +73,15 @@ public class CircleProcesser : IDataProcesser
                 index.Add(i);
             }
         }
-        timer += 0.02f;
+        timer += Time.deltaTime;
         if (index.Count == data.ObjNames.Count)
         {
+            if(isProcessed)
+            return;
             data.ObjNames = tempNames;
             data.times = tempTimes;
             ProcessComplete();
+            isProcessed=true;
             Debug.Log("处理完成");
         }
     }

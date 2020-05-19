@@ -48,7 +48,6 @@ public class ControlBehavior : PlayableBehaviour
     {
         if(!Application.isPlaying)
         return;
-        Debug.Log("OnBehaviourPlay");
         if (needResetState)
             ResetState();
         // if(!Application.isPlaying)
