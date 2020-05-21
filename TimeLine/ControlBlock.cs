@@ -150,7 +150,7 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
             processer.AddValueChangeListener(BtnSwitch);
             processer.AddProcessCompleteListener(Init);
         }
-        else if(objs==null||objs.Count==0)
+        if(objs==null||objs.Count==0||objs.Exists((a)=>a==null))
         Init();
         //Debug.Log("注册完成");
     }

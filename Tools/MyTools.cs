@@ -61,37 +61,38 @@ public class MyTools
         {
             foreach (var clip in track.GetClips())
             {
-                var temp=clip.asset as ControlBlock;
-                if(temp!=null)
-                {   
+                var temp = clip.asset as ControlBlock;
+                if (temp != null)
+                {
                     temp.Register();
-                    if(temp.GetDuring()==0)
-                    clip.duration=3;
+                    if (temp.GetDuring() == 0)
+                        clip.duration = 3;
                     else
-                    clip.duration=temp.GetDuring();
+                        clip.duration = temp.GetDuring();
                 }
                 else
                 {
-                    var temp2=clip.asset as TxtAnimAsset;
-                    if(temp2!=null)
+                    var temp2 = clip.asset as TxtAnimAsset;
+                    if (temp2 != null)
                     {
-                    clip.duration=temp2.totalFrameCount/25+temp2.safeSeconds;
-                    temp2.SetStartFrame(Mathf.RoundToInt((float)clip.start*25));
+                        clip.duration = temp2.totalFrameCount / 25 + temp2.safeSeconds;
+                        temp2.SetStartFrame(Mathf.RoundToInt((float)clip.start * 25));
                     }
                     else
                     {
-                        var temp3=clip.asset as OverallAsset;
-                        if(temp3.processTimes*temp3.processInterval+temp3.GetDuring()==0)
-                        clip.duration=3;
-                        else
-                        clip.duration=temp3.processTimes*temp3.processInterval+temp3.GetDuring();
+                        var temp3 = clip.asset as OverallAsset;
+                        if (temp3 != null)
+                        {
+                            clip.duration=temp3.GetDuring();
+                            temp3.RefreshObjs();
+                        }
                     }
                 }
             }
 
         }
     }
-    public static List<GameObject> FindObjs(List<string>names)
+    public static List<GameObject> FindObjs(List<string> names)
     {
         List<GameObject> objects = new List<GameObject>();
         Transform parent = ProjectManager.GetCurrentMR().transform;

@@ -13,24 +13,25 @@ public class OverallAsset : SerializedScriptableObject, IPlayableAsset
     public string targetName;
 
 
-    [LabelText("执行次数")] 
+    [LabelText("执行次数")]
     public int processTimes;
     [LabelText("执行间隔")]
     public float processInterval;
     [LabelText("执行的子物体个数")]
     [PropertyRange(0, "childCount")]
     public int ChildCount;
-    [ReadOnly][ShowInInspector]
+    [ReadOnly]
+    [ShowInInspector]
     List<Transform> childs = new List<Transform>();
     [EnumToggleButtons]
     public OrderType orderType;
     [ShowIf("useOrderFile")]
     public OrderData orderData;
-    public List<ColorOrderBase> ColorOrders{get{if(useOrderFile)return orderData.colorOrders;else return colorOrders;}}
+    public List<ColorOrderBase> ColorOrders { get { if (useOrderFile) return orderData.colorOrders; else return colorOrders; } }
     [HideIf("useOrderFile")]
-    public List<ColorOrderBase>colorOrders=new List<ColorOrderBase>();
+    public List<ColorOrderBase> colorOrders = new List<ColorOrderBase>();
 
-    bool useOrderFile{get{return orderType==OrderType.OrderFile;}}
+    bool useOrderFile { get { return orderType == OrderType.OrderFile; } }
     float timer;
     int childCount { get { return childs.Count; } }
     int _processTimes;
@@ -39,7 +40,7 @@ public class OverallAsset : SerializedScriptableObject, IPlayableAsset
     {
         var scriptPlayable = ScriptPlayable<OverallBehavior>.Create(graph);
         scriptPlayable.GetBehaviour().script = this;
-        scriptPlayable.GetBehaviour().GraphParent=owner;
+        scriptPlayable.GetBehaviour().GraphParent = owner;
         // if(targetName!=string.Empty&&targetName!="")
         // if(childs==null||childs.Count==0)
         // GetChilds();
@@ -47,7 +48,15 @@ public class OverallAsset : SerializedScriptableObject, IPlayableAsset
     }
     public double GetDuring()
     {
-        return MyTools.GetTotalTime(ColorOrders);
+        if (processTimes * processInterval + MyTools.GetTotalTime(ColorOrders) == 0)
+            return 3;
+        else
+            return processTimes * processInterval + MyTools.GetTotalTime(ColorOrders);
+    }
+    public void RefreshObjs()
+    {
+        if(childs==null||childs.Count==0||childs.Exists((a)=>a==null))
+        GetChilds();
     }
     public void Begin()
     {
@@ -61,7 +70,7 @@ public class OverallAsset : SerializedScriptableObject, IPlayableAsset
         else
             ControlAll(orders);
     }
-     void ControlAll(List<ColorOrderBase> orders)
+    void ControlAll(List<ColorOrderBase> orders)
     {
         for (int i = 0; i < childs.Count; i++)
         {
@@ -80,10 +89,10 @@ public class OverallAsset : SerializedScriptableObject, IPlayableAsset
     }
     IEnumerator WholeProcess()
     {
-        while(_processTimes<processTimes)
+        while (_processTimes < processTimes)
         {
             SetOrders(ColorOrders);
-            _processTimes+=1;
+            _processTimes += 1;
             yield return new WaitForSeconds(processInterval);
         }
     }
@@ -113,7 +122,7 @@ public class OverallAsset : SerializedScriptableObject, IPlayableAsset
     }
     void Reset()
     {
-        _processTimes=0;
-        timer=0;
+        _processTimes = 0;
+        timer = 0;
     }
 }
