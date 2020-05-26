@@ -2,33 +2,52 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using UnityEngine.Rendering;
 public class MyDebugger : MonoBehaviour
 {
-    public bool isDebug;
-    Vector3 corner1;
-    Vector3 corner2;
-    Vector3 corner3;
-    Vector3 corner4;
-    public void DrawRect(Vector3 corner1,Vector3 corner2,Vector3 corner3,Vector3 corner4)
+    public static MyDebugger instance;
+    Vector3 start, end;
+    public  Material debugMat;
+
+    bool isDebug;
+    private void Awake() {
+        instance=this;
+        RenderPipelineManager.endCameraRendering+=OnPostRender;
+    }
+    public void DrawLine(Vector3 start, Vector3 end)
     {
-        this.corner1=corner1;
-        this.corner2=corner2;
-        this.corner3=corner3;
-        this.corner4=corner4;
+        this.start = start;
+        this.end = end;
+    }
+    public void BeginDebug()
+    {
         isDebug=true;
     }
-    void DrawRect()
+    public void StopDebug()
     {
-        Gizmos.color=Color.red;
-        Gizmos.DrawLine(corner1,corner2);
-        Gizmos.DrawLine(corner2,corner3);
-        Gizmos.DrawLine(corner3,corner4);
-        Gizmos.DrawLine(corner4,corner1);
+        isDebug=false;
     }
-    void OnDrawGizmos()
+    /// <summary>
+    /// 划线
+    /// </summary>
+    void OnPostRender(ScriptableRenderContext src, Camera camera)
     {
-        if(!isDebug)
-        return;
-        DrawRect();
+        if (!isDebug)
+            return;
+        // Debug.Log("ScreenWidth"+Screen.width);
+        // Debug.Log("ScreenHeight"+Screen.height);
+        Vector3 s=new Vector3(start.x / Screen.width, start.y / Screen.height, start.z);
+        Vector3 e=new Vector3(end.x / Screen.width, end.y / Screen.height, end.z);
+        GL.PushMatrix();
+        debugMat.SetPass(0);
+        GL.LoadOrtho();
+        GL.Begin(GL.LINES);
+        GL.Color(Color.red);
+        GL.Vertex(s);
+        GL.Vertex(e);
+        //Debug.Log("start:"+s+"   end"+e);
+        GL.End();
+        GL.PopMatrix();
+
     }
 }

@@ -145,6 +145,10 @@ public class EfyTools
         {
             Undo.AddComponent<ProjectManager>(camera.gameObject);
         }
+        if(!camera.GetComponent<MyDebugger>())
+        {
+            Undo.AddComponent<MyDebugger>(camera.gameObject);
+        }
     }
     static RecordProject CreatRecordProject(string projectName)
     {

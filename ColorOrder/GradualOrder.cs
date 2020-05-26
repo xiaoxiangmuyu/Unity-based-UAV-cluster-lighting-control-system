@@ -22,7 +22,7 @@ public class DoColor : GradualOrder
     public Color color = Color.white;
 
     [HideIf("hideGradient"), BoxGroup("Color")]
-    public Gradient gradient;
+    public Gradient gradient=new Gradient();
 
     [EnumToggleButtons, HideLabel]
     [BoxGroup("Color")]

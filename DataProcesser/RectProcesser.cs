@@ -115,4 +115,45 @@ public class RectProcesser : IDataProcesser
             Debug.Log("处理完成");
         }
     }
+    [Button]
+    void BeginDrawLine()
+    {
+        AddValueChangeListener(DrawLine);
+        MyDebugger.instance.BeginDebug();
+    }
+    [Button]
+    void StopDrawLine()
+    {
+        RemoveValueChangelistener(DrawLine);
+        MyDebugger.instance.StopDebug();
+    }
+    [Button]
+    void DrawLine()
+    {
+        float ymax=1080;
+        float ymin=0;
+        float xmax=1920;
+        float xmin=0;
+        //Debug.Log("width:"+Screen.width+"height:"+Screen.height);
+        List<Vector3>points=new List<Vector3>();
+        float targetX=(ymax-C)/K;
+
+        if(targetX>=xmin&&targetX<=xmax)
+        points.Add(new Vector3(targetX,ymax,0));
+        targetX=(ymin-C/K);
+        if(targetX>=xmin&&targetX<=xmax)
+        points.Add(new Vector3(targetX,ymin,0));
+
+        float targetY=K*xmax+C;
+        if(targetY<=ymax&&targetY>=ymin)
+        points.Add(new Vector3(xmax,targetY,0));
+        targetY=K*xmin+C;
+        if(targetY<=ymax&&targetY>=ymin)
+        points.Add(new Vector3(xmin,targetY,0));
+
+        MyDebugger.instance.DrawLine(points[0],points[1]);
+        //Debug.Log(points[0]+"  "+points[1]);
+
+
+    }
 }

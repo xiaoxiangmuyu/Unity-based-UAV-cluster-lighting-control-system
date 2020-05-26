@@ -50,9 +50,11 @@ public abstract class IDataProcesser
             return;
 
         OnProcessCompleteActions.Add(action);
-
-
-
+    }
+    public virtual void RemoveValueChangelistener(System.Action action)
+    {
+        if(OnValueChangeActions.Contains(action))
+        OnValueChangeActions.Remove(action);
     }
     public virtual void ProcessComplete()
     {
