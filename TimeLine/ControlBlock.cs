@@ -41,16 +41,10 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
     [PropertyOrder(1)]
     [LabelText("总用时")]
     public double totalTime { get { return GetDuring(); } }
-    [ShowIf("useOrderFile")]
-    [PropertyOrder(2)]
-    [InlineEditor]
-    public OrderData orderData;
-    [HideIf("useOrderFile")]
     [PropertyOrder(2)]
     public List<ColorOrderBase> colorOrders = new List<ColorOrderBase>();
     public List<GameObject> objs;
 
-    bool useOrderFile { get { return orderType == OrderType.OrderFile; } }
     int ObjMaxIndex { get { if (data.ObjNames != null) return data.ObjNames.Count - 1; else return 0; } }
     ControlBehavior behavior;
     public Playable CreatePlayable(PlayableGraph graph, GameObject owner)
@@ -69,44 +63,18 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
     }
     public double GetDuring()
     {
-        double temp;
-        if (useOrderFile)
-        {
-            temp = MyTools.GetTotalTime(orderData.colorOrders);
-        }
-        else
-        {
-            temp = MyTools.GetTotalTime(colorOrders);
-        }
-        return temp + data.animTime;
+        return MyTools.GetTotalTime(colorOrders) + data.animTime;
     }
-    // [Button(ButtonSizes.Large)]
-    // void ReadRecordData()
-    // {
-    //     for(int i=0;i<recordGroup.Count;i++)
-    //     {
-    //         if (recordGroup[i].isSelect)
-    //         {
-    //             this.data.CopyFrom(recordGroup[i]);
-    //             animTime=recordGroup[i].animTime;
-    //             return;
-    //         }
-    //         Debug.LogError("没有选中要读取的数据");
-    //     }
-    // }
-
-
-
-    // [Button(ButtonSizes.Large)]
-    // void ReadOrderFile()
-    // {
-    //     colorOrders.Clear();
-    //     foreach (var order in orderData.colorOrders)
-    //     {
-    //         colorOrders.Add(order);
-    //     }
-    //     Debug.Log("!");
-    // }
+    [Button(ButtonSizes.Large)]
+    void ReadOrderFile(OrderData orderData)
+    {
+        colorOrders.Clear();
+        foreach (var order in orderData.colorOrders)
+        {
+            colorOrders.Add(order);
+        }
+        Debug.Log("!");
+    }
 
     [BoxGroup("数据处理模块")]
     [Button(ButtonSizes.Large), GUIColor(1, 0.2f, 0)]
@@ -150,8 +118,8 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
             processer.AddValueChangeListener(BtnSwitch);
             processer.AddProcessCompleteListener(Init);
         }
-        if(objs==null||objs.Count==0||objs.Exists((a)=>a==null))
-        Init();
+        if (objs == null || objs.Count == 0 || objs.Exists((a) => a == null))
+            Init();
         //Debug.Log("注册完成");
     }
     void BtnSwitch()
