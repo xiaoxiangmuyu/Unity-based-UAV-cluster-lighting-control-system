@@ -28,6 +28,9 @@ public class TxtAnimBehavior : PlayableBehaviour
     public override void OnGraphStart(Playable playable)
     {      
         MyTools.UpdateDuring(GraphParent);
+        //初始化点的位置，防止瞬间读取动画造成超速
+        if(movementManager.isWorking)
+        script.MyUpdate(0);
     }
     //随时间轴进度条更新位置
     void UpdatePos()

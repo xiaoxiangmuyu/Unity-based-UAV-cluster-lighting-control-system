@@ -32,6 +32,11 @@ public class MovementManager : MonoBehaviour
     }
     StringBuilder sb = new StringBuilder(50, 50);
     int r, g, b;
+    [Button]
+    void SetCurrent()
+    {
+        ProjectManager.SetOperateTarget(this);
+    }
     void OnEnable()
     {
         ProjectManager.SetOperateTarget(this);

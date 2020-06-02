@@ -145,7 +145,7 @@ public class EfyTools
         {
             Undo.AddComponent<ProjectManager>(camera.gameObject);
         }
-        if(!camera.GetComponent<MyDebugger>())
+        if (!camera.GetComponent<MyDebugger>())
         {
             Undo.AddComponent<MyDebugger>(camera.gameObject);
         }
@@ -163,9 +163,9 @@ public class EfyTools
         }
         else
         {
-            recordProject=Resources.Load<RecordProject>("Projects/"+projectName + "/RecordParent");
+            recordProject = Resources.Load<RecordProject>("Projects/" + projectName + "/RecordParent");
         }
-            return recordProject;
+        return recordProject;
 
     }
     static void CreateTimeLine(GameObject obj, string projectName)
@@ -178,9 +178,14 @@ public class EfyTools
             if (!obj.GetComponent<PlayableDirector>())
             {
                 obj.AddComponent<PlayableDirector>().playableAsset = asset;
+                obj.GetComponent<PlayableDirector>().playOnAwake = false;
             }
             else
+            {
                 obj.GetComponent<PlayableDirector>().playableAsset = asset;
+                obj.GetComponent<PlayableDirector>().playOnAwake = false;
+            }
+
         }
         else
         {

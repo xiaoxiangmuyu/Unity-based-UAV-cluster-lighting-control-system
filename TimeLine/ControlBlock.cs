@@ -14,16 +14,16 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
 
     [EnumToggleButtons]
     public OrderType orderType;
-    [BoxGroup("Behavior Property")]
+    [BoxGroup("控制块属性")]
     public float speed = 1;
-    [BoxGroup("Behavior Property")]
+    [BoxGroup("控制块属性")]
     [MinMaxSlider(0, "ObjMaxIndex", true)]
     public Vector2 workRange;
-    [BoxGroup("Behavior Property")]
+    [BoxGroup("控制块属性")]
     public bool isflip;
-    [BoxGroup("Behavior Property")]
+    [BoxGroup("控制块属性")]
     public bool forceMode;
-    [BoxGroup("Behavior Property")]
+    [BoxGroup("控制块属性")]
     public bool timeInit;
 
 
@@ -44,6 +44,23 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
     [PropertyOrder(2)]
     public List<ColorOrderBase> colorOrders = new List<ColorOrderBase>();
     public List<GameObject> objs;
+    [ValueDropdown("availableData")][OnValueChanged("FindData")]
+    [BoxGroup("数据读取模块")]
+    public string targetDataName;
+
+    IEnumerable availableData
+    {
+        get
+        {
+            var datalist= ProjectManager.Instance.RecordProject.RecordDic[ProjectManager.GetCurrentMR().name];
+            List<string>names=new List<string>();
+            foreach(var data in datalist)
+            {
+                names.Add(data.dataName);
+            }
+            return names;
+        }
+    }
 
     int ObjMaxIndex { get { if (data.ObjNames != null) return data.ObjNames.Count - 1; else return 0; } }
     ControlBehavior behavior;
@@ -88,20 +105,22 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
         }
     }
 
-    [Button(ButtonSizes.Large)]
-    public void FindData(string dataName)
+    //刷新数据，重新从data建立索引
+    public void RefreshData()
     {
-        var result = ProjectManager.Instance.RecordProject.RecordDic[ProjectManager.GetCurrentMR().name].Find((a) => a.dataName == dataName);
+        var result = ProjectManager.Instance.RecordProject.RecordDic[ProjectManager.GetCurrentMR().name].Find((a) => a.dataName == targetDataName);
         if (result != null)
         {
             data.CopyFrom(result);
             if (processer != null)
                 ProcessData();
+            objs.Clear();
             Register();
+            SetWorkRangeMax();
         }
         else
         {
-            Debug.LogError("没有找到该数据");
+            Debug.LogError("没有找到该数据:" + targetDataName);
         }
     }
     public void SetWorkRangeMax()

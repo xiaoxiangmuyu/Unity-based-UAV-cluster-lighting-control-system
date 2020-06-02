@@ -60,25 +60,32 @@ public class MyCustomEditor : Editor
     {
         ProjectManager.ResetAllColorAndTween();
     }
+    //创建数据组
     static void CreatGroup(object userData)
     {
         RecordData tempdata = new RecordData();
         foreach (var point in Selection.objects)
         {
+            if(point.name=="Main Camera")
+            continue;
             tempdata.ObjNames.Add(point.name);
             tempdata.times.Add(0);
         }
         ProjectManager.Instance.RecordProject.AddData(ProjectManager.GetCurrentMR().name, tempdata);
         Debug.Log("创建组成功");
     }
+    //创建映射组
     static void CreatMapping(object userData)
     {
         GameObject parent=ProjectManager.GetCurrentMR().gameObject;
         GameObject temp=new GameObject();
         temp.AddComponent<ColorMapping>();
         temp.transform.SetParent(parent.transform);
+        temp.transform.SetAsFirstSibling();
         foreach(var point in Selection.gameObjects)
         {
+            if(point.name=="Main Camera")
+            continue;
             point.transform.SetParent(temp.transform);
         }
 
@@ -122,7 +129,7 @@ public class MyCustomEditor : Editor
                 var temp=clip.asset as ControlBlock;
                 if(temp!=null)
                 {   
-                    temp.FindData(temp.data.dataName);
+                    temp.RefreshData();
                     temp.SetWorkRangeMax();
                 }
             }
