@@ -84,6 +84,8 @@ public class RectProcesser : IDataProcesser
         index = new List<int>();
         DOVirtual.Float(0, maxDistance, animTime, OnValueUpdate).SetEase(easeType);
         Debug.Log("处理中...");
+        if(MyDebugger.instance.IsDebugMode)
+        DrawLine();
         return true;
     }
     void OnValueUpdate(float value)
@@ -119,6 +121,7 @@ public class RectProcesser : IDataProcesser
     void BeginDrawLine()
     {
         AddValueChangeListener(DrawLine);
+        DrawLine();
         MyDebugger.instance.BeginDebug();
     }
     [Button]
@@ -127,7 +130,6 @@ public class RectProcesser : IDataProcesser
         RemoveValueChangelistener(DrawLine);
         MyDebugger.instance.StopDebug();
     }
-    [Button]
     void DrawLine()
     {
         float ymax=1080;
@@ -150,8 +152,12 @@ public class RectProcesser : IDataProcesser
         targetY=K*xmin+C;
         if(targetY<=ymax&&targetY>=ymin)
         points.Add(new Vector3(xmin,targetY,0));
-
-        MyDebugger.instance.DrawLine(points[0],points[1]);
+        Camera mc=Camera.main;
+        Vector3 start=mc.ScreenToWorldPoint(points[0]);
+        Vector3 end=mc.ScreenToWorldPoint(points[1]);
+        start.z=mc.transform.position.z-1;
+        end.z=mc.transform.position.z-1;
+        MyDebugger.instance.DrawLine(start,end);
         //Debug.Log(points[0]+"  "+points[1]);
 
 
