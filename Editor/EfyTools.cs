@@ -43,7 +43,10 @@ public class EfyTools
             {
                 obj.AddComponent<MovementManager>().projectName = projectName;
             }
-
+            if(obj.GetComponent<TempleteHelper>()==null)
+            {
+                obj.AddComponent<TempleteHelper>();
+            }
             if (!recordProject.RecordDic.ContainsKey(obj.name))
             {
                 recordProject.RecordDic.Add(obj.name, new List<RecordData>());

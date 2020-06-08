@@ -118,25 +118,12 @@ public class MyCustomEditor : Editor
     static void UseTemplate()
     {
         GameObject obj = Selection.activeGameObject;
-        PlayableDirector playableDirector = obj.GetComponentInParent<PlayableDirector>();
-        // if(!playableDirector)
-        // playableDirector=obj.GetComponentInParent<PlayableDirector>();
-        var timeLineAsset = playableDirector.playableAsset as TimelineAsset;
-        foreach (var track in timeLineAsset.GetOutputTracks())
+        if(obj.GetComponent<TempleteHelper>())
+        obj.GetComponent<TempleteHelper>().UseTemplete();
+        else
         {
-            foreach (var clip in track.GetClips())
-            {
-                var temp=clip.asset as ControlBlock;
-                if(temp!=null)
-                {   
-                    temp.targetDataName=temp.data.dataName;
-                    temp.RefreshData();
-                    temp.SetWorkRangeMax();
-                }
-            }
+            Debug.LogError("请添加TempleteHelper组件");
         }
-        Debug.Log("应用模板完成");
-
     }
 
 }

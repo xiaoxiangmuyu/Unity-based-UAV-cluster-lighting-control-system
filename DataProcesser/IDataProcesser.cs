@@ -7,7 +7,7 @@ using UnityEngine.Events;
 public abstract class IDataProcesser
 {
     [OnValueChanged("EventDispatch")]
-    public Ease easeType;
+    public Ease easeType=Ease.OutQuad;
     public abstract bool Process(ref RecordData data, float animTime);
 
 

@@ -112,11 +112,11 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
         if (result != null)
         {
             data.CopyFrom(result);
-            if (processer != null)
-                ProcessData();
             objs.Clear();
             Register();
             SetWorkRangeMax();
+            if (processer != null)
+                ProcessData();
         }
         else
         {
