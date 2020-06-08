@@ -12,7 +12,9 @@ public enum ColorType
     HSV,//沿色环取色，每次取的时候才会变化，与时间无关，每个点取到的颜色一致
     Origin,//取光点的originColor，需要提前上色的时候勾选recordColor，不然就会取到默认的白色
     Gradient,//渐变色，可以提前指定一个渐变色，相当于复合颜色的流光，可以想象成一个多彩的SingleColor,非常好用
-    Dark
+    Dark,//变暗
+    Black//纯黑
+
 }
 public enum OrderType 
 {

@@ -48,6 +48,7 @@ public class RecordData
         //parentName=data.parentName;
         ObjNames=new List<string>(data.ObjNames.ToArray());
         times=new List<float>(data.times.ToArray());
+        if(data.animTime!=0)
         animTime=data.animTime;
     }
     public void AddListener(System.Action action)

@@ -129,6 +129,7 @@ public class MyCustomEditor : Editor
                 var temp=clip.asset as ControlBlock;
                 if(temp!=null)
                 {   
+                    temp.targetDataName=temp.data.dataName;
                     temp.RefreshData();
                     temp.SetWorkRangeMax();
                 }

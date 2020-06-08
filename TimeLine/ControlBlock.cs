@@ -44,7 +44,7 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
     [PropertyOrder(2)]
     public List<ColorOrderBase> colorOrders = new List<ColorOrderBase>();
     public List<GameObject> objs;
-    [ValueDropdown("availableData")][OnValueChanged("FindData")]
+    [ValueDropdown("availableData")][OnValueChanged("RefreshData")]
     [BoxGroup("数据读取模块")]
     public string targetDataName;
 

@@ -22,7 +22,7 @@ public class DoColor : GradualOrder
     public Color color = Color.white;
 
     [HideIf("hideGradient"), BoxGroup("Color")]
-    public Gradient gradient=new Gradient();
+    public Gradient gradient = new Gradient();
 
     [EnumToggleButtons, HideLabel]
     [BoxGroup("Color")]
@@ -61,7 +61,7 @@ public class DoColor : GradualOrder
     bool showDarkInfo { get { return colorType == ColorType.Dark; } }
     bool showColorMappingInfo { get { return colorType == ColorType.ColorMapping; } }
     bool showTextureMappingInfo { get { return colorType == ColorType.TextureMapping; } }
-    bool isMapping{get{return colorType == ColorType.TextureMapping||colorType==ColorType.ColorMapping;}}
+    bool isMapping { get { return colorType == ColorType.TextureMapping || colorType == ColorType.ColorMapping; } }
     public override Tween GetOrder(ColorPoint point)
     {
         Color targetColor = Color.white;
@@ -70,6 +70,10 @@ public class DoColor : GradualOrder
             case ColorType.SingleColor:
                 {
                     targetColor = color; break;
+                }
+            case ColorType.Black:
+                {
+                    targetColor = Color.black; break;
                 }
             case ColorType.TextureMapping:
                 {
@@ -130,8 +134,8 @@ public class DoColor : GradualOrder
         }
         else
             return point.mat.DOColor(targetColor, during);
-            //颜色混合在连续灯光命令中会发生内部融合导致灯光变化不正确
-            //return point.mat.DOBlendableColor(targetColor, during);
+        //颜色混合在连续灯光命令中会发生内部融合导致灯光变化不正确
+        //return point.mat.DOBlendableColor(targetColor, during);
 
     }
 }
