@@ -8,6 +8,7 @@ public abstract class IDataProcesser
 {
     [OnValueChanged("EventDispatch")]
     public Ease easeType=Ease.OutQuad;
+    //public AnimationCurve curve;
     public abstract bool Process(ref RecordData data, float animTime);
 
 

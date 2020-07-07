@@ -168,6 +168,11 @@ public class ColorMapping : ColorParent
     Color targetColor;
     public override Color GetMappingColor(Transform trans, int texIndex)
     {
+        if(colors.Count-1<texIndex)
+        {
+            Debug.LogError(gameObject.name+" ColorMapping颜色序号: "+texIndex+" 未设置");
+            return Color.black;
+        }
         foreach (var child in screenPositions.Keys)
         {
             if (child == trans)

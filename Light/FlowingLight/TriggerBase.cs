@@ -6,7 +6,10 @@ using DG.Tweening;
 using UnityEditor;
 public class TriggerBase : SerializedMonoBehaviour
 {
+    public bool recordMode=true;
+    [ShowIf("recordMode")]
     public List<RecordData> recordGroup;
+    [ShowIf("recordMode")]
     public RecordData data;
     //记录第一个点的时间
     [HideInInspector]
@@ -16,7 +19,8 @@ public class TriggerBase : SerializedMonoBehaviour
     public List<string> targetTags = new List<string>(); // 影响的飞机的标签
     [HorizontalGroup("Tags")]
     public List<string> ignoreTags = new List<string>();
-
+    [HideIf("recordMode")]
+    public List<ColorOrderBase>colorOrders=new List<ColorOrderBase>();
 
     string currentTarget{get{return ProjectManager.GetCurrentMR().gameObject.name;}}
     protected virtual void Awake()
@@ -34,7 +38,7 @@ public class TriggerBase : SerializedMonoBehaviour
     {
 
     }
-    [Button(ButtonSizes.Gigantic)]
+    [Button(ButtonSizes.Gigantic)][ShowIf("recordMode")]
     void Push()
     {
         ProjectManager.Instance.RecordProject.AddData(currentTarget,data);
