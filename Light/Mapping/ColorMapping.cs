@@ -4,23 +4,12 @@ using UnityEngine;
 using Sirenix.OdinInspector;
 public class ColorMapping : ColorParent
 {
-    //渐变的方向类型
-    public enum DirType
-    {
-        Up_Down,//上下
-        Down_UP,//下上
-        Left_Right,//左右
-        Right_Left,//右左
-        In_Out,//内外
-        Out_In,//外内
-        Custom
-    }
+   
     [Tooltip("是否Log中心点位置")]
     public bool logCenterPoint = false;
     [Tooltip("映射的中心点位置")]
     [ShowIf("IsCircleInOut")]
     public Vector2 centerPoint;
-    [ShowIf("IsCustomDir")]
     public Vector2 customDirection;
     public DirType dirType;
     [Tooltip("颜色是否循环")]
@@ -37,7 +26,6 @@ public class ColorMapping : ColorParent
     private float minX = 0f;
     private float minY = 0f;
     private bool IsCircleInOut { get { return dirType == DirType.In_Out || dirType == DirType.Out_In; } }
-    private bool IsCustomDir { get { return dirType == DirType.Custom; } }
     List<Transform> filterChildren;
     [SerializeField]
     [HideInInspector]
@@ -199,14 +187,14 @@ public class ColorMapping : ColorParent
                         float value2 = Vector2.Distance(screenPositions[child], centerPoint);
                         targetColor = colors[texIndex].Evaluate(1 - value2 / maxDistance);
                         break;
-                    case DirType.Custom:
-                        float dirAngle = Mathf.Atan2(customDirection.y, customDirection.x);
-                        float angelOrigin = Mathf.Atan2(screenPositions[child].y, screenPositions[child].x);
-                        float angleDiff = Mathf.Abs(dirAngle - angelOrigin);
-                        float xieBian = Mathf.Sqrt(Mathf.Pow(screenPositions[child].x, 2) + Mathf.Pow(screenPositions[child].y, 2));
-                        float _value = xieBian * Mathf.Cos(angleDiff);
-                        targetColor = colors[texIndex].Evaluate(_value / maxValue);
-                        break;
+                    // case DirType.Custom:
+                    //     float dirAngle = Mathf.Atan2(customDirection.y, customDirection.x);
+                    //     float angelOrigin = Mathf.Atan2(screenPositions[child].y, screenPositions[child].x);
+                    //     float angleDiff = Mathf.Abs(dirAngle - angelOrigin);
+                    //     float xieBian = Mathf.Sqrt(Mathf.Pow(screenPositions[child].x, 2) + Mathf.Pow(screenPositions[child].y, 2));
+                    //     float _value = xieBian * Mathf.Cos(angleDiff);
+                    //     targetColor = colors[texIndex].Evaluate(_value / maxValue);
+                    //     break;
                 }
                 return targetColor;
             }

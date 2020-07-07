@@ -74,22 +74,21 @@ public class MyCustomEditor : Editor
         ProjectManager.Instance.RecordProject.AddData(ProjectManager.GetCurrentMR().name, tempdata);
         Debug.Log("创建组成功");
     }
-    //创建映射组
-    static void CreatMapping(object userData)
-    {
-        GameObject parent=ProjectManager.GetCurrentMR().gameObject;
-        GameObject temp=new GameObject();
-        temp.AddComponent<ColorMapping>();
-        temp.transform.SetParent(parent.transform);
-        temp.transform.SetAsFirstSibling();
-        foreach(var point in Selection.gameObjects)
-        {
-            if(point.name=="Main Camera")
-            continue;
-            point.transform.SetParent(temp.transform);
-        }
-
-    }
+    // //创建映射组
+    // static void CreatMapping(object userData)
+    // {
+    //     GameObject parent=ProjectManager.GetCurrentMR().gameObject;
+    //     GameObject temp=new GameObject();
+    //     temp.AddComponent<ColorMapping>();
+    //     temp.transform.SetParent(parent.transform);
+    //     temp.transform.SetAsFirstSibling();
+    //     foreach(var point in Selection.gameObjects)
+    //     {
+    //         if(point.name=="Main Camera")
+    //         continue;
+    //         point.transform.SetParent(temp.transform);
+    //     }
+    // }
     [MenuItem("GameObject/工具/创建数据组", priority = 0)]
     static void CreatGroup()
     {
@@ -100,10 +99,22 @@ public class MyCustomEditor : Editor
             tempdata.times.Add(0);
         }
         ProjectManager.Instance.RecordProject.AddData(ProjectManager.GetCurrentMR().name, tempdata);
-        Debug.Log("创建组成功");
+        Debug.Log("创建数据组成功");
 
     }
-    
+    [MenuItem("GameObject/工具/创建数据组", priority = 0)]
+    static void CreatMapping(object userData)
+    {
+        MappingData tempdata=new MappingData();
+        tempdata.Objects=Selection.gameObjects;
+        tempdata.names=new List<string>();
+        foreach(var point in Selection.gameObjects)
+        {
+            tempdata.names.Add(point.name);
+        }
+        ProjectManager.Instance.RecordProject.AddMappingData(tempdata);
+        Debug.Log("创建数据组成功");
+    }
     [MenuItem("GameObject/工具/批量添加Tag", priority = 0)]
     static void AddTag()
     {

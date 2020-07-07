@@ -53,8 +53,29 @@ public class DoColor : GradualOrder
     [ShowIf("isWithIndex")]
     [BoxGroup("Color")]
     public int targetIndex;
+    [ValueDropdown("availableData")]
+    [ShowIf("isMappingData")]
+    [OnValueChanged("GetMappingData")]
+    public string dataName;
+    [ShowIf("isMappingData")]
+    public MappingData mappingData;
+    IEnumerable availableData
+    {
+        get
+        {
+            var datalist = ProjectManager.Instance.RecordProject.mappingDatas;
+            List<string>dataName=new List<string>();
+            foreach(var data in datalist)
+            dataName.Add(data.dataName);
+            return dataName;
+        }
+    }
+    void GetMappingData()
+    {
+        var datalist = ProjectManager.Instance.RecordProject.mappingDatas;
+        mappingData=datalist.Find((a)=>a.dataName==dataName);
 
-
+    }
     bool hideColor { get { return colorType != ColorType.SingleColor; } }
     bool hideGradient { get { return colorType != ColorType.Gradient; } }
     bool showHSVInfo { get { return colorType == ColorType.HSV; } }
@@ -62,6 +83,7 @@ public class DoColor : GradualOrder
     bool showColorMappingInfo { get { return colorType == ColorType.ColorMapping; } }
     bool showTextureMappingInfo { get { return colorType == ColorType.TextureMapping; } }
     bool isMapping { get { return colorType == ColorType.TextureMapping || colorType == ColorType.ColorMapping; } }
+    bool isMappingData { get { return colorType == ColorType.MappingData; } }
     public override Tween GetOrder(ColorPoint point)
     {
         Color targetColor = Color.white;
@@ -96,6 +118,11 @@ public class DoColor : GradualOrder
                     {
                         targetColor = point.GetMappingColor(); break;
                     }
+                }
+            case ColorType.MappingData:
+                {
+                    targetColor = mappingData.GetMappingColor(point.name);
+                    break;
                 }
             case ColorType.Random:
                 {

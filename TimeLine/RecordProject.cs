@@ -6,6 +6,8 @@ public class RecordProject : SerializedScriptableObject
 {
     [SerializeField]
     public Dictionary<string, List<RecordData>> RecordDic;
+    public List<MappingData>mappingDatas=new List<MappingData>();
+
     public void AddData(string ImageName, RecordData data)
     {
         if (!RecordDic.ContainsKey(ImageName))
@@ -22,5 +24,9 @@ public class RecordProject : SerializedScriptableObject
         }
         RecordDic[ImageName].Add(tempData);
 
+    }
+    public void AddMappingData(MappingData data)
+    {
+        mappingDatas.Add(data);
     }
 }
