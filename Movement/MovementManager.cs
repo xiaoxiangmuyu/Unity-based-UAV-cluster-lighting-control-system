@@ -43,6 +43,7 @@ public class MovementManager : MonoBehaviour
     }
     void Start()
     {
+        frame=-1;
         // if (!isWorking)
         //     return;
 
@@ -129,13 +130,13 @@ public class MovementManager : MonoBehaviour
             }
             else
             {
-                frame += 1;
                 if (frame == ExportFrame)
                 {
                     isWorking = false;
                     if (ExportCheck())
                         Export();
                 }
+                frame += 1;
             }
         }
     }

@@ -43,7 +43,7 @@ public class EfyTools
             {
                 obj.AddComponent<MovementManager>().projectName = projectName;
             }
-            if(obj.GetComponent<TempleteHelper>()==null)
+            if (obj.GetComponent<TempleteHelper>() == null)
             {
                 obj.AddComponent<TempleteHelper>();
             }
@@ -182,11 +182,14 @@ public class EfyTools
             {
                 obj.AddComponent<PlayableDirector>().playableAsset = asset;
                 obj.GetComponent<PlayableDirector>().playOnAwake = false;
+                obj.GetComponent<PlayableDirector>().extrapolationMode = DirectorWrapMode.Hold;
             }
             else
             {
                 obj.GetComponent<PlayableDirector>().playableAsset = asset;
                 obj.GetComponent<PlayableDirector>().playOnAwake = false;
+                obj.GetComponent<PlayableDirector>().extrapolationMode = DirectorWrapMode.Hold;
+
             }
 
         }
@@ -198,9 +201,13 @@ public class EfyTools
             if (!obj.GetComponent<PlayableDirector>())
             {
                 obj.AddComponent<PlayableDirector>().playableAsset = asset;
+                obj.GetComponent<PlayableDirector>().extrapolationMode = DirectorWrapMode.Hold;
+
             }
             else
                 obj.GetComponent<PlayableDirector>().playableAsset = asset;
+                obj.GetComponent<PlayableDirector>().extrapolationMode = DirectorWrapMode.Hold;
+
         }
     }
 }

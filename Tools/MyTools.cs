@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Playables;
 using UnityEngine.Timeline;
+using DG.Tweening;
 public class MyTools
 {
     public static float GetTotalTime(List<ColorOrderBase> orders)
@@ -75,7 +76,7 @@ public class MyTools
                     var temp2 = clip.asset as TxtAnimAsset;
                     if (temp2 != null)
                     {
-                        clip.duration = temp2.totalFrameCount / 25 + temp2.safeSeconds;
+                        clip.duration = temp2.seconds;
                         temp2.SetStartFrame(Mathf.RoundToInt((float)clip.start * 25));
                     }
                     else
@@ -123,6 +124,5 @@ public class MyTools
             }
         }
     }
-
 
 }

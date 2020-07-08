@@ -11,13 +11,13 @@ public class TxtAnimAsset : SerializedScriptableObject, IPlayableAsset
     public double duration { get; }
     public IEnumerable<PlayableBinding> outputs { get; }
     #endregion
-    [InfoBox("安全时间建议2秒，不然播放不完",InfoMessageType.Warning)]
-    [LabelText("安全时间")]
-    public float safeSeconds=2;
+    // [InfoBox("安全时间建议2秒，不然播放不完",InfoMessageType.Warning)]
+    // [LabelText("安全时间")]
+    // public float safeSeconds=2;
     [ReadOnly] [LabelText("总帧数")]
     public int totalFrameCount;
     [LabelText("总时长")][ShowInInspector]
-    public float seconds{get{return totalFrameCount/25;}}
+    public float seconds{get{return totalFrameCount/25f;}}
     TxtForAnimation script;
     ScriptPlayable<TxtAnimBehavior>scriptPlayable;
     public Playable CreatePlayable(PlayableGraph graph, GameObject owner)

@@ -102,7 +102,6 @@ public class MyCustomEditor : Editor
         Debug.Log("创建数据组成功");
 
     }
-    [MenuItem("GameObject/工具/创建数据组", priority = 0)]
     static void CreatMapping(object userData)
     {
         MappingData tempdata=new MappingData();
@@ -113,7 +112,21 @@ public class MyCustomEditor : Editor
             tempdata.names.Add(point.name);
         }
         ProjectManager.Instance.RecordProject.AddMappingData(tempdata);
-        Debug.Log("创建数据组成功");
+        Debug.Log("创建映射组成功");
+    }
+    [MenuItem("GameObject/工具/创建映射组", priority = 0)]
+    static void CreatMapping()
+    {
+        MappingData tempdata=new MappingData();
+        tempdata.Objects=Selection.gameObjects;
+        tempdata.names=new List<string>();
+        foreach(var point in Selection.activeGameObject.GetComponentsInChildren<ColorPoint>())
+        {
+            tempdata.names.Add(point.name);
+        }
+        tempdata.dataName=Selection.activeGameObject.name;
+        ProjectManager.Instance.RecordProject.AddMappingData(tempdata);
+        Debug.Log("创建映射组成功");
     }
     [MenuItem("GameObject/工具/批量添加Tag", priority = 0)]
     static void AddTag()
