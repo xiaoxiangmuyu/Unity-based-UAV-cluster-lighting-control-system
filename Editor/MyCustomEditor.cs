@@ -24,7 +24,7 @@ public class MyCustomEditor : Editor
             menu.AddItem(new GUIContent("MoveToView"), false, SetCameraPos, "menu_3");
             menu.AddItem(new GUIContent("创建数据组"), false, CreatGroup, "menu_4");
             menu.AddItem(new GUIContent("创建映射组"), false, CreatMapping, "menu_5");
-
+            menu.AddItem(new GUIContent("创建旧映射组"), false, CreatOldMapping, "menu_5");
             //menu.AddItem(new GUIContent("取消所有动画"),false,CancelTween,"menu_4");
 
 
@@ -64,31 +64,44 @@ public class MyCustomEditor : Editor
     static void CreatGroup(object userData)
     {
         RecordData tempdata = new RecordData();
-        foreach (var point in Selection.objects)
+        foreach (var point in Selection.gameObjects)
         {
-            if(point.name=="Main Camera")
-            continue;
-            tempdata.ObjNames.Add(point.name);
-            tempdata.times.Add(0);
+            if (point.name == "Main Camera")
+                continue;
+            if (point.transform.childCount != 0)
+            {
+                foreach (var child in point.GetComponentsInChildren<ColorPoint>())
+                {
+                    tempdata.ObjNames.Add(child.name);
+                    tempdata.times.Add(0);
+                }
+                tempdata.dataName=point.name;
+            }
+            else
+            {
+                tempdata.ObjNames.Add(point.name);
+                tempdata.times.Add(0);
+            }
         }
         ProjectManager.Instance.RecordProject.AddData(ProjectManager.GetCurrentMR().name, tempdata);
-        Debug.Log("创建组成功");
+        Debug.Log("创建数据组成功");
     }
-    // //创建映射组
-    // static void CreatMapping(object userData)
-    // {
-    //     GameObject parent=ProjectManager.GetCurrentMR().gameObject;
-    //     GameObject temp=new GameObject();
-    //     temp.AddComponent<ColorMapping>();
-    //     temp.transform.SetParent(parent.transform);
-    //     temp.transform.SetAsFirstSibling();
-    //     foreach(var point in Selection.gameObjects)
-    //     {
-    //         if(point.name=="Main Camera")
-    //         continue;
-    //         point.transform.SetParent(temp.transform);
-    //     }
-    // }
+    //创建旧映射组
+    static void CreatOldMapping(object userData)
+    {
+        GameObject parent = ProjectManager.GetCurrentMR().gameObject;
+        GameObject temp = new GameObject();
+        temp.AddComponent<ColorMapping>();
+        temp.transform.SetParent(parent.transform);
+        temp.transform.SetAsFirstSibling();
+        foreach (var point in Selection.gameObjects)
+        {
+            if (point.name == "Main Camera")
+                continue;
+            point.transform.SetParent(temp.transform);
+        }
+        Debug.Log("创建旧映射组成功");
+    }
     [MenuItem("GameObject/工具/创建数据组", priority = 0)]
     static void CreatGroup()
     {
@@ -104,10 +117,10 @@ public class MyCustomEditor : Editor
     }
     static void CreatMapping(object userData)
     {
-        MappingData tempdata=new MappingData();
-        tempdata.Objects=Selection.gameObjects;
-        tempdata.names=new List<string>();
-        foreach(var point in Selection.gameObjects)
+        MappingData tempdata = new MappingData();
+        tempdata.Objects = Selection.gameObjects;
+        tempdata.names = new List<string>();
+        foreach (var point in Selection.gameObjects)
         {
             tempdata.names.Add(point.name);
         }
@@ -117,14 +130,14 @@ public class MyCustomEditor : Editor
     [MenuItem("GameObject/工具/创建映射组", priority = 0)]
     static void CreatMapping()
     {
-        MappingData tempdata=new MappingData();
-        tempdata.Objects=Selection.gameObjects;
-        tempdata.names=new List<string>();
-        foreach(var point in Selection.activeGameObject.GetComponentsInChildren<ColorPoint>())
+        MappingData tempdata = new MappingData();
+        tempdata.Objects = Selection.gameObjects;
+        tempdata.names = new List<string>();
+        foreach (var point in Selection.activeGameObject.GetComponentsInChildren<ColorPoint>())
         {
             tempdata.names.Add(point.name);
         }
-        tempdata.dataName=Selection.activeGameObject.name;
+        tempdata.dataName = Selection.activeGameObject.name;
         ProjectManager.Instance.RecordProject.AddMappingData(tempdata);
         Debug.Log("创建映射组成功");
     }
@@ -142,8 +155,8 @@ public class MyCustomEditor : Editor
     static void UseTemplate()
     {
         GameObject obj = Selection.activeGameObject;
-        if(obj.GetComponent<TempleteHelper>())
-        obj.GetComponent<TempleteHelper>().UseTemplete();
+        if (obj.GetComponent<TempleteHelper>())
+            obj.GetComponent<TempleteHelper>().UseTemplete();
         else
         {
             Debug.LogError("请添加TempleteHelper组件");

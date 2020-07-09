@@ -74,7 +74,6 @@ public class DoColor : GradualOrder
     {
         var datalist = ProjectManager.Instance.RecordProject.mappingDatas;
         mappingData=datalist.Find((a)=>a.dataName==dataName);
-
     }
     bool hideColor { get { return colorType != ColorType.SingleColor; } }
     bool hideGradient { get { return colorType != ColorType.Gradient; } }
@@ -121,7 +120,18 @@ public class DoColor : GradualOrder
                 }
             case ColorType.MappingData:
                 {
+                    if(!mappingData.isNull())
                     targetColor = mappingData.GetMappingColor(point.name);
+                    else
+                    {
+                        foreach(var data in ProjectManager.Instance.RecordProject.mappingDatas)
+                        {
+                            if(data.ContainsPoint(point.name))
+                            mappingData=data;
+                            targetColor=mappingData.GetMappingColor(point.name);
+                            break;
+                        }
+                    }
                     break;
                 }
             case ColorType.Random:

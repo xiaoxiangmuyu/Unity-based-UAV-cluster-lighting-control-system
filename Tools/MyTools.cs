@@ -70,6 +70,8 @@ public class MyTools
                         clip.duration = 3;
                     else
                         clip.duration = temp.GetDuring();
+                    if(temp.targetDataName!=string.Empty)
+                    clip.displayName=temp.targetDataName;
                 }
                 else
                 {

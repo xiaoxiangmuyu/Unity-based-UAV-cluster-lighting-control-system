@@ -35,6 +35,10 @@ public struct MappingData
             objs=value;
         }
     }
+    public bool isNull()
+    {
+        return names==null;
+    }
 
     [Button(ButtonSizes.Medium)]
     public void ShowObjects()
@@ -49,6 +53,10 @@ public struct MappingData
             return Color.red;
         }
         return dic[name];
+    }
+    public bool ContainsPoint(string name)
+    {
+        return dic.ContainsKey(name);
     }
     [Button(ButtonSizes.Medium)]
     public void Caulate()
