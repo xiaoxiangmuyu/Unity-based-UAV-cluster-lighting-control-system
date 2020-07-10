@@ -29,7 +29,10 @@ public class MyTools
             if (order is Interval)
             {
                 Interval temp = order as Interval;
+                if(!temp.Random)
                 totalTime += temp.during;
+                else
+                totalTime+=temp.range.y;
             }
             else if (order is OrderGroup)
             {
