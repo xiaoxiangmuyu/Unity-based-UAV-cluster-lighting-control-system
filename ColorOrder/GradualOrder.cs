@@ -18,6 +18,10 @@ public class DoColor : GradualOrder
         this.colorType=colorType;
         this.during=during;
     }
+    public DoColor()
+    {
+        
+    }
     [LabelText("是否记录颜色"), ShowIf("hideGradient")]
     public bool recordColor;
 

@@ -13,6 +13,10 @@ public class Interval : ColorOrderBase
         else
         during=value;
     }
+    public Interval()
+    {
+        this.during=1f;
+    }
     public bool Random;
     [ShowIf("Random")]
     public Vector2 range;
