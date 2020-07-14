@@ -6,7 +6,7 @@ public class RecordProject : SerializedScriptableObject
 {
     [SerializeField]
     public Dictionary<string, List<RecordData>> RecordDic;
-    public List<MappingData>mappingDatas=new List<MappingData>();
+    public List<MappingData> mappingDatas = new List<MappingData>();
 
     public void AddData(string ImageName, RecordData data)
     {
@@ -15,14 +15,16 @@ public class RecordProject : SerializedScriptableObject
             Debug.LogError("没有找到这个父物体" + ImageName);
             return;
         }
-        RecordData tempData=new RecordData();
-        tempData.CopyFrom(data);
-        if(RecordDic[ImageName].Exists((a)=>a.dataName==data.dataName))
+        if (RecordDic[ImageName].Exists((a) => a.dataName == data.dataName))
         {
-            int index=RecordDic[ImageName].FindIndex((a)=>a.dataName==data.dataName);
-            RecordDic[ImageName].RemoveAt(index);
+            RecordDic[ImageName].Find((a) => a.dataName == data.dataName).CopyFrom(data);
         }
-        RecordDic[ImageName].Add(tempData);
+        else
+        {
+            RecordData tempData = new RecordData();
+            tempData.CopyFrom(data);
+            RecordDic[ImageName].Add(tempData);
+        }
 
     }
     public void AddMappingData(MappingData data)
