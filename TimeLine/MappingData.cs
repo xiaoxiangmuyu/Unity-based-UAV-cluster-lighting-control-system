@@ -13,21 +13,24 @@ public struct MappingData
     // }
     public string dataName;
     [SerializeField]
-    [HideInInspector]
     Dictionary<string, Color> dic;
     public Gradient gradient;
     [OnValueChanged("Caulate")]
     public DirType dirType;
-    public Vector3 center;
+    [ShowIf("ShowXY")][Range(0,1)]
+    public float anchorX,anchorY;
+    [ShowIf("ShowZ")][Range(0,1)]
+    public float anchorZ;
     [HideInInspector]
     public List<string> names;
+    Vector3 center;
     [SerializeField][HideInInspector]
-    private GameObject[] objs;
+    GameObject[] objs;
     public GameObject[] Objects
     {
         get
         {
-            if (objs.Length == 0 || objs[0] == null)
+            if (objs.Length == 0 || objs[0] == null||objs.Length==1)
                 objs = MyTools.FindObjs(names).ToArray();
             return objs;
         }
@@ -35,6 +38,8 @@ public struct MappingData
             objs=value;
         }
     }
+    bool ShowXY{get{return dirType==DirType.In_Out||dirType==DirType.Out_In||dirType==DirType.Ball;}}
+    bool ShowZ{get{return dirType==DirType.Ball;}}
     public bool isNull()
     {
         return names==null;
@@ -81,7 +86,7 @@ public struct MappingData
                 if (!maxZ.HasValue || point.transform.position.z > maxZ)
                     maxZ = point.transform.position.z;
             }
-            center = new Vector3((maxX.Value + minX.Value) / 2, (maxY.Value + minY.Value) / 2, (maxZ.Value + minZ.Value) / 2);
+            center = new Vector3(minX.Value+(maxX.Value-minX.Value)*anchorX,minY.Value+(maxY.Value-minY.Value)*anchorY,minZ.Value+(maxZ.Value-minZ.Value)*anchorZ);
             foreach (var point in Objects)
             {
                 float dis = Vector3.Distance(center, point.transform.position);
@@ -153,14 +158,14 @@ public struct MappingData
 
                     foreach (var point in Objects)
                     {
-                        float value = Vector2.Distance(mainCamera.WorldToScreenPoint(point.transform.position), new Vector2((xMax.Value + xMin.Value) / 2, (yMin.Value + yMax.Value) / 2));
+                        float value = Vector2.Distance(mainCamera.WorldToScreenPoint(point.transform.position), new Vector2(xMin.Value+(xMax.Value-xMin.Value)*anchorX,yMin.Value+(yMax.Value-yMin.Value)*anchorY));
                         dic.Add(point.name, gradient.Evaluate(value / maxDistance));
                     }
                     break;
                 case DirType.Out_In:
                     foreach (var point in Objects)
                     {
-                        float value = Vector2.Distance(mainCamera.WorldToScreenPoint(point.transform.position), new Vector2((xMax.Value + xMin.Value) / 2, (yMin.Value + yMax.Value) / 2));
+                        float value = Vector2.Distance(mainCamera.WorldToScreenPoint(point.transform.position), new Vector2(xMin.Value+(xMax.Value-xMin.Value)*anchorX,yMin.Value+(yMax.Value-yMin.Value)*anchorY));
                         dic.Add(point.name, gradient.Evaluate(1 - (value / maxDistance)));
                     }
                     break;

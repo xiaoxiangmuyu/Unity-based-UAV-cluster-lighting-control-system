@@ -13,6 +13,11 @@ public abstract class GradualOrder : ColorOrderBase
 [LabelText("颜色变化")]
 public class DoColor : GradualOrder
 {
+    public DoColor(ColorType colorType=ColorType.ColorMapping,float during=0f)
+    {
+        this.colorType=colorType;
+        this.during=during;
+    }
     [LabelText("是否记录颜色"), ShowIf("hideGradient")]
     public bool recordColor;
 

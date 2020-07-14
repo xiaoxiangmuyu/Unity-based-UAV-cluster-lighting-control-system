@@ -243,11 +243,11 @@ public class ColorPoint : MonoBehaviour
                 Interval temp = order as Interval;
                 sequence.AppendInterval(temp.during);
             }
-            else if (order is CallBack)
-            {
-                var temp = (CallBack)order;
-                sequence.AppendCallback(delegate { temp.GetCallBack(); });
-            }
+            // else if (order is CallBack)
+            // {
+            //     var temp = (CallBack)order;
+            //     sequence.AppendCallback(delegate { temp.GetCallBack(); });
+            // }
             else if (order is OrderGroup)
             {
                 var temp = (OrderGroup)order;

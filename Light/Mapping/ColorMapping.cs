@@ -34,6 +34,8 @@ public class ColorMapping : ColorParent
     [HideInInspector]
     protected int intMaxY;
     public string destTagName = ""; // 需要上色的飞机的标签名，为空表示都上色
+    [LabelText("是否已经记录映射信息")]
+    public bool hasRecord;
     [SerializeField]
     [HideInInspector]
     protected Dictionary<Transform, Vector2> screenPositions = new Dictionary<Transform, Vector2>();
@@ -41,7 +43,7 @@ public class ColorMapping : ColorParent
     // Start is called before the first frame update
     void Awake()
     {
-        if (screenPositions.Count == 0)
+        if (!hasRecord)
             CoordinateTransformation();
         if (centerPoint == Vector2.zero)
             centerPoint = new Vector2(intMaxX / 2, intMaxY / 2);
@@ -75,6 +77,7 @@ public class ColorMapping : ColorParent
     [LabelText("记录映射信息")]
     private void CoordinateTransformation()
     {
+        hasRecord=true;
         if (screenPositions.Count != 0)
             screenPositions.Clear();
 
