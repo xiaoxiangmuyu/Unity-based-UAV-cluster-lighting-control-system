@@ -4,21 +4,24 @@ using System.Text;
 using UnityEditor;
 using UnityEngine;
 using Sirenix.OdinInspector;
+using UnityEngine.UI;
 public class MovementManager : MonoBehaviour
 {
     public enum ExportType { Time, Frame }
     public bool isWorking;
     [EnumToggleButtons]
     public ExportType exportType = ExportType.Time;
-    [LabelText("导出时间")][ShowIf("IsExportByTime")]
+    [LabelText("导出时间")]
+    [ShowIf("IsExportByTime")]
     public float ExportTime = 10f; // 静态表演时间
-    [LabelText("导出帧数")][HideIf("IsExportByTime")]
+    [LabelText("导出帧数")]
+    [HideIf("IsExportByTime")]
     public int ExportFrame = 0;
     public const float LimitedVecticalSpeed = 0.08f;//0.08f
     public const float LimitedSpeed = 0.12f; // 飞机速度限制为每秒不超过3米，1秒为25帧，所以每帧限速为 3 / 25 = 0.12
     public string projectName;
 
-    bool IsExportByTime{get{return exportType==ExportType.Time;}}
+    bool IsExportByTime { get { return exportType == ExportType.Time; } }
     Animator animator;
     AnimatorStateInfo info;
     string exportPath;
@@ -43,7 +46,7 @@ public class MovementManager : MonoBehaviour
     }
     void Start()
     {
-        frame=-1;
+        frame = -1;
         // if (!isWorking)
         //     return;
 
@@ -113,6 +116,10 @@ public class MovementManager : MonoBehaviour
                 isWorking = false;
                 if (ExportCheck())
                     Export();
+                else
+                {
+                    ConsoleProDebug.LogToFilter("自检不通过，导出失败", "Result");
+                }
             }
         }
         else // 输出模式
@@ -126,6 +133,10 @@ public class MovementManager : MonoBehaviour
                     isWorking = false;
                     if (ExportCheck())
                         Export();
+                    else
+                    {
+                        ConsoleProDebug.LogToFilter("自检不通过，导出失败", "Result");
+                    }
                 }
             }
             else
@@ -135,6 +146,10 @@ public class MovementManager : MonoBehaviour
                     isWorking = false;
                     if (ExportCheck())
                         Export();
+                    else
+                    {
+                        ConsoleProDebug.LogToFilter("自检不通过，导出失败", "Result");
+                    }
                 }
                 frame += 1;
             }
@@ -190,19 +205,19 @@ public class MovementManager : MonoBehaviour
     {
         if (!FrameCheck())
         {
-            Debug.LogError("txt行数不一致");
+            ConsoleProDebug.LogToFilter("txt行数不一致", "Result");
             return false;
         }
         if (!CheckExportPath())
         {
-            Debug.LogError("导出路径不合法");
+            ConsoleProDebug.LogToFilter("导出路径不合法", "Result");
             return false;
         }
         if (GetComponent<TxtForAnimation>())
         {
             if (!GetComponent<TxtForAnimation>().HasFinish)
             {
-                Debug.LogError("导出时间过短，TxT没播放完");
+                ConsoleProDebug.LogToFilter("导出时间过短，TxT没播放完", "Result");
                 return false;
             }
         }
@@ -218,7 +233,7 @@ public class MovementManager : MonoBehaviour
         // }
         if (movementChecks.Count != ProjectManager.Instance.ChildCount)
         {
-            Debug.LogError(gameObject.name + "子物体数量与其他图案不一致" + movementChecks.Count);
+            ConsoleProDebug.LogToFilter(gameObject.name + "子物体数量与其他图案不一致" + movementChecks.Count, "Result");
         }
 
         return true;
@@ -322,7 +337,7 @@ public class MovementManager : MonoBehaviour
             //     FrameExport("/StartFrame.txt", FrameType.start);
             //     FrameExport("/EndFrame.txt", FrameType.end);
             // }
-            Debug.Log("<<<<<    导出完成    >>>>>");
+            ConsoleProDebug.LogToFilter("<<<<<    导出完成    >>>>>", "Result");
             AssetDatabase.Refresh();
         }
     }

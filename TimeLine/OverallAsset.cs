@@ -14,12 +14,12 @@ public class OverallAsset : SerializedScriptableObject, IPlayableAsset
 
 
     [LabelText("执行次数")]
-    public int processTimes;
+    public int processTimes=100;
     [LabelText("执行间隔")]
-    public float processInterval;
+    public float processInterval=0.01f;
     [LabelText("执行的子物体个数")]
     [PropertyRange(0, "childCount")]
-    public int ChildCount;
+    public int ChildCount=10;
     [ReadOnly]
     [ShowInInspector]
     List<Transform> childs = new List<Transform>();

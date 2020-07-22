@@ -19,6 +19,8 @@ public class ControlBehavior : PlayableBehaviour
     // Called when the owning graph starts playing
     public override void OnGraphStart(Playable playable)
     {
+        if(!GraphParent.activeSelf)
+        return;
         MyTools.UpdateDuring(GraphParent);
         if(!Application.isPlaying)
         return;
@@ -97,7 +99,7 @@ public class ControlBehavior : PlayableBehaviour
                     timeIndex = i;
                 if (timer >= times[timeIndex] && hasProcess[i] == false)
                 {
-                    record.objs[i].GetComponent<ColorPoint>().SetProcessType(record.colorOrders, record.forceMode);
+                    record.objs[i].GetComponent<ColorPoint>().SetProcessType(record.colorOrders, record.forceMode,record.possibility);
                     hasProcess[i] = true;
                 }
                 counter += 1;
@@ -117,7 +119,7 @@ public class ControlBehavior : PlayableBehaviour
                     timeIndex = i;
                 if (timer >= times[timeIndex] && hasProcess[i] == false)
                 {
-                    record.objs[i].GetComponent<ColorPoint>().SetProcessType(record.colorOrders, record.forceMode);
+                    record.objs[i].GetComponent<ColorPoint>().SetProcessType(record.colorOrders, record.forceMode,record.possibility);
                     hasProcess[i] = true;
                 }
                 counter += 1;
@@ -135,7 +137,7 @@ public class ControlBehavior : PlayableBehaviour
         }
         timer = 0;
         ProjectManager.ResetAllColorAndTween();
-        Debug.Log("ResetState");
+        //Debug.Log("ResetState");
     }
     
 }

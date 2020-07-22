@@ -25,9 +25,6 @@ public class MyCustomEditor : Editor
             menu.AddItem(new GUIContent("创建数据组"), false, CreatGroup, "menu_4");
             menu.AddItem(new GUIContent("创建映射组"), false, CreatMapping, "menu_5");
             menu.AddItem(new GUIContent("创建旧映射组"), false, CreatOldMapping, "menu_5");
-            //menu.AddItem(new GUIContent("取消所有动画"),false,CancelTween,"menu_4");
-
-
             menu.ShowAsContext();
         }
     }
@@ -162,6 +159,5 @@ public class MyCustomEditor : Editor
             Debug.LogError("请添加TempleteHelper组件");
         }
     }
-
 }
 

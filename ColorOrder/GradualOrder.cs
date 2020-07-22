@@ -13,14 +13,14 @@ public abstract class GradualOrder : ColorOrderBase
 [LabelText("颜色变化")]
 public class DoColor : GradualOrder
 {
-    public DoColor(ColorType colorType=ColorType.ColorMapping,float during=0f)
+    public DoColor(ColorType colorType = ColorType.ColorMapping, float during = 0f)
     {
-        this.colorType=colorType;
-        this.during=during;
+        this.colorType = colorType;
+        this.during = during;
     }
     public DoColor()
     {
-        
+
     }
     [LabelText("是否记录颜色"), ShowIf("hideGradient")]
     public bool recordColor;
@@ -49,12 +49,12 @@ public class DoColor : GradualOrder
     [BoxGroup("Color")]
     public Vector3 hsvValue;
 
-    [MinValue(0)]
-    [MaxValue(1)]
-    [ShowIf("showDarkInfo")]
-    [PropertyOrder(1)]
-    [BoxGroup("Color")]
-    public Vector2 darkValue;
+    // [MinValue(0)]
+    // [MaxValue(1)]
+    // [ShowIf("showDarkInfo")]
+    // [PropertyOrder(1)]
+    // [BoxGroup("Color")]
+    // public Vector2 darkValue;
 
     [ShowIf("isMapping")]
     [BoxGroup("Color")]
@@ -73,24 +73,24 @@ public class DoColor : GradualOrder
         get
         {
             var datalist = ProjectManager.Instance.RecordProject.mappingDatas;
-            List<string>dataName=new List<string>();
-            foreach(var data in datalist)
-            dataName.Add(data.dataName);
+            List<string> dataName = new List<string>();
+            foreach (var data in datalist)
+                dataName.Add(data.dataName);
             return dataName;
         }
     }
     void GetMappingData()
     {
         var datalist = ProjectManager.Instance.RecordProject.mappingDatas;
-        mappingData=datalist.Find((a)=>a.dataName==dataName);
+        mappingData = datalist.Find((a) => a.dataName == dataName);
     }
     bool hideColor { get { return colorType != ColorType.SingleColor; } }
     bool hideGradient { get { return colorType != ColorType.Gradient; } }
     bool showHSVInfo { get { return colorType == ColorType.HSV; } }
-    bool showDarkInfo { get { return colorType == ColorType.Dark; } }
+    //bool showDarkInfo { get { return colorType == ColorType.Dark; } }
     bool showColorMappingInfo { get { return colorType == ColorType.ColorMapping; } }
-    bool showTextureMappingInfo { get { return colorType == ColorType.TextureMapping; } }
-    bool isMapping { get { return colorType == ColorType.TextureMapping || colorType == ColorType.ColorMapping; } }
+    //bool showTextureMappingInfo { get { return colorType == ColorType.TextureMapping; } }
+    bool isMapping { get { return colorType == ColorType.ColorMapping; } }
     bool isMappingData { get { return colorType == ColorType.MappingData; } }
     public override Tween GetOrder(ColorPoint point)
     {
@@ -105,17 +105,17 @@ public class DoColor : GradualOrder
                 {
                     targetColor = Color.black; break;
                 }
-            case ColorType.TextureMapping:
-                {
-                    if (isWithIndex)
-                    {
-                        targetColor = point.GetTextureColor(targetIndex); break;
-                    }
-                    else
-                    {
-                        targetColor = point.GetTextureColor(); break;
-                    }
-                }
+            // case ColorType.TextureMapping:
+            //     {
+            //         if (isWithIndex)
+            //         {
+            //             targetColor = point.GetTextureColor(targetIndex); break;
+            //         }
+            //         else
+            //         {
+            //             targetColor = point.GetTextureColor(); break;
+            //         }
+            //     }
             case ColorType.ColorMapping:
                 {
                     if (isWithIndex)
@@ -129,15 +129,15 @@ public class DoColor : GradualOrder
                 }
             case ColorType.MappingData:
                 {
-                    if(!mappingData.isNull())
-                    targetColor = mappingData.GetMappingColor(point.name);
+                    if (!mappingData.isNull())
+                        targetColor = mappingData.GetMappingColor(point.name);
                     else
                     {
-                        foreach(var data in ProjectManager.Instance.RecordProject.mappingDatas)
+                        foreach (var data in ProjectManager.Instance.RecordProject.mappingDatas)
                         {
-                            if(data.ContainsPoint(point.name))
-                            mappingData=data;
-                            targetColor=mappingData.GetMappingColor(point.name);
+                            if (data.ContainsPoint(point.name))
+                                mappingData = data;
+                            targetColor = mappingData.GetMappingColor(point.name);
                             break;
                         }
                     }
@@ -147,10 +147,10 @@ public class DoColor : GradualOrder
                 {
                     targetColor = point.randomColor; break;
                 }
-            case ColorType.FlowMapping:
-                {
-                    targetColor = point.flowTextureColor; break;
-                }
+            // case ColorType.FlowMapping:
+            //     {
+            //         targetColor = point.flowTextureColor; break;
+            //     }
             case ColorType.HSV:
                 {
                     targetColor = point.GetColorByHSV(hsvValue); break;
@@ -159,10 +159,10 @@ public class DoColor : GradualOrder
                 {
                     targetColor = point.originalColor; break;
                 }
-            case ColorType.Dark:
-                {
-                    targetColor = point.GetDarkColor(darkValue); break;
-                }
+            // case ColorType.Dark:
+            //     {
+            //         targetColor = point.GetDarkColor(darkValue); break;
+            //     }
 
         }
         if (recordColor)

@@ -6,6 +6,11 @@ using UnityEngine.Timeline;
 using DG.Tweening;
 public class MyTools
 {
+    public static bool RandomTool(float value)
+    {
+        var result=Random.Range(0f,1f);
+        return result<=value;
+    }
     public static float GetTotalTime(List<ColorOrderBase> orders)
     {
         double temp = ProcessOrder(orders);
@@ -81,7 +86,7 @@ public class MyTools
                     var temp2 = clip.asset as TxtAnimAsset;
                     if (temp2 != null)
                     {
-                        clip.duration = temp2.seconds;
+                        clip.duration = temp2.seconds+temp2.safeSeconds;
                         temp2.SetStartFrame(Mathf.RoundToInt((float)clip.start * 25));
                     }
                     else

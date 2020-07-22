@@ -27,7 +27,9 @@ public class TxtAnimBehavior : PlayableBehaviour
         
     }
     public override void OnGraphStart(Playable playable)
-    {      
+    {   
+        if(!GraphParent.activeSelf)
+        return;
         MyTools.UpdateDuring(GraphParent);
         isExportMode=movementManager.isWorking;
         //初始化点的位置，防止瞬间读取动画造成超速
@@ -49,7 +51,7 @@ public class TxtAnimBehavior : PlayableBehaviour
     {
         if(!script)
         return;
-        Debug.Log(curframe);
+        ConsoleProDebug.Watch("curframe",curframe.ToString());
         script.MyUpdate(curframe);
         curframe+=1;
     }

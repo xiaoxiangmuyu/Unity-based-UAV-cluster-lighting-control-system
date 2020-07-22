@@ -7,8 +7,8 @@ using UnityEditor;
 public class TriggerBase : SerializedMonoBehaviour
 {
     public bool recordMode=true;
-    [ShowIf("recordMode")]
-    public List<RecordData> recordGroup;
+    // [ShowIf("recordMode")]
+    // public List<RecordData> recordGroup;
     [ShowIf("recordMode")]
     public RecordData data;
     //记录第一个点的时间
@@ -20,6 +20,10 @@ public class TriggerBase : SerializedMonoBehaviour
     [HorizontalGroup("Tags")]
     public List<string> ignoreTags = new List<string>();
     [HideIf("recordMode")]
+    public bool forceMode;
+    [Range(0,1)][LabelText("执行可能性")][HideIf("recordMode")]
+    public float possibility=1;
+    [HideIf("recordMode")]
     public List<ColorOrderBase>colorOrders=new List<ColorOrderBase>();
 
     string currentTarget{get{return ProjectManager.GetCurrentMR().gameObject.name;}}
@@ -30,8 +34,9 @@ public class TriggerBase : SerializedMonoBehaviour
     void Start()
     {
         data.Init();
-        recordGroup = ProjectManager.Instance.RecordProject.RecordDic[currentTarget];
+        //recordGroup = ProjectManager.Instance.RecordProject.RecordDic[currentTarget];
         data.animTime=GetComponent<DOTweenAnimation>()?GetComponent<DOTweenAnimation>().duration:GetComponent<DOTweenPath>().duration;
+        data.dataName=gameObject.name;
     }
     // Update is called once per frame
     void Update()
@@ -43,8 +48,6 @@ public class TriggerBase : SerializedMonoBehaviour
     {
         ProjectManager.Instance.RecordProject.AddData(currentTarget,data);
         data.Clear();
-        EditorUtility.SetDirty(ProjectManager.Instance.RecordProject);
-        AssetDatabase.SaveAssets();
         GetComponent<Collider>().enabled=false;
         recordTimer=0;
     }

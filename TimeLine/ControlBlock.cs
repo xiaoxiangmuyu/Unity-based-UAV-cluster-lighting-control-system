@@ -41,7 +41,9 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
     [PropertyOrder(1)]
     [LabelText("总用时")]
     public double totalTime { get { return GetDuring(); } }
-    [PropertyOrder(2)]
+    [Range(0,1)][LabelText("执行可能性")][PropertyOrder(2)]
+    public float possibility=1;
+    [PropertyOrder(3)]
     public List<ColorOrderBase> colorOrders = new List<ColorOrderBase>();
     public List<GameObject> objs;
     [ValueDropdown("availableData")][OnValueChanged("RefreshData")]
@@ -158,7 +160,7 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
                 Debug.LogError("没有找到" + name);
             objs.Add(tempObj.gameObject);
         }
-        Debug.Log("Find GameObjects");
+        //Debug.Log("Find GameObjects");
     }
     Transform tempObj;
     void FindChild(Transform tran, string childName)

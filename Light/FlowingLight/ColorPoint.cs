@@ -99,7 +99,7 @@ public class ColorPoint : MonoBehaviour
         {
             if(state==PointState.Busy)
             return;
-            SetProcessType(TriggerBase.colorOrders);
+            SetProcessType(TriggerBase.colorOrders,TriggerBase.forceMode,TriggerBase.possibility);
         }
         else
         {
@@ -117,7 +117,7 @@ public class ColorPoint : MonoBehaviour
                 TriggerBase.data.times.Add(Time.time - TriggerBase.recordTimer);
                 TriggerBase.data.ObjNames.Add(gameObject.name);
             }
-            mat.DOColor(Color.red, 0.5f);
+            mat.DOColor(Color.red, 0f);
         }
     }
     void OnTriggerEnter2D(Collider2D other)
@@ -336,6 +336,10 @@ public class ColorPoint : MonoBehaviour
             Debug.LogError(gameObject.name + "ColorMapping为空");
             return Color.white;
         }
+        if(colorMapping.ColorChangeCount==0)
+        {
+            return colorMapping.GetMappingColor(transform,0);
+        }
         texCounter += 1;
         if (texCounter <= colorMapping.ColorChangeCount)
         {
@@ -382,9 +386,13 @@ public class ColorPoint : MonoBehaviour
     }
 
 
-    public void SetProcessType(List<ColorOrderBase> colorOrders, bool forceMode = false)
+    public void SetProcessType(List<ColorOrderBase> colorOrders, bool forceMode = false,float possible=1)
     {
         if (state == PointState.Busy && !forceMode)
+        {
+            return;
+        }
+        if(!MyTools.RandomTool(possible))
         {
             return;
         }

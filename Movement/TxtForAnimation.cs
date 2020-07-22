@@ -164,7 +164,8 @@ public class TxtForAnimation : MonoBehaviour
         {
             if(hasFinish)
             return;
-            Debug.Log("播放完成,共" + frame + "帧");
+            ConsoleProDebug.LogToFilter("播放完成,共" + frame + "帧","Result");
+            //Debug.Log("播放完成,共" + frame + "帧");
             hasFinish = true;
             return;
         }

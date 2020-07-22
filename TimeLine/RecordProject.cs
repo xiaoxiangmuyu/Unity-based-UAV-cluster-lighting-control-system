@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Sirenix.OdinInspector;
+using UnityEditor;
 public class RecordProject : SerializedScriptableObject
 {
     [SerializeField]
     public Dictionary<string, List<RecordData>> RecordDic;
+    [SerializeField]
     public List<MappingData> mappingDatas = new List<MappingData>();
 
     public void AddData(string ImageName, RecordData data)
@@ -25,10 +27,15 @@ public class RecordProject : SerializedScriptableObject
             tempData.CopyFrom(data);
             RecordDic[ImageName].Add(tempData);
         }
+        EditorUtility.SetDirty(this);
+        AssetDatabase.SaveAssets();
 
     }
     public void AddMappingData(MappingData data)
     {
         mappingDatas.Add(data);
+        EditorUtility.SetDirty(this);
+        AssetDatabase.SaveAssets();
     }
+
 }

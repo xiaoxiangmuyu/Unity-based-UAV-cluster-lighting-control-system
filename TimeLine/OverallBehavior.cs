@@ -14,10 +14,13 @@ public class OverallBehavior : PlayableBehaviour
     }
     public override void OnBehaviourPlay(Playable playable, FrameData info)
     {
+        if(Application.isPlaying)
         script.Begin();
     }
     public override void OnGraphStart(Playable playable)
     {      
+        if(!GraphParent.activeSelf)
+        return;
         MyTools.UpdateDuring(GraphParent);
         
     }
