@@ -82,13 +82,24 @@ public class RectProcesser : IDataProcesser
         tempNames = new List<string>();
         tempTimes = new List<float>();
         index = new List<int>();
-        DOVirtual.Float(0, maxDistance, animTime, OnValueUpdate).SetEase(easeType);
-        Debug.Log("处理中...");
+        float processPercent = 0;
+        float value = 0;
+        while (processPercent <= 1)
+        {
+            value = DOVirtual.EasedValue(0, maxDistance, processPercent, easeType);
+            OnValueUpdate(value,animTime);
+            processPercent += 0.04f / animTime;
+            if (processPercent > 1)
+            {
+                OnValueUpdate(maxDistance,animTime);
+                break;
+            }
+        }
         if(MyDebugger.instance.IsDebugMode)
         DrawLine();
         return true;
     }
-    void OnValueUpdate(float value)
+    void OnValueUpdate(float value,float animTime)
     {
         //Debug.Log(value);
         for (int i = 0; i < objects.Count; i++)
@@ -105,7 +116,8 @@ public class RectProcesser : IDataProcesser
                 index.Add(i);
             }
         }
-        timer += Time.deltaTime;
+        timer += 0.04f;
+        timer=Mathf.Min(timer,animTime);
         if (index.Count == data.ObjNames.Count)
         {
             if (isProcessed)
@@ -155,8 +167,17 @@ public class RectProcesser : IDataProcesser
         Camera mc=Camera.main;
         Vector3 start=mc.ScreenToWorldPoint(points[0]);
         Vector3 end=mc.ScreenToWorldPoint(points[1]);
-        start.z=mc.transform.position.z-1;
-        end.z=mc.transform.position.z-1;
+        float offset=0;
+        if(mc.transform.rotation.y<0.5f)
+        {
+            offset=10;
+        }
+        else
+        {
+            offset=-10;
+        }
+        start.z=mc.transform.position.z+offset;
+        end.z=mc.transform.position.z+offset;
         MyDebugger.instance.DrawLine(start,end);
         //Debug.Log(points[0]+"  "+points[1]);
 

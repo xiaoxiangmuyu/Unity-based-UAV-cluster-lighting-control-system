@@ -25,6 +25,7 @@ public class MyCustomEditor : Editor
             menu.AddItem(new GUIContent("创建数据组"), false, CreatGroup, "menu_4");
             menu.AddItem(new GUIContent("创建映射组"), false, CreatMapping, "menu_5");
             menu.AddItem(new GUIContent("创建旧映射组"), false, CreatOldMapping, "menu_5");
+            menu.AddItem(new GUIContent("刷新时间轴"),false,Resfrsh,"menu_7");
             menu.ShowAsContext();
         }
     }
@@ -157,6 +158,28 @@ public class MyCustomEditor : Editor
         else
         {
             Debug.LogError("请添加TempleteHelper组件");
+        }
+    }
+    static void Resfrsh(object userData)
+    {
+        var obj=ProjectManager.GetCurrentMR();
+        var asset = obj.GetComponent<PlayableDirector>().playableAsset as TimelineAsset;
+        foreach (var track in asset.GetOutputTracks())
+        {
+            foreach (var clip in track.GetClips())
+            {
+                var temp = clip.asset as ControlBlock;
+                if (temp != null)
+                {
+                    temp.targetDataName = temp.data.dataName;
+                    temp.RefreshData();
+                    temp.SetWorkRangeMax();
+                    if (temp.processer != null)
+                    {
+                        temp.ProcessData();
+                    }
+                }
+            }
         }
     }
 }

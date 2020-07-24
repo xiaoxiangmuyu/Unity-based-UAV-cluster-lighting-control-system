@@ -21,11 +21,11 @@ public class TempleteHelper : MonoBehaviour
     [Button(ButtonSizes.Gigantic)]
     public void UseTemplete()
     {
-        if (!Application.isPlaying)
-        {
-            Debug.Log("请在运行时调用该命令");
-            return;
-        }
+        // if (!Application.isPlaying)
+        // {
+        //     Debug.Log("请在运行时调用该命令");
+        //     return;
+        // }
         if (targetTemplete == null)
         {
             Debug.LogError("没有选择模版");
@@ -54,31 +54,32 @@ public class TempleteHelper : MonoBehaviour
                 }
             }
         }
-        Invoke("SetCurrentObj", maxTime);
+        Selection.activeGameObject = gameObject;
+        Debug.Log("应用模版完成");
     }
-    [Button(ButtonSizes.Gigantic)]
-    void Resfrsh()
-    {
-        Selection.activeGameObject = null;
-        var asset = GetComponent<PlayableDirector>().playableAsset as TimelineAsset;
-        foreach (var track in asset.GetOutputTracks())
-        {
-            foreach (var clip in track.GetClips())
-            {
-                var temp = clip.asset as ControlBlock;
-                if (temp != null)
-                {
-                    temp.targetDataName = temp.data.dataName;
-                    temp.RefreshData();
-                    temp.SetWorkRangeMax();
-                    if (temp.processer != null)
-                    {
-                        temp.ProcessData();
-                    }
-                }
-            }
-        }
-    }
+    // [Button(ButtonSizes.Gigantic)]
+    // void Resfrsh()
+    // {
+    //     Selection.activeGameObject = null;
+    //     var asset = GetComponent<PlayableDirector>().playableAsset as TimelineAsset;
+    //     foreach (var track in asset.GetOutputTracks())
+    //     {
+    //         foreach (var clip in track.GetClips())
+    //         {
+    //             var temp = clip.asset as ControlBlock;
+    //             if (temp != null)
+    //             {
+    //                 temp.targetDataName = temp.data.dataName;
+    //                 temp.RefreshData();
+    //                 temp.SetWorkRangeMax();
+    //                 if (temp.processer != null)
+    //                 {
+    //                     temp.ProcessData();
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
     void SetCurrentObj()
     {
         Selection.activeGameObject = gameObject;

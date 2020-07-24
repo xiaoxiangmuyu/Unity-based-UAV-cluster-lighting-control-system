@@ -5,14 +5,24 @@ using UnityEditor;
 using UnityEngine.Rendering;
 public class MyDebugger : MonoBehaviour
 {
-    public static MyDebugger instance;
+    public static MyDebugger instance
+    {
+        get
+        {
+            if (_instance == null)
+                _instance = FindObjectOfType<MyDebugger>();
+            return _instance;
+        }
+    }
+    static MyDebugger _instance;
     Vector3 start, end;
-    public  Material debugMat;
+    public Material debugMat;
 
     bool isDebug;
-    public bool IsDebugMode{get{return isDebug;}}
-    private void Awake() {
-        instance=this;
+    public bool IsDebugMode { get { return isDebug; } }
+    private void Awake()
+    {
+        _instance = this;
     }
     public void DrawLine(Vector3 start, Vector3 end)
     {
@@ -21,14 +31,15 @@ public class MyDebugger : MonoBehaviour
     }
     public void BeginDebug()
     {
-        isDebug=true;
+        isDebug = true;
     }
     public void StopDebug()
     {
-        isDebug=false;
+        isDebug = false;
     }
-    private void OnDrawGizmos() {
-        if(isDebug)
-        Debug.DrawLine(start,end,Color.red);
+    private void OnDrawGizmos()
+    {
+        if (isDebug)
+            Debug.DrawLine(start, end, Color.red);
     }
 }

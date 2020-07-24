@@ -7,6 +7,7 @@ using UnityEngine.Events;
 [System.Serializable]
 public class OrderGroup:GradualOrder
 {
+    [ListDrawerSettings(Expanded=true)]//[InlineProperty]
     public List<ColorOrderBase>colorOrders=new List<ColorOrderBase>();
     
 }

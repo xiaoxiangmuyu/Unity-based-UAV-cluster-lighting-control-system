@@ -97,8 +97,6 @@ public class ColorPoint : MonoBehaviour
         }
         if (!TriggerBase.recordMode)
         {
-            if(state==PointState.Busy)
-            return;
             SetProcessType(TriggerBase.colorOrders,TriggerBase.forceMode,TriggerBase.possibility);
         }
         else

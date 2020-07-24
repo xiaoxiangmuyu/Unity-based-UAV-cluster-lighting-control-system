@@ -4,6 +4,7 @@ using UnityEngine;
 using Sirenix.OdinInspector;
 using UnityEngine.Playables;
 using UnityEngine.Events;
+using System;
 [CreateAssetMenu(menuName = "创建ControlBlock", fileName = "new_ControlBlock")]
 public class ControlBlock : SerializedScriptableObject, IPlayableAsset
 {
@@ -11,7 +12,25 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
     public double duration { get; }
     public IEnumerable<PlayableBinding> outputs { get; }
     #endregion
-
+    public BlockState state
+    {
+        get
+        {
+            if (ProjectManager.Instance.RecordProject.RecordDic[ProjectManager.GetCurrentMR().name].Exists((a) => a.dataName == data.dataName))
+            {
+                var objNames = ProjectManager.Instance.RecordProject.RecordDic[ProjectManager.GetCurrentMR().name].Find((a) => a.dataName == data.dataName).ObjNames;
+                if (objNames.Count != data.ObjNames.Count)
+                {
+                    return BlockState.NeedRefresh;
+                }
+            }
+            else
+            {
+                return BlockState.NoData;
+            }
+            return BlockState.Ready;
+        }
+    }
     [EnumToggleButtons]
     public OrderType orderType;
     [BoxGroup("控制块属性")]
@@ -41,12 +60,16 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
     [PropertyOrder(1)]
     [LabelText("总用时")]
     public double totalTime { get { return GetDuring(); } }
-    [Range(0,1)][LabelText("执行可能性")][PropertyOrder(2)]
-    public float possibility=1;
+    [Range(0, 1)]
+    [LabelText("执行可能性")]
+    [PropertyOrder(2)]
+    public float possibility = 1;
+    [ListDrawerSettings(Expanded = true)]
     [PropertyOrder(3)]
     public List<ColorOrderBase> colorOrders = new List<ColorOrderBase>();
     public List<GameObject> objs;
-    [ValueDropdown("availableData")][OnValueChanged("RefreshData")]
+    [ValueDropdown("availableData")]
+    [OnValueChanged("RefreshData")]
     [BoxGroup("数据读取模块")]
     public string targetDataName;
 
@@ -54,9 +77,9 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
     {
         get
         {
-            var datalist= ProjectManager.Instance.RecordProject.RecordDic[ProjectManager.GetCurrentMR().name];
-            List<string>names=new List<string>();
-            foreach(var data in datalist)
+            var datalist = ProjectManager.Instance.RecordProject.RecordDic[ProjectManager.GetCurrentMR().name];
+            List<string> names = new List<string>();
+            foreach (var data in datalist)
             {
                 names.Add(data.dataName);
             }
@@ -64,7 +87,23 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
         }
     }
 
-    int ObjMaxIndex { get { if (data.ObjNames != null) return data.ObjNames.Count - 1; else return 0; } }
+    int ObjMaxIndex
+    {
+        get
+        {
+            if (data == null)
+            {
+                return 0;
+
+            }
+            else if (data.ObjNames != null)
+            {
+                return data.ObjNames.Count - 1;
+            }
+            return 0;
+
+        }
+    }
     ControlBehavior behavior;
     public Playable CreatePlayable(PlayableGraph graph, GameObject owner)
     {
@@ -84,16 +123,16 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
     {
         return MyTools.GetTotalTime(colorOrders) + data.animTime;
     }
-    [Button(ButtonSizes.Large)]
-    void ReadOrderFile(OrderData orderData)
-    {
-        colorOrders.Clear();
-        foreach (var order in orderData.colorOrders)
-        {
-            colorOrders.Add(order);
-        }
-        Debug.Log("!");
-    }
+    // [Button(ButtonSizes.Large)]
+    // void ReadOrderFile(OrderData orderData)
+    // {
+    //     colorOrders.Clear();
+    //     foreach (var order in orderData.colorOrders)
+    //     {
+    //         colorOrders.Add(order);
+    //     }
+    //     Debug.Log("!");
+    // }
 
     [BoxGroup("数据处理模块")]
     [Button(ButtonSizes.Large), GUIColor(1, 0.2f, 0)]
@@ -129,7 +168,6 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
     {
         workRange.y = ObjMaxIndex;
     }
-    [Button]
     public void Register()
     {
         if (data != null)
@@ -145,7 +183,8 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
     }
     void BtnSwitch()
     {
-        needProcess = true;
+        if (processer != null)
+            needProcess = true;
     }
     public void Init()
     {
@@ -153,12 +192,15 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
         GameObject parent = GameObject.Find(ProjectManager.GetCurrentMR().gameObject.name);
         if (parent == null)
             Debug.LogError("没有找到父物体 " + ProjectManager.GetCurrentMR().gameObject.name);
-        foreach (var name in data.ObjNames)
+        if (data.ObjNames != null)
         {
-            FindChild(parent.transform, name);
-            if (!tempObj)
-                Debug.LogError("没有找到" + name);
-            objs.Add(tempObj.gameObject);
+            foreach (var name in data.ObjNames)
+            {
+                FindChild(parent.transform, name);
+                if (!tempObj)
+                    Debug.LogError("没有找到" + name);
+                objs.Add(tempObj.gameObject);
+            }
         }
         //Debug.Log("Find GameObjects");
     }
@@ -178,6 +220,11 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
                 FindChild(tran.GetChild(i), childName);
             }
         }
+    }
+    [Button(ButtonSizes.Large)]
+    void ShowObjects()
+    {
+        UnityEditor.Selection.objects = objs.ToArray();
     }
 }
 

@@ -58,12 +58,22 @@ public class CircleProcesser_3D : IDataProcesser
         tempNames = new List<string>();
         tempTimes = new List<float>();
         index = new List<int>();
-        DOVirtual.Float(0, maxDistance, animTime, OnValueUpdate).SetEase(easeType);
-        //temp.StartCoroutine(MyTools.Process(data.animTime));
-        Debug.Log("处理中...");
+        float processPercent = 0;
+        float value = 0;
+        while (processPercent <= 1)
+        {
+            value = DOVirtual.EasedValue(0, maxDistance, processPercent, easeType);
+            OnValueUpdate(value,animTime);
+            processPercent += 0.04f / animTime;
+            if (processPercent > 1)
+            {
+                OnValueUpdate(maxDistance,animTime);
+                break;
+            }
+        }
         return true;
     }
-    void OnValueUpdate(float value)
+    void OnValueUpdate(float value,float animTime)
     {
         //Debug.Log(value);
         for (int i = 0; i < objects.Count; i++)
@@ -78,7 +88,8 @@ public class CircleProcesser_3D : IDataProcesser
                 index.Add(i);
             }
         }
-        timer += Time.deltaTime;
+        timer += 0.04f;
+        timer=Mathf.Min(timer,animTime);
         if (index.Count == data.ObjNames.Count)
         {
             if (isProcessed)

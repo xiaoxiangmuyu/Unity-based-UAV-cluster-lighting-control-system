@@ -6,8 +6,8 @@ using DG.Tweening;
 public abstract class GradualOrder : ColorOrderBase
 {
     [MinValue(0)]
-    [HorizontalGroup]
     [LabelText("播放次数")]
+    [HorizontalGroup]
     public int playCount = 1;
 }
 [LabelText("颜色变化")]
@@ -159,10 +159,10 @@ public class DoColor : GradualOrder
                 {
                     targetColor = point.originalColor; break;
                 }
-            // case ColorType.Dark:
-            //     {
-            //         targetColor = point.GetDarkColor(darkValue); break;
-            //     }
+                // case ColorType.Dark:
+                //     {
+                //         targetColor = point.GetDarkColor(darkValue); break;
+                //     }
 
         }
         if (recordColor)

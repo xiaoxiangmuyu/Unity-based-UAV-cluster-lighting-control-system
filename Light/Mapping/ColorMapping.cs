@@ -16,6 +16,7 @@ public class ColorMapping : ColorParent
     public bool isColorLoop;
     [Tooltip("显示多少次更换下一个颜色")]
     public int ColorChangeCount;
+    [ListDrawerSettings(Expanded=true)]
     public List<Gradient> colors = new List<Gradient>();
 
 

@@ -15,7 +15,6 @@ public class TxtAnimBehavior : PlayableBehaviour
     
     public override void ProcessFrame(Playable playable, FrameData info, object playerData)
     {
-        //DOTween.ManualUpdate(0.04f, 0.04f);
         if(!isExportMode)
         UpdatePos();//编辑模式,会跳帧或者不连续播放
         else

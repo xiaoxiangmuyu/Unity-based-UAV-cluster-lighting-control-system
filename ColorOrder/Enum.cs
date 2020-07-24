@@ -43,6 +43,14 @@ public enum DirType
     Out_In,//外内
     Ball,//3D球形映射
 }
+public enum BlockState
+
+{
+    NoData,
+    NeedRefresh,
+    Ready
+
+}
 
 
 

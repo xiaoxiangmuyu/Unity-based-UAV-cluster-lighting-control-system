@@ -22,7 +22,7 @@ public class CircleProcesser : IDataProcesser
             Debug.LogError("animTime为0");
             return false;
         }
-        isProcessed=false;
+        isProcessed = false;
         this.data = data;
         mainCamera = Camera.main;
         objects = MyTools.FindObjs(data.ObjNames);
@@ -54,11 +54,23 @@ public class CircleProcesser : IDataProcesser
         tempNames = new List<string>();
         tempTimes = new List<float>();
         index = new List<int>();
-        DOVirtual.Float(0, maxDistance, animTime, OnValueUpdate).SetEase(easeType);
-        Debug.Log("处理中...");
+        float processPercent = 0;
+        float value = 0;
+        while (processPercent <= 1)
+        {
+            value = DOVirtual.EasedValue(0, maxDistance, processPercent, easeType);
+            OnValueUpdate(value,animTime);
+            processPercent += 0.04f / animTime;
+            if (processPercent > 1)
+            {
+                OnValueUpdate(maxDistance,animTime);
+                break;
+            }
+        }
+        //DOVirtual.Float(0, maxDistance, animTime, OnValueUpdate).SetEase(easeType);
         return true;
     }
-    void OnValueUpdate(float value)
+    void OnValueUpdate(float value,float animTime)
     {
         //Debug.Log(value);
         for (int i = 0; i < objects.Count; i++)
@@ -73,15 +85,16 @@ public class CircleProcesser : IDataProcesser
                 index.Add(i);
             }
         }
-        timer += Time.deltaTime;
+        timer += 0.04f;
+        timer=Mathf.Min(timer,animTime);
         if (index.Count == data.ObjNames.Count)
         {
-            if(isProcessed)
-            return;
+            if (isProcessed)
+                return;
             data.ObjNames = tempNames;
             data.times = tempTimes;
             ProcessComplete();
-            isProcessed=true;
+            isProcessed = true;
             Debug.Log("处理完成");
         }
     }
