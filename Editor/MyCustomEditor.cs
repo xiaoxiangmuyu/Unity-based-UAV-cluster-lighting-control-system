@@ -10,7 +10,8 @@ public class MyCustomEditor : Editor
     [InitializeOnLoadMethod]
     static void Init()
     {
-        SceneView.onSceneGUIDelegate += OnSceneGUI;
+        //SceneView.onSceneGUIDelegate += OnSceneGUI;
+        SceneView.duringSceneGui+=OnSceneGUI;
     }
     static void OnSceneGUI(SceneView sceneView)
     {
@@ -99,6 +100,7 @@ public class MyCustomEditor : Editor
             point.transform.SetParent(temp.transform);
         }
         Debug.Log("创建旧映射组成功");
+        Selection.activeGameObject=temp;
     }
     [MenuItem("GameObject/工具/创建数据组", priority = 0)]
     static void CreatGroup()

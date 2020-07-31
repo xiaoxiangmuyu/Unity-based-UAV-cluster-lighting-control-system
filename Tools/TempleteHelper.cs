@@ -5,6 +5,7 @@ using UnityEngine.Timeline;
 using Sirenix.OdinInspector;
 using UnityEngine.Playables;
 using UnityEditor;
+[ExecuteInEditMode]
 public class TempleteHelper : MonoBehaviour
 {
     const string templetePath = "Templetes/";
@@ -85,6 +86,17 @@ public class TempleteHelper : MonoBehaviour
         Selection.activeGameObject = gameObject;
         Debug.Log("应用模版完成");
 
+    }
+    private void OnEnable()
+    {
+        ProjectManager.SetOperateTarget(GetComponent<MovementManager>());
+    }
+    private void OnDisable()
+    {
+        if (ProjectManager.GetCurrentMR() == GetComponent<MovementManager>())
+        {
+            ProjectManager.RefreshCurTarget();
+        }
     }
 
 }

@@ -61,14 +61,25 @@ public class FlowLight:OrderGroup
 
     }
 }
-[LabelText("Overall星星闪")]
+[LabelText("呼吸灯")]
 
-public class StarLight:OrderGroup
+public class BreathLight:OrderGroup
 {
-    public StarLight()
+    public BreathLight()
     {
         this.colorOrders.Add(new DoColor(ColorType.ColorMapping,0.5f));
         this.colorOrders.Add(new DoColor(ColorType.Black,0.5f));
     }
 
+}
+[LabelText("星星闪")]
+public class StarLight:OrderGroup
+{
+    public StarLight()
+    {
+        this.colorOrders.Add(new Interval(true,1));
+        this.colorOrders.Add(new DoColor(ColorType.ColorMapping,0.5f));
+        this.colorOrders.Add(new DoColor(ColorType.Black,0.5f));
+        this.playCount=10;
+    }
 }

@@ -57,6 +57,11 @@ public class MyTools
                     totalTime += temp.during;
                 }
             }
+            else if(order is Function.GlobalGradientColor)
+            {
+                var temp=(Function.GlobalGradientColor)order;
+                totalTime+=temp.time;
+            }
         }
         return totalTime;
     }

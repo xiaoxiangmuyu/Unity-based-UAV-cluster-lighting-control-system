@@ -105,16 +105,12 @@ public class DoColor : GradualOrder
                 {
                     targetColor = Color.black; break;
                 }
-            // case ColorType.TextureMapping:
+            // case ColorType.GlobalGradient:
             //     {
-            //         if (isWithIndex)
-            //         {
-            //             targetColor = point.GetTextureColor(targetIndex); break;
-            //         }
-            //         else
-            //         {
-            //             targetColor = point.GetTextureColor(); break;
-            //         }
+            //         point.gradient=gradient2;
+            //         point.mappingSource=MappingSource;
+            //         targetColor = point.globalColor;
+            //         break;
             //     }
             case ColorType.ColorMapping:
                 {

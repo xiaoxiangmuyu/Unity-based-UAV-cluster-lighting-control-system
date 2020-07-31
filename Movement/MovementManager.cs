@@ -17,7 +17,7 @@ public class MovementManager : MonoBehaviour
     [LabelText("导出帧数")]
     [HideIf("IsExportByTime")]
     public int ExportFrame = 0;
-    public const float LimitedVecticalSpeed = 0.08f;//0.08f
+    public const float LimitedVecticalSpeed = 0.078f;//0.08f
     public const float LimitedSpeed = 0.12f; // 飞机速度限制为每秒不超过3米，1秒为25帧，所以每帧限速为 3 / 25 = 0.12
     public string projectName;
 
@@ -42,7 +42,7 @@ public class MovementManager : MonoBehaviour
     }
     void OnEnable()
     {
-        ProjectManager.SetOperateTarget(this);
+
     }
     void Start()
     {

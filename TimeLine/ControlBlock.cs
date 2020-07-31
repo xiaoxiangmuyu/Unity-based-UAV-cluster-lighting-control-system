@@ -16,10 +16,12 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
     {
         get
         {
+            if(data==null)
+            return BlockState.NoData;
             if (ProjectManager.Instance.RecordProject.RecordDic[ProjectManager.GetCurrentMR().name].Exists((a) => a.dataName == data.dataName))
             {
                 var objNames = ProjectManager.Instance.RecordProject.RecordDic[ProjectManager.GetCurrentMR().name].Find((a) => a.dataName == data.dataName).ObjNames;
-                if (objNames.Count != data.ObjNames.Count)
+                if (objNames.Count != data.ObjNames.Count||objs.Exists(a=>!a.activeSelf))
                 {
                     return BlockState.NeedRefresh;
                 }
@@ -222,6 +224,7 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
         }
     }
     [Button(ButtonSizes.Large)]
+    [LabelText("高亮显示点位置")]
     void ShowObjects()
     {
         UnityEditor.Selection.objects = objs.ToArray();

@@ -29,7 +29,6 @@ public class ColorPoint : MonoBehaviour
 
 
     #region Colors
-    public Color flowTextureColor { get { var temp = colorParent as OffsetMapping; if (!temp) { Debug.LogError("flowTextureColor为空"); return Color.white; } return temp.GetMappingColor(transform); } }
     //public Color hsvColor { get { return GetColorByHSV(); } }
     public Color randomColor
     {
@@ -39,6 +38,16 @@ public class ColorPoint : MonoBehaviour
             float green = Random.Range(0.0f, 1.0f);
             float blue = Random.Range(0.0f, 1.0f);
             return new Color(red, green, blue);
+        }
+    }
+    [HideInInspector]
+    public Gradient gradient;
+    public GlobalGradient mappingSource;
+    public Color globalColor
+    {
+        get
+        {
+            return mappingSource.GetColor(gradient,transform.position);
         }
     }
     #endregion
@@ -241,11 +250,11 @@ public class ColorPoint : MonoBehaviour
                 Interval temp = order as Interval;
                 sequence.AppendInterval(temp.during);
             }
-            // else if (order is CallBack)
-            // {
-            //     var temp = (CallBack)order;
-            //     sequence.AppendCallback(delegate { temp.GetCallBack(); });
-            // }
+            else if (order is Function)
+            {
+                var temp = (Function)order;
+                sequence.AppendCallback(delegate { temp.GetFunction(this); });
+            }
             else if (order is OrderGroup)
             {
                 var temp = (OrderGroup)order;
@@ -406,6 +415,22 @@ public class ColorPoint : MonoBehaviour
     {
         filterTags.Add(tag);
     }
+    public IEnumerator UpdateColorByPos(float times,float interval)
+    {
+        Debug.Log(Time.time);
+        float timer=0;
+        while(true)
+        {
+            mat.DOColor(mappingSource.GetColor(gradient,transform.position),interval);
+            timer+=interval;
+            if(timer>times)
+            break;
+            //Debug.Log(timer);
+            yield return new WaitForSeconds(interval);
+        }
+        Debug.Log(Time.time);
+    }
+    
 
 
 }
