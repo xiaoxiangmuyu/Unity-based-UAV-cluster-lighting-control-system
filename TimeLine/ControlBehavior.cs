@@ -12,24 +12,24 @@ public class ControlBehavior : PlayableBehaviour
 
     List<bool> hasProcess;
     float timer;
-    List<float> times{get{return record.data.times;}}
+    List<float> times { get { return record.data.times; } }
     bool needResetState { get { return hasProcess.Exists((x) => x == true); } }
     Vector2 workRange { get { return record.workRange; } }
-
+    bool trigger;
     // Called when the owning graph starts playing
     public override void OnGraphStart(Playable playable)
     {
-        if(record.state!=BlockState.Ready)
-        return;
-        if(!GraphParent.activeSelf)
-        return;
+        if (record.state != BlockState.Ready)
+            return;
+        if (!GraphParent.activeSelf)
+            return;
         MyTools.UpdateDuring(GraphParent);
-        if(!Application.isPlaying)
-        return;
-        if(hasProcess==null)
+        if (!Application.isPlaying)
+            return;
+        if (hasProcess == null)
         {
-            hasProcess=new List<bool>();
-            for(int i=0;i<record.data.ObjNames.Count;i++)
+            hasProcess = new List<bool>();
+            for (int i = 0; i < record.data.ObjNames.Count; i++)
             {
                 hasProcess.Add(false);
             }
@@ -50,10 +50,10 @@ public class ControlBehavior : PlayableBehaviour
     // Called when the state of the playable is set to Play
     public override void OnBehaviourPlay(Playable playable, FrameData info)
     {
-        if(record.state!=BlockState.Ready)
-        return;
-        if(!Application.isPlaying)
-        return;
+        if (record.state != BlockState.Ready)
+            return;
+        if (!Application.isPlaying)
+            return;
         if (needResetState)
             ResetState();
         // if(!Application.isPlaying)
@@ -78,8 +78,8 @@ public class ControlBehavior : PlayableBehaviour
     // Called each frame while the state is set to Play
     public override void ProcessFrame(Playable playable, FrameData info, object playerData)
     {
-        if(record.state!=BlockState.Ready)
-        return;
+        if (record.state != BlockState.Ready)
+            return;
         if (!Application.isPlaying)
             return;
         //DOTween.ManualUpdate(0.04f, 0.04f);
@@ -89,13 +89,13 @@ public class ControlBehavior : PlayableBehaviour
     }
     void Process(bool isflip)
     {
-        int counter=0;
-        int timeIndex=0;
+        int counter = 0;
+        int timeIndex = 0;
         if (!isflip)
         {
             for (int i = (int)workRange.x; i <= (int)workRange.y; i++)
             {
-                 if (i > record.objs.Count - 1)
+                if (i > record.objs.Count - 1)
                 {
                     i = i - record.objs.Count;
                 }
@@ -105,7 +105,7 @@ public class ControlBehavior : PlayableBehaviour
                     timeIndex = i;
                 if (timer >= times[timeIndex] && hasProcess[i] == false)
                 {
-                    record.objs[i].GetComponent<ColorPoint>().SetProcessType(record.colorOrders, record.forceMode,record.possibility);
+                    record.objs[i].GetComponent<ColorPoint>().SetProcessType(record.colorOrders, record.forceMode, record.possibility);
                     hasProcess[i] = true;
                 }
                 counter += 1;
@@ -125,16 +125,30 @@ public class ControlBehavior : PlayableBehaviour
                     timeIndex = i;
                 if (timer >= times[timeIndex] && hasProcess[i] == false)
                 {
-                    record.objs[i].GetComponent<ColorPoint>().SetProcessType(record.colorOrders, record.forceMode,record.possibility);
+                    record.objs[i].GetComponent<ColorPoint>().SetProcessType(record.colorOrders, record.forceMode, record.possibility);
                     hasProcess[i] = true;
                 }
                 counter += 1;
             }
         }
-        // if (!hasProcess.Exists((x) => x == false))
-        //     isFinish = true;
+        if (!hasProcess.Exists((x) => x == false)&&!trigger)
+            if (record.isDynamic)
+            {
+                trigger=true;
+                float time = MyTools.GetTotalTime(record.colorOrders);
+                DOVirtual.DelayedCall(time,(TweenCallback)PrcessAndReset);
+            }
     }
-    
+    void PrcessAndReset()
+    {
+        trigger=false;
+        record.ProcessData();
+        timer = 0;
+        for (int i = 0; i < hasProcess.Count; i++)
+        {
+            hasProcess[i] = false;
+        }
+    }
     void ResetState()
     {
         for (int i = 0; i < hasProcess.Count; i++)
@@ -145,5 +159,5 @@ public class ControlBehavior : PlayableBehaviour
         ProjectManager.ResetAllColorAndTween();
         //Debug.Log("ResetState");
     }
-    
+
 }

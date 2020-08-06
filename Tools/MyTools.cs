@@ -81,8 +81,10 @@ public class MyTools
                     temp.Register();
                     if (temp.GetDuring() == 0)
                         clip.duration = 3;
-                    else
+                    else if(!temp.isDynamic)
                         clip.duration = temp.GetDuring();
+                    else
+                    clip.duration=temp.GetDuring()*temp.processTimes;
                     if(temp.targetDataName!=string.Empty)
                     clip.displayName=temp.targetDataName;
                 }

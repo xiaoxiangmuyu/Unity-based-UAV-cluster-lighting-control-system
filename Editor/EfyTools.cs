@@ -112,6 +112,12 @@ public class EfyTools
         {
             Undo.AddComponent<ColorPoint>(obj.gameObject);
         }
+        if(obj.GetComponent<Rigidbody2D>()==null)
+        {
+            Undo.AddComponent<Rigidbody2D>(obj.gameObject);
+        }
+        var col=obj.GetComponent<Rigidbody2D>();
+        col.bodyType=RigidbodyType2D.Kinematic;
     }
     static void HandleMovementCheck(Transform obj)
     {

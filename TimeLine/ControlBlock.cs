@@ -21,7 +21,7 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
             if (ProjectManager.Instance.RecordProject.RecordDic[ProjectManager.GetCurrentMR().name].Exists((a) => a.dataName == data.dataName))
             {
                 var objNames = ProjectManager.Instance.RecordProject.RecordDic[ProjectManager.GetCurrentMR().name].Find((a) => a.dataName == data.dataName).ObjNames;
-                if (objNames.Count != data.ObjNames.Count||objs.Exists(a=>!a.activeSelf))
+                if (objNames.Count != data.ObjNames.Count||objs.Exists(a=>a==null)||objs.Exists(a=>!a.activeInHierarchy))
                 {
                     return BlockState.NeedRefresh;
                 }
@@ -51,6 +51,13 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
 
     #region Record
     bool needProcess;
+    [BoxGroup("数据处理模块")]
+    [LabelText("是否动态处理")]
+    public bool isDynamic;
+    [LabelText("处理次数")]
+    [BoxGroup("数据处理模块")]
+    [ShowIf("isDynamic")]
+    public int processTimes;
     [BoxGroup("数据处理模块")]
     [OnValueChanged("Register")]
     public RecordData data;
@@ -229,6 +236,7 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
     {
         UnityEditor.Selection.objects = objs.ToArray();
     }
+
 }
 
 

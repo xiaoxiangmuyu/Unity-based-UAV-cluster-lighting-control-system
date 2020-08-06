@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Sirenix.OdinInspector;
 using DG.Tweening;
-[RequireComponent(typeof(SphereCollider))]
+[RequireComponent(typeof(CircleCollider2D))]
 public class ColorPoint : MonoBehaviour
 {
     Renderer curRenderer;
@@ -146,51 +146,28 @@ public class ColorPoint : MonoBehaviour
             Debug.LogError("碰撞体没有TriggerBase组件");
             return;
         }
-
-        //TriggerBase.data.parentName = transform.root.name;
-        if (TriggerBase.data.ObjNames.Exists((x) => x == gameObject.name))
-            return;
-        if (TriggerBase.recordTimer == 0)
+        if (!TriggerBase.recordMode)
         {
-            TriggerBase.data.ObjNames.Add(gameObject.name);
-            TriggerBase.data.times.Add(0);
-            TriggerBase.recordTimer = Time.time;
+            SetProcessType(TriggerBase.colorOrders,TriggerBase.forceMode,TriggerBase.possibility);
         }
         else
         {
-            TriggerBase.data.times.Add(Time.time - TriggerBase.recordTimer);
-            TriggerBase.data.ObjNames.Add(gameObject.name);
+
+            if (TriggerBase.data.ObjNames.Exists((x) => x == gameObject.name))
+                return;
+            if (TriggerBase.recordTimer == 0)
+            {
+                TriggerBase.data.ObjNames.Add(gameObject.name);
+                TriggerBase.data.times.Add(0);
+                TriggerBase.recordTimer = Time.time;
+            }
+            else
+            {
+                TriggerBase.data.times.Add(Time.time - TriggerBase.recordTimer);
+                TriggerBase.data.ObjNames.Add(gameObject.name);
+            }
+            mat.DOColor(Color.red, 0f);
         }
-        mat.DOColor(Color.red, 0.5f);
-        return;
-
-        // if (TriggerBase.orderFile != null)
-        // {
-        //     SetProcessType(TriggerBase.orderFile.colorOrders, TriggerBase.forceMode);
-
-        // }
-        // else
-        // {
-        //     SetProcessType(TriggerBase.colorOrders, TriggerBase.forceMode);
-        // }
-    }
-    void OnTriggerExit2D(Collider2D other)
-    {
-        // if (!isTriggerTarget(other.gameObject))
-        //     return;
-        // if (other.GetComponent<TriggerBase>().useExitOrder)
-        // {
-        //     SetProcessType(other.GetComponent<TriggerBase>().exitOrders, other.GetComponent<TriggerBase>().exitForceMode);
-        // }
-    }
-    void OnTriggerExit(Collider other)
-    {
-        // if (!isTriggerTarget(other.gameObject))
-        //     return;
-        // if (other.GetComponent<TriggerBase>().useExitOrder)
-        // {
-        //     SetProcessType(other.GetComponent<TriggerBase>().exitOrders, other.GetComponent<TriggerBase>().exitForceMode);
-        // }
     }
     bool isTriggerTarget(GameObject other)
     {
