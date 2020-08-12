@@ -175,11 +175,11 @@ public class MyCustomEditor : Editor
                 {
                     temp.targetDataName = temp.data.dataName;
                     temp.RefreshData();
-                    temp.SetWorkRangeMax();
-                    if (temp.processer != null)
-                    {
-                        temp.ProcessData();
-                    }
+                    //temp.SetWorkRangeMax();
+                    // if (temp.processer != null)
+                    // {
+                    //     temp.ProcessData();
+                    // }
                 }
             }
         }

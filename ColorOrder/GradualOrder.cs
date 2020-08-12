@@ -58,7 +58,12 @@ public class DoColor : GradualOrder
 
     [ShowIf("isMapping")]
     [BoxGroup("Color")]
+    [HorizontalGroup("Color/ColorPro")]
     public bool isWithIndex;
+    [ShowIf("isMapping")]
+    [BoxGroup("Color")]
+    [HorizontalGroup("Color/ColorPro")]
+    public bool isRandom;
     [ShowIf("isWithIndex")]
     [BoxGroup("Color")]
     public int targetIndex;
@@ -66,8 +71,9 @@ public class DoColor : GradualOrder
     [ShowIf("isMappingData")]
     [OnValueChanged("GetMappingData")]
     public string dataName;
-    [ShowIf("isMappingData")]
-    public MappingData mappingData;
+    // [ShowIf("isMappingData")]
+    // [SerializeField]
+    // public MappingData mappingData;
     IEnumerable availableData
     {
         get
@@ -81,8 +87,8 @@ public class DoColor : GradualOrder
     }
     void GetMappingData()
     {
-        var datalist = ProjectManager.Instance.RecordProject.mappingDatas;
-        mappingData = datalist.Find((a) => a.dataName == dataName);
+        // var datalist = ProjectManager.Instance.RecordProject.mappingDatas;
+        // mappingData = datalist.Find((a) => a.dataName == dataName);
     }
     bool hideColor { get { return colorType != ColorType.SingleColor; } }
     bool hideGradient { get { return colorType != ColorType.Gradient; } }
@@ -90,7 +96,7 @@ public class DoColor : GradualOrder
     //bool showDarkInfo { get { return colorType == ColorType.Dark; } }
     bool showColorMappingInfo { get { return colorType == ColorType.ColorMapping; } }
     //bool showTextureMappingInfo { get { return colorType == ColorType.TextureMapping; } }
-    bool isMapping { get { return colorType == ColorType.ColorMapping; } }
+    bool isMapping { get { return colorType == ColorType.ColorMapping||colorType==ColorType.MappingData; } }
     bool isMappingData { get { return colorType == ColorType.MappingData; } }
     public override Tween GetOrder(ColorPoint point)
     {
@@ -125,18 +131,20 @@ public class DoColor : GradualOrder
                 }
             case ColorType.MappingData:
                 {
-                    if (!mappingData.isNull())
-                        targetColor = mappingData.GetMappingColor(point.name);
+                    var datalist = ProjectManager.Instance.RecordProject.mappingDatas;
+                    var mappingData = datalist.Find((a) => a.dataName == dataName);
+                    if (isWithIndex)
+                    {
+                        targetColor = mappingData.GetMappingColor(point.name,targetIndex);
+                    }
                     else
                     {
-                        foreach (var data in ProjectManager.Instance.RecordProject.mappingDatas)
-                        {
-                            if (data.ContainsPoint(point.name))
-                                mappingData = data;
-                            targetColor = mappingData.GetMappingColor(point.name);
-                            break;
-                        }
+                        if(isRandom)
+                        targetColor = mappingData.GetMappingColor(point.name,0,true);
+                        else
+                        targetColor = mappingData.GetMappingColor(point.name);
                     }
+                    
                     break;
                 }
             case ColorType.Random:

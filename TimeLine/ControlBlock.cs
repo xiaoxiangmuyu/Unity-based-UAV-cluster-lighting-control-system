@@ -43,7 +43,7 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
     [BoxGroup("控制块属性")]
     public bool isflip;
     [BoxGroup("控制块属性")]
-    public bool forceMode;
+    public bool forceMode=true;
     [BoxGroup("控制块属性")]
     public bool timeInit;
 
@@ -144,15 +144,24 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
     // }
 
     [BoxGroup("数据处理模块")]
-    [Button(ButtonSizes.Large), GUIColor(1, 0.2f, 0)]
-    [ShowIf("needProcess")]
+    [Button(ButtonSizes.Large), GUIColor("GetColor")]
+    //[ShowIf("needProcess")]
     public void ProcessData()
     {
+        if(processer==null)
+        return;
         if (processer.Process(ref data, data.animTime))
         {
 
             needProcess = false;
         }
+    }
+    Color GetColor()
+    {
+        if(needProcess)
+        return Color.red;
+        else
+        return Color.green;
     }
 
     //刷新数据，重新从data建立索引
@@ -197,10 +206,15 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
     }
     public void Init()
     {
+        if(data==null)
+        return;
         objs = new List<GameObject>();
         GameObject parent = GameObject.Find(ProjectManager.GetCurrentMR().gameObject.name);
         if (parent == null)
+        {
             Debug.LogError("没有找到父物体 " + ProjectManager.GetCurrentMR().gameObject.name);
+            return;
+        }
         if (data.ObjNames != null)
         {
             foreach (var name in data.ObjNames)

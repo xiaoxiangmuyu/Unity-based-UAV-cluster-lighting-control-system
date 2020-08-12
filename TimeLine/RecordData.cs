@@ -73,5 +73,14 @@ public class RecordData
             action();
         }
     }
+    [Button]
+    void AddMappingData()
+    {
+        MappingData data=new MappingData ();
+        data.names=new List<string>(ObjNames);
+        data.Objects=MyTools.FindObjs(ObjNames).ToArray();
+        data.dataName=dataName;
+        ProjectManager.Instance.RecordProject.AddMappingData(data);
+    }
      
 }
