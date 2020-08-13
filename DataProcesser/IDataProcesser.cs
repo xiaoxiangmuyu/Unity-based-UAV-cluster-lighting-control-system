@@ -17,8 +17,8 @@ public abstract class IDataProcesser
     protected bool isProcessed;
     protected List<string> tempNames;
     protected List<float> tempTimes;
-    protected List<int> index;
-    protected List<GameObject> objects;
+    protected List<string> index;
+    //protected List<GameObject> objects;
     protected Camera mainCamera;
     protected float timer;
     protected RecordData data;

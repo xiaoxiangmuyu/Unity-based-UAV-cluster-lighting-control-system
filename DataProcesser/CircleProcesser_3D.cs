@@ -25,39 +25,38 @@ public class CircleProcesser_3D : IDataProcesser
         isProcessed = false;
         this.data = data;
         mainCamera = Camera.main;
-        objects = MyTools.FindObjs(data.ObjNames);
         float? xMax = null;
         float? xMin = null;
         float? yMax = null;
         float? yMin = null;
         float? zMax = null;
         float? zMin = null;
-        foreach (var obj in objects)
+        foreach (var pos in data.posDic.Values)
         {
-            if (!xMax.HasValue || obj.transform.position.x > xMax.Value)
-                xMax = obj.transform.position.x;
-            if (!xMin.HasValue || obj.transform.position.x < xMin.Value)
-                xMin = obj.transform.position.x;
-            if (!yMax.HasValue || obj.transform.position.y > yMax.Value)
-                yMax = obj.transform.position.y;
-            if (!yMin.HasValue || obj.transform.position.y < yMin.Value)
-                yMin = obj.transform.position.y;
-            if (!zMax.HasValue || obj.transform.position.z > zMax.Value)
-                zMax = obj.transform.position.z;
-            if (!zMin.HasValue || obj.transform.position.z < zMin.Value)
-                zMin = obj.transform.position.z;
+            if (!xMax.HasValue || pos.x > xMax.Value)
+                xMax = pos.x;
+            if (!xMin.HasValue || pos.x < xMin.Value)
+                xMin = pos.x;
+            if (!yMax.HasValue || pos.y > yMax.Value)
+                yMax = pos.y;
+            if (!yMin.HasValue || pos.y < yMin.Value)
+                yMin = pos.y;
+            if (!zMax.HasValue || pos.z > zMax.Value)
+                zMax = pos.z;
+            if (!zMin.HasValue || pos.z < zMin.Value)
+                zMin = pos.z;
         }
         anchorPoint = new Vector3(xMin.Value + (xMax.Value - xMin.Value) * center_X, yMin.Value + (yMax.Value - yMin.Value) * center_Y,zMin.Value+(zMax.Value-zMin.Value)*center_Z);
         float maxDistance = 0;
-        for (int i = 0; i < objects.Count; i++)
+        foreach (var pos in data.posDic.Values)
         {
-            if (Vector3.Distance(anchorPoint, objects[i].transform.position) > maxDistance)
-                maxDistance = Vector3.Distance(anchorPoint, objects[i].transform.position);
+            if (Vector3.Distance(anchorPoint, pos) > maxDistance)
+                maxDistance = Vector3.Distance(anchorPoint, pos);
         }
         timer = 0;
         tempNames = new List<string>();
         tempTimes = new List<float>();
-        index = new List<int>();
+        index = new List<string>();
         float processPercent = 0;
         float value = 0;
         while (processPercent <= 1)
@@ -76,16 +75,16 @@ public class CircleProcesser_3D : IDataProcesser
     void OnValueUpdate(float value,float animTime)
     {
         //Debug.Log(value);
-        for (int i = 0; i < objects.Count; i++)
+        foreach (var pointName in data.posDic.Keys)
         {
-            if (index.Contains(i))
+            if (index.Contains(pointName))
                 continue;
-            float tempDistance = Vector3.Distance(objects[i].transform.position, anchorPoint);
+            float tempDistance = Vector3.Distance(data.posDic[pointName], anchorPoint);
             if (tempDistance <= value)
             {
                 tempTimes.Add(timer);
-                tempNames.Add(objects[i].name);
-                index.Add(i);
+                tempNames.Add(pointName);
+                index.Add(pointName);
             }
         }
         timer += 0.04f;

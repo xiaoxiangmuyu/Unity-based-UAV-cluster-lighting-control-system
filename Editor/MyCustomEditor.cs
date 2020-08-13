@@ -11,7 +11,7 @@ public class MyCustomEditor : Editor
     static void Init()
     {
         //SceneView.onSceneGUIDelegate += OnSceneGUI;
-        SceneView.duringSceneGui+=OnSceneGUI;
+        SceneView.duringSceneGui += OnSceneGUI;
     }
     static void OnSceneGUI(SceneView sceneView)
     {
@@ -26,7 +26,7 @@ public class MyCustomEditor : Editor
             menu.AddItem(new GUIContent("创建数据组"), false, CreatGroup, "menu_4");
             menu.AddItem(new GUIContent("创建映射组"), false, CreatMapping, "menu_5");
             menu.AddItem(new GUIContent("创建旧映射组"), false, CreatOldMapping, "menu_5");
-            menu.AddItem(new GUIContent("刷新时间轴"),false,Resfrsh,"menu_7");
+            menu.AddItem(new GUIContent("刷新时间轴"), false, Resfrsh, "menu_7");
             menu.ShowAsContext();
         }
     }
@@ -73,13 +73,16 @@ public class MyCustomEditor : Editor
                 {
                     tempdata.ObjNames.Add(child.name);
                     tempdata.times.Add(0);
+                    tempdata.posDic.Add(child.name, child.transform.position);
                 }
-                tempdata.dataName=point.name;
+                tempdata.dataName = point.name;
             }
             else
             {
                 tempdata.ObjNames.Add(point.name);
                 tempdata.times.Add(0);
+                tempdata.posDic.Add(point.name, point.transform.position);
+
             }
         }
         ProjectManager.Instance.RecordProject.AddData(ProjectManager.GetCurrentMR().name, tempdata);
@@ -100,7 +103,7 @@ public class MyCustomEditor : Editor
             point.transform.SetParent(temp.transform);
         }
         Debug.Log("创建旧映射组成功");
-        Selection.activeGameObject=temp;
+        Selection.activeGameObject = temp;
     }
     [MenuItem("GameObject/工具/创建数据组", priority = 0)]
     static void CreatGroup()
@@ -110,6 +113,7 @@ public class MyCustomEditor : Editor
         {
             tempdata.ObjNames.Add(point.gameObject.name);
             tempdata.times.Add(0);
+            tempdata.posDic.Add(point.name, point.transform.position);
         }
         ProjectManager.Instance.RecordProject.AddData(ProjectManager.GetCurrentMR().name, tempdata);
         Debug.Log("创建数据组成功");
@@ -122,6 +126,8 @@ public class MyCustomEditor : Editor
         tempdata.names = new List<string>();
         foreach (var point in Selection.gameObjects)
         {
+            if (point.name == "Main Camera")
+                continue;
             tempdata.names.Add(point.name);
         }
         ProjectManager.Instance.RecordProject.AddMappingData(tempdata);
@@ -164,7 +170,7 @@ public class MyCustomEditor : Editor
     }
     static void Resfrsh(object userData)
     {
-        var obj=ProjectManager.GetCurrentMR();
+        var obj = ProjectManager.GetCurrentMR();
         var asset = obj.GetComponent<PlayableDirector>().playableAsset as TimelineAsset;
         foreach (var track in asset.GetOutputTracks())
         {
@@ -175,11 +181,6 @@ public class MyCustomEditor : Editor
                 {
                     temp.targetDataName = temp.data.dataName;
                     temp.RefreshData();
-                    //temp.SetWorkRangeMax();
-                    // if (temp.processer != null)
-                    // {
-                    //     temp.ProcessData();
-                    // }
                 }
             }
         }

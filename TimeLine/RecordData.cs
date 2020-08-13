@@ -14,7 +14,9 @@ public class RecordData
     public List<string>ObjNames;
     [SerializeField]
     public List<float>times;
-
+    [SerializeField]
+    public StringVector3Dictionary posDic;
+ 
     List<System.Action>Actions;
     public RecordData(string name="")
     {
@@ -22,17 +24,20 @@ public class RecordData
         animTime=0;
         ObjNames=new List<string>();
         times=new List<float>();
+        posDic=new StringVector3Dictionary();
     }
     public void Clear()
     {
         ObjNames.Clear();
         times.Clear();
         dataName=string.Empty;
+        posDic.Clear();
     }
     public void Init()
     {
         ObjNames=new List<string>();
         times=new List<float>();
+        posDic=new StringVector3Dictionary();
     }
     public bool IsEmpty()
     {
@@ -50,6 +55,7 @@ public class RecordData
         times=new List<float>(data.times.ToArray());
         if(data.animTime!=0)
         animTime=data.animTime;
+        posDic=data.posDic;
     }
     public void AddListener(System.Action action)
     {

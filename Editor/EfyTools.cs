@@ -47,12 +47,12 @@ public class EfyTools
             {
                 obj.AddComponent<TempleteHelper>();
             }
-            if (!recordProject.RecordDic.ContainsKey(obj.name))
-            {
-                recordProject.RecordDic.Add(obj.name, new List<RecordData>());
-                RecordData temp = new RecordData("all");
-                recordProject.RecordDic[obj.name].Add(temp);
-            }
+            // if (!recordProject.RecordDic.ContainsKey(obj.name))
+            // {
+            //     recordProject.RecordDic.Add(new List<RecordData>());
+            //     RecordData temp = new RecordData("all");
+            //     recordProject.RecordDic.Add(temp);
+            // }
 
             CreateTimeLine(obj, projectName);
 
@@ -76,8 +76,8 @@ public class EfyTools
                 HandleColorPoint(children[i]);
                 if (children[i].gameObject.layer != LayerMask.NameToLayer("TriggerIgnore"))
                 {
-                    recordProject.RecordDic[obj.name][0].ObjNames.Add(children[i].name);
-                    recordProject.RecordDic[obj.name][0].times.Add(0);
+                    recordProject.RecordDic[0].ObjNames.Add(children[i].name);
+                    recordProject.RecordDic[0].times.Add(0);
                 }
             }
             if (!isCountFinish)
@@ -167,7 +167,7 @@ public class EfyTools
         if (!File.Exists(projectPath + projectName + "/RecordParent.asset"))
         {
             recordProject = ScriptableObject.CreateInstance<RecordProject>();
-            recordProject.RecordDic = new Dictionary<string, List<RecordData>>();
+            recordProject.RecordDic = new List<RecordData>();
             AssetDatabase.CreateAsset(recordProject, projectPath + projectName + "/RecordParent.asset");
         }
         else

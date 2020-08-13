@@ -18,9 +18,9 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
         {
             if(data==null)
             return BlockState.NoData;
-            if (ProjectManager.Instance.RecordProject.RecordDic[ProjectManager.GetCurrentMR().name].Exists((a) => a.dataName == data.dataName))
+            if (ProjectManager.Instance.RecordProject.RecordDic.Exists((a) => a.dataName == data.dataName))
             {
-                var objNames = ProjectManager.Instance.RecordProject.RecordDic[ProjectManager.GetCurrentMR().name].Find((a) => a.dataName == data.dataName).ObjNames;
+                var objNames = ProjectManager.Instance.RecordProject.RecordDic.Find((a) => a.dataName == data.dataName).ObjNames;
                 if (objNames.Count != data.ObjNames.Count||objs.Exists(a=>a==null)||objs.Exists(a=>!a.activeInHierarchy))
                 {
                     return BlockState.NeedRefresh;
@@ -86,7 +86,7 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
     {
         get
         {
-            var datalist = ProjectManager.Instance.RecordProject.RecordDic[ProjectManager.GetCurrentMR().name];
+            var datalist = ProjectManager.Instance.RecordProject.RecordDic;
             List<string> names = new List<string>();
             foreach (var data in datalist)
             {
@@ -167,7 +167,7 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
     //刷新数据，重新从data建立索引
     public void RefreshData()
     {
-        var result = ProjectManager.Instance.RecordProject.RecordDic[ProjectManager.GetCurrentMR().name].Find((a) => a.dataName == targetDataName);
+        var result = ProjectManager.Instance.RecordProject.RecordDic.Find((a) => a.dataName == targetDataName);
         if (result != null)
         {
             data.CopyFrom(result);

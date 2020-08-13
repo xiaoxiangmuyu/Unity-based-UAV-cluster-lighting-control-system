@@ -33,3 +33,5 @@ public abstract class UnitySerializedDictionary<TKey, TValue> : Dictionary<TKey,
 }
 [System.Serializable]
 public class StringColorDictionary : UnitySerializedDictionary<System.String,Color> { }
+[System.Serializable]
+public class StringVector3Dictionary:UnitySerializedDictionary<System.String,Vector3>{}

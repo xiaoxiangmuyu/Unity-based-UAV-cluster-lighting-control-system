@@ -27,7 +27,6 @@ public class RectProcesser : IDataProcesser
         isProcessed = false;
         this.data = data;
         mainCamera = Camera.main;
-        objects = MyTools.FindObjs(data.ObjNames);
         float maxDistance = 0;
         float tempDistance = 0;
 
@@ -35,9 +34,9 @@ public class RectProcesser : IDataProcesser
         float? xMin = null;
         float? yMax = null;
         float? yMin = null;
-        foreach (var obj in objects)
+        foreach (var pos in data.posDic.Values)
         {
-            Vector2 screenPos = mainCamera.WorldToScreenPoint(obj.transform.position);
+            Vector2 screenPos = mainCamera.WorldToScreenPoint(pos);
             if (!xMax.HasValue)
                 xMax = screenPos.x;
             if (!xMin.HasValue)
@@ -71,9 +70,9 @@ public class RectProcesser : IDataProcesser
             if (offset_Max < corner.y - K * corner.x)
                 offset_Max = corner.y - K * corner.x;
         }
-        foreach (var point in objects)
+        foreach (var pos in data.posDic.Values)
         {
-            Vector2 screenPos = mainCamera.WorldToScreenPoint(point.transform.position);
+            Vector2 screenPos = mainCamera.WorldToScreenPoint(pos);
             tempDistance = Mathf.Abs(A * screenPos.x + B * screenPos.y + C) / Mathf.Sqrt(Mathf.Pow(A, 2) + Mathf.Pow(B, 2));
             if (maxDistance < tempDistance)
                 maxDistance = tempDistance;
@@ -81,7 +80,7 @@ public class RectProcesser : IDataProcesser
         timer = 0;
         tempNames = new List<string>();
         tempTimes = new List<float>();
-        index = new List<int>();
+        index = new List<string>();
         float processPercent = 0;
         float value = 0;
         while (processPercent <= 1)
@@ -102,18 +101,18 @@ public class RectProcesser : IDataProcesser
     void OnValueUpdate(float value,float animTime)
     {
         //Debug.Log(value);
-        for (int i = 0; i < objects.Count; i++)
+        foreach (var pointName in data.posDic.Keys)
         {
-            if (index.Contains(i))
+            if (index.Contains(pointName))
                 continue;
-            Vector2 coordinate = mainCamera.WorldToScreenPoint(objects[i].transform.position);
+            Vector2 coordinate = mainCamera.WorldToScreenPoint(data.posDic[pointName]);
             float tempDistance = Mathf.Abs(A * coordinate.x + B * coordinate.y + C) / Mathf.Sqrt(Mathf.Pow(A, 2) + Mathf.Pow(B, 2));
             if (tempDistance <= value)
             {
                 //Debug.Log(value);
                 tempTimes.Add(timer);
-                tempNames.Add(objects[i].name);
-                index.Add(i);
+                tempNames.Add(pointName);
+                index.Add(pointName);
             }
         }
         timer += 0.04f;

@@ -25,14 +25,13 @@ public class CircleProcesser : IDataProcesser
         isProcessed = false;
         this.data = data;
         mainCamera = Camera.main;
-        objects = MyTools.FindObjs(data.ObjNames);
         float? xMax = null;
         float? xMin = null;
         float? yMax = null;
         float? yMin = null;
-        foreach (var obj in objects)
+        foreach (var pos in data.posDic.Values)
         {
-            Vector2 screenPos = mainCamera.WorldToScreenPoint(obj.transform.position);
+            Vector2 screenPos = mainCamera.WorldToScreenPoint(pos);
             if (!xMax.HasValue || screenPos.x > xMax.Value)
                 xMax = screenPos.x;
             if (!xMin.HasValue || screenPos.x < xMin.Value)
@@ -41,19 +40,18 @@ public class CircleProcesser : IDataProcesser
                 yMin = screenPos.y;
             if (!yMax.HasValue || screenPos.y > yMax.Value)
                 yMax = screenPos.y;
-
         }
         anchorPoint = new Vector2(xMin.Value + (xMax.Value - xMin.Value) * center_X, yMin.Value + (yMax.Value - yMin.Value) * center_Y);
         float maxDistance = 0;
-        for (int i = 0; i < objects.Count; i++)
+        foreach (var pos in data.posDic.Values)
         {
-            if (Vector2.Distance(anchorPoint, mainCamera.WorldToScreenPoint(objects[i].transform.position)) > maxDistance)
-                maxDistance = Vector2.Distance(anchorPoint, mainCamera.WorldToScreenPoint(objects[i].transform.position));
+            if (Vector2.Distance(anchorPoint, mainCamera.WorldToScreenPoint(pos)) > maxDistance)
+                maxDistance = Vector2.Distance(anchorPoint, mainCamera.WorldToScreenPoint(pos));
         }
         timer = 0;
         tempNames = new List<string>();
         tempTimes = new List<float>();
-        index = new List<int>();
+        index = new List<string>();
         float processPercent = 0;
         float value = 0;
         while (processPercent <= 1)
@@ -73,16 +71,16 @@ public class CircleProcesser : IDataProcesser
     void OnValueUpdate(float value,float animTime)
     {
         //Debug.Log(value);
-        for (int i = 0; i < objects.Count; i++)
+        foreach (var pointName in data.posDic.Keys)
         {
-            if (index.Contains(i))
+            if (index.Contains(pointName))
                 continue;
-            float tempDistance = Vector2.Distance(mainCamera.WorldToScreenPoint(objects[i].transform.position), anchorPoint);
+            float tempDistance = Vector2.Distance(mainCamera.WorldToScreenPoint(data.posDic[pointName]), anchorPoint);
             if (tempDistance <= value)
             {
                 tempTimes.Add(timer);
-                tempNames.Add(objects[i].name);
-                index.Add(i);
+                tempNames.Add(pointName);
+                index.Add(pointName);
             }
         }
         timer += 0.04f;

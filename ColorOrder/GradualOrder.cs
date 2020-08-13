@@ -9,6 +9,7 @@ public abstract class GradualOrder : ColorOrderBase
     [MinValue(0)]
     [LabelText("播放次数")]
     [HorizontalGroup]
+    [PropertyOrder(-15)]
     public int playCount = 1;
 }
 [LabelText("颜色变化")]
@@ -34,10 +35,10 @@ public class DoColor : GradualOrder
     [EnumToggleButtons, HideLabel]
     [BoxGroup("Color")]
     [PropertyOrder(10)]
-    //[HideInInspector]
+    [HideInInspector]
     public ColorType colorType;
     [BoxGroup("Color")]
-    [PropertyOrder(10)]
+    [PropertyOrder(-10)]
     [ValueDropdown("availableColorTypes")]
     [ShowInInspector]
     public string ColorTypeName
@@ -54,14 +55,17 @@ public class DoColor : GradualOrder
         set
         {
             colorTypeName = value;
+            ColorType d = (ColorType)Enum.Parse(typeof(ColorType), colorTypeName);
+            colorType = d;
         }
     }
-    [SerializeField]
+    [SerializeField][HideInInspector]
     private string colorTypeName;
 
     [MinValue(0)]
     [HorizontalGroup]
     [LabelText("持续时间")]
+    [PropertyOrder(-15)]
     public float during;
 
     [MaxValue(1)]
@@ -130,8 +134,15 @@ public class DoColor : GradualOrder
     bool isMappingData { get { return colorType == ColorType.MappingData; } }
     public override Tween GetOrder(ColorPoint point)
     {
-        ColorType d = (ColorType)Enum.Parse(typeof(ColorType), colorTypeName);
-        colorType = d;
+        if (ColorTypeName.Equals("6"))
+            ColorTypeName = "Gradient";
+        else if (ColorTypeName.Equals("7"))
+            ColorTypeName = "Black";
+        else
+        {
+            ColorType d = (ColorType)Enum.Parse(typeof(ColorType), colorTypeName);
+            colorType = d;
+        }
         Color targetColor = Color.white;
         switch (colorType)
         {
