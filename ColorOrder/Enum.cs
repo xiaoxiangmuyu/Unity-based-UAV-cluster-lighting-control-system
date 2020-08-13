@@ -2,6 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Sirenix.OdinInspector;
+using System;
+public static class ColorManager
+{
+    public static readonly List<string>ColorTypes=new List<string>{"SingleColor","Gradient","ColorMapping","MappingData","HSV","Black"};
+}
 public enum ColorType
 {
     SingleColor,//指定显示单一颜色

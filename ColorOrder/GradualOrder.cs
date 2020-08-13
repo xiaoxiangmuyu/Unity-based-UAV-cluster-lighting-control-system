@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Sirenix.OdinInspector;
 using DG.Tweening;
+using System;
 public abstract class GradualOrder : ColorOrderBase
 {
     [MinValue(0)]
@@ -22,9 +23,6 @@ public class DoColor : GradualOrder
     {
 
     }
-    [LabelText("是否记录颜色"), ShowIf("hideGradient")]
-    public bool recordColor;
-
     [HideIf("hideColor")]
     [BoxGroup("Color")]
     [PropertyOrder(10)]
@@ -36,7 +34,30 @@ public class DoColor : GradualOrder
     [EnumToggleButtons, HideLabel]
     [BoxGroup("Color")]
     [PropertyOrder(10)]
+    //[HideInInspector]
     public ColorType colorType;
+    [BoxGroup("Color")]
+    [PropertyOrder(10)]
+    [ValueDropdown("availableColorTypes")]
+    [ShowInInspector]
+    public string ColorTypeName
+    {
+        get
+        {
+            if (colorTypeName == null)
+            {
+                //if(colorType.ToString()=="6"||colorType.ToString()=="7")
+                colorTypeName = colorType.ToString();
+            }
+            return colorTypeName;
+        }
+        set
+        {
+            colorTypeName = value;
+        }
+    }
+    [SerializeField]
+    private string colorTypeName;
 
     [MinValue(0)]
     [HorizontalGroup]
@@ -70,6 +91,8 @@ public class DoColor : GradualOrder
     [ValueDropdown("availableData")]
     [ShowIf("isMappingData")]
     [OnValueChanged("GetMappingData")]
+    [PropertyOrder(11)]
+    [BoxGroup("Color")]
     public string dataName;
     // [ShowIf("isMappingData")]
     // [SerializeField]
@@ -85,6 +108,13 @@ public class DoColor : GradualOrder
             return dataName;
         }
     }
+    IEnumerable availableColorTypes
+    {
+        get
+        {
+            return ColorManager.ColorTypes;
+        }
+    }
     void GetMappingData()
     {
         // var datalist = ProjectManager.Instance.RecordProject.mappingDatas;
@@ -96,10 +126,12 @@ public class DoColor : GradualOrder
     //bool showDarkInfo { get { return colorType == ColorType.Dark; } }
     bool showColorMappingInfo { get { return colorType == ColorType.ColorMapping; } }
     //bool showTextureMappingInfo { get { return colorType == ColorType.TextureMapping; } }
-    bool isMapping { get { return colorType == ColorType.ColorMapping||colorType==ColorType.MappingData; } }
+    bool isMapping { get { return colorType == ColorType.ColorMapping || colorType == ColorType.MappingData; } }
     bool isMappingData { get { return colorType == ColorType.MappingData; } }
     public override Tween GetOrder(ColorPoint point)
     {
+        ColorType d = (ColorType)Enum.Parse(typeof(ColorType), colorTypeName);
+        colorType = d;
         Color targetColor = Color.white;
         switch (colorType)
         {
@@ -135,22 +167,22 @@ public class DoColor : GradualOrder
                     var mappingData = datalist.Find((a) => a.dataName == dataName);
                     if (isWithIndex)
                     {
-                        targetColor = mappingData.GetMappingColor(point.name,targetIndex);
+                        targetColor = mappingData.GetMappingColor(point.name, targetIndex);
                     }
                     else
                     {
-                        if(isRandom)
-                        targetColor = mappingData.GetMappingColor(point.name,0,true);
+                        if (isRandom)
+                            targetColor = mappingData.GetMappingColor(point.name, 0, true);
                         else
-                        targetColor = mappingData.GetMappingColor(point.name);
+                            targetColor = mappingData.GetMappingColor(point.name);
                     }
-                    
+
                     break;
                 }
-            case ColorType.Random:
-                {
-                    targetColor = point.randomColor; break;
-                }
+            // case ColorType.Random:
+            //     {
+            //         targetColor = point.randomColor; break;
+            //     }
             // case ColorType.FlowMapping:
             //     {
             //         targetColor = point.flowTextureColor; break;
@@ -159,23 +191,16 @@ public class DoColor : GradualOrder
                 {
                     targetColor = point.GetColorByHSV(hsvValue); break;
                 }
-            case ColorType.Origin:
-                {
-                    targetColor = point.originalColor; break;
-                }
+                // case ColorType.Origin:
+                //     {
+                //         targetColor = point.originalColor; break;
+                //     }
                 // case ColorType.Dark:
                 //     {
                 //         targetColor = point.GetDarkColor(darkValue); break;
                 //     }
 
         }
-        if (recordColor)
-        {
-            point.originalColor = targetColor;
-            if (!hideGradient)
-                Debug.LogError("暂不支持记录复合流光的颜色");
-        }
-
         if (!hideGradient)
         {
             if (during == 0)
