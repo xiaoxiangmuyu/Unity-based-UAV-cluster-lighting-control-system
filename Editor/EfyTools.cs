@@ -74,11 +74,11 @@ public class EfyTools
                 HandleMovementCheck(children[i]);
                 HandleRenderer(children[i], mat);
                 HandleColorPoint(children[i]);
-                if (children[i].gameObject.layer != LayerMask.NameToLayer("TriggerIgnore"))
-                {
-                    recordProject.RecordDic[0].ObjNames.Add(children[i].name);
-                    recordProject.RecordDic[0].times.Add(0);
-                }
+                // if (children[i].gameObject.layer != LayerMask.NameToLayer("TriggerIgnore"))
+                // {
+                //     recordProject.RecordDic[0].ObjNames.Add(children[i].name);
+                //     recordProject.RecordDic[0].times.Add(0);
+                // }
             }
             if (!isCountFinish)
             {

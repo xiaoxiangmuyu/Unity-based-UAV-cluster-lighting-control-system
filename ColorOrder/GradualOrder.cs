@@ -59,7 +59,8 @@ public class DoColor : GradualOrder
             colorType = d;
         }
     }
-    [SerializeField][HideInInspector]
+    [SerializeField]
+    [HideInInspector]
     private string colorTypeName;
 
     [MinValue(0)]
@@ -89,18 +90,23 @@ public class DoColor : GradualOrder
     [BoxGroup("Color")]
     [HorizontalGroup("Color/ColorPro")]
     public bool isRandom;
+    [ShowIf("isMapping")]
+    [BoxGroup("Color")]
+    [HorizontalGroup("Color/ColorPro")]
+    [ValueDropdown("availableHeadString")]
+    public string targetHead;
     [ShowIf("isWithIndex")]
     [BoxGroup("Color")]
     public int targetIndex;
     [ValueDropdown("availableData")]
     [ShowIf("isMappingData")]
-    [OnValueChanged("GetMappingData")]
     [PropertyOrder(11)]
     [BoxGroup("Color")]
     public string dataName;
     // [ShowIf("isMappingData")]
     // [SerializeField]
     // public MappingData mappingData;
+    MappingData mappingData;
     IEnumerable availableData
     {
         get
@@ -119,10 +125,23 @@ public class DoColor : GradualOrder
             return ColorManager.ColorTypes;
         }
     }
-    void GetMappingData()
+    IEnumerable availableHeadString
     {
-        // var datalist = ProjectManager.Instance.RecordProject.mappingDatas;
-        // mappingData = datalist.Find((a) => a.dataName == dataName);
+        get
+        {
+            return new List<string>(){"null","1","2","3","4","5","6","7","8"};
+        }
+    }
+    MappingData GetMappingData(ColorPoint point)
+    {
+        if(targetHead=="null")
+        return ProjectManager.Instance.RecordProject.mappingDatas.Find((a) => a.names.Contains(point.name));
+        else
+        {
+            var data=ProjectManager.Instance.RecordProject.mappingDatas;
+            List<MappingData>temp=new List<MappingData>(data.FindAll((a)=>a.dataName.StartsWith(targetHead)));
+            return temp.Find((a)=>a.names.Contains(point.name));
+        }
     }
     bool hideColor { get { return colorType != ColorType.SingleColor; } }
     bool hideGradient { get { return colorType != ColorType.Gradient; } }
@@ -174,8 +193,18 @@ public class DoColor : GradualOrder
                 }
             case ColorType.MappingData:
                 {
-                    var datalist = ProjectManager.Instance.RecordProject.mappingDatas;
-                    var mappingData = datalist.Find((a) => a.dataName == dataName);
+                    if (dataName == null || dataName == "")
+                        mappingData = GetMappingData(point);
+                    else
+                    {
+                        var datalist = ProjectManager.Instance.RecordProject.mappingDatas;
+                        mappingData = datalist.Find((a) => a.dataName == dataName);
+                    }
+                    if(mappingData==null)
+                    {
+                        Debug.LogError(point.name+"找不到映射颜色");
+                        break;
+                    }
                     if (isWithIndex)
                     {
                         targetColor = mappingData.GetMappingColor(point.name, targetIndex);

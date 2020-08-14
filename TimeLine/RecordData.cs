@@ -71,7 +71,7 @@ public class RecordData
     {
         if(Actions==null)
         {
-            Debug.Log("Action为空");
+            //Debug.Log("Action为空");
             return;
         }
         foreach(var action in Actions)
@@ -79,7 +79,8 @@ public class RecordData
             action();
         }
     }
-    [Button]
+    [Button(ButtonSizes.Medium)]
+    [HorizontalGroup("Buttons")]
     void AddMappingData()
     {
         MappingData data=new MappingData ();
@@ -87,6 +88,12 @@ public class RecordData
         data.Objects=MyTools.FindObjs(ObjNames).ToArray();
         data.dataName=dataName;
         ProjectManager.Instance.RecordProject.AddMappingData(data);
+    }
+    [Button(ButtonSizes.Medium)]
+    [HorizontalGroup("Buttons")]
+    public void ShowObjects()
+    {
+        UnityEditor.Selection.objects = MyTools.FindObjs(ObjNames).ToArray();
     }
      
 }
