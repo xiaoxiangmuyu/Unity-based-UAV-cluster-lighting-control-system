@@ -6,9 +6,18 @@ using UnityEditor;
 public class RecordProject : SerializedScriptableObject
 {
     [SerializeField]
+    [TableList(DrawScrollView=false)]
+    [TabGroup("Data")]
+    [ListDrawerSettings(Expanded=true)]
     public List<RecordData> RecordDic;
-    [SerializeField] 
+    [SerializeField]
+    [TableList(DrawScrollView=false)]
+    [TabGroup("Mapping")]
+    [ListDrawerSettings(Expanded=true)]
     public List<MappingData> mappingDatas = new List<MappingData>();
+    [TabGroup("GlobalPos")]
+    [SerializeField]
+    public List<StringVector3Dictionary> globalPosDic = new List<StringVector3Dictionary>();
 
     public void AddData(string ImageName, RecordData data)
     {
@@ -36,6 +45,13 @@ public class RecordProject : SerializedScriptableObject
         mappingDatas.Add(data);
         EditorUtility.SetDirty(this);
         AssetDatabase.SaveAssets();
+    }
+    [Button("整理", ButtonSizes.Gigantic)]
+    void Sort()
+    {
+        RecordDic.Sort((a, b) => a.groupIndex - b.groupIndex);
+        mappingDatas.Sort((a, b) => a.groupIndex - b.groupIndex);
+
     }
 
 }

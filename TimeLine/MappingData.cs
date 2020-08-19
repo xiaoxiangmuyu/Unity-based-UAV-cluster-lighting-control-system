@@ -11,51 +11,53 @@ public class MappingData
     //     this.objs=objs;
     //     dic=new Dictionary<string, Color>();
     // }
+    [VerticalGroup("Main")]
+    [HideLabel]
     public string dataName;
     [Range(0, 360)]
     [OnValueChanged("RotateCamera")]
+    [VerticalGroup("Properties")]
+
     public float angle;
+    [ValueDropdown("availableIndex")]
+    [VerticalGroup("Main")]
+    [HideLabel]
+    [GUIColor("GetGroupColor")]
+    public int groupIndex;
     [SerializeField]
     [HideInInspector]
     List<StringColorDictionary> dics;
+    [OnValueChanged("CaulateAll")]
+    [VerticalGroup("Properties")]
+    public DirType dirType;
     [ShowIf("ShowXY")]
     [Range(0, 1)]
+    [VerticalGroup("Properties")]
     public float anchorX, anchorY;
     [ShowIf("ShowZ")]
     [Range(0, 1)]
+    [VerticalGroup("Properties")]
     public float anchorZ;
-    [OnValueChanged("CaulateAll")]
-    public DirType dirType;
+    [VerticalGroup("Properties")]
+    [ListDrawerSettings(Expanded = false)]
     public List<Gradient> colors;
     [HideInInspector]
     public List<string> names;
+
+    IEnumerable availableIndex
+    {
+        get
+        {
+            int count = ProjectManager.Instance.RecordProject.globalPosDic.Count;
+            var temp = new List<int>();
+            for (int i = 0; i < count; i++)
+            {
+                temp.Add(i + 1);
+            }
+            return temp;
+        }
+    }
     Vector3 center;
-    [SerializeField]
-    [HideInInspector]
-    GameObject[] objs;
-    Camera mainCamera;
-    Camera MainCamera
-    {
-        get
-        {
-            if (mainCamera == null)
-                mainCamera = Camera.main;
-            return mainCamera;
-        }
-    }
-    GameObject[] Objects
-    {
-        get
-        {
-            if (objs.Length == 0 || objs[0] == null || objs.Length == 1)
-                objs = MyTools.FindObjs(names).ToArray();
-            return objs;
-        }
-        set
-        {
-            objs = value;
-        }
-    }
     bool ShowXY { get { return dirType == DirType.In_Out || dirType == DirType.Out_In || dirType == DirType.Ball; } }
     bool ShowZ { get { return dirType == DirType.Ball; } }
     bool ShowAngle { get { return angle != 0; } }
@@ -65,17 +67,19 @@ public class MappingData
         return names == null;
     }
 
-    [Button(ButtonSizes.Medium)]
-    [HorizontalGroup("Buttons")]
+    [Button("Show", ButtonSizes.Medium)]
+    [VerticalGroup("Buttons")]
+    [GUIColor(0.7f, 1, 1)]
     public void ShowObjects()
     {
-        Selection.objects = Objects;
+        var objects = MyTools.FindObjs(names).ToArray();
+        Selection.objects = objects;
     }
     public Color GetMappingColor(string name, int colorIndex = 0, bool random = false)
     {
         if (!dics[colorIndex].ContainsKey(name))
         {
-            Debug.LogError(dataName+"没有:" + name+"的颜色信息");
+            Debug.LogError(dataName + "没有:" + name + "的颜色信息");
             return Color.red;
         }
         if (random)
@@ -89,9 +93,9 @@ public class MappingData
     // {
     //     return dics.ContainsKey(name);
     // }
-    [Button(ButtonSizes.Medium)]
+    [Button("计算", ButtonSizes.Medium)]
     [GUIColor("GetColor")]
-    [HorizontalGroup("Buttons")]
+    [VerticalGroup("Buttons")]
     public void CaulateAll()
     {
         dics = new List<StringColorDictionary>();
@@ -102,46 +106,52 @@ public class MappingData
     }
     public void Caulate(int index)
     {
+        var tempPosDic = new StringVector3Dictionary();
+        foreach (var pointName in names)
+        {
+            var pos = ProjectManager.Instance.RecordProject.globalPosDic[groupIndex - 1][pointName];
+            tempPosDic.Add(pointName, pos);
+        }
         dics.Add(new StringColorDictionary());
         if (dirType == DirType.Ball)
         {
             float maxDistance = 0;
             float? minX = null, maxX = null, minY = null, maxY = null, minZ = null, maxZ = null;
-            foreach (var point in Objects)
+            foreach (var pos in tempPosDic.Values)
             {
-                if (!minX.HasValue || point.transform.position.x < minX)
-                    minX = point.transform.position.x;
-                if (!maxX.HasValue || point.transform.position.x > maxX)
-                    maxX = point.transform.position.x;
-                if (!minY.HasValue || point.transform.position.y < minY)
-                    minY = point.transform.position.y;
-                if (!maxY.HasValue || point.transform.position.y > maxY)
-                    maxY = point.transform.position.y;
-                if (!minZ.HasValue || point.transform.position.z < minZ)
-                    minZ = point.transform.position.z;
-                if (!maxZ.HasValue || point.transform.position.z > maxZ)
-                    maxZ = point.transform.position.z;
+                if (!minX.HasValue || pos.x < minX)
+                    minX = pos.x;
+                if (!maxX.HasValue || pos.x > maxX)
+                    maxX = pos.x;
+                if (!minY.HasValue || pos.y < minY)
+                    minY = pos.y;
+                if (!maxY.HasValue || pos.y > maxY)
+                    maxY = pos.y;
+                if (!minZ.HasValue || pos.z < minZ)
+                    minZ = pos.z;
+                if (!maxZ.HasValue || pos.z > maxZ)
+                    maxZ = pos.z;
             }
             center = new Vector3(minX.Value + (maxX.Value - minX.Value) * anchorX, minY.Value + (maxY.Value - minY.Value) * anchorY, minZ.Value + (maxZ.Value - minZ.Value) * anchorZ);
-            foreach (var point in Objects)
+            foreach (var pos in tempPosDic.Values)
             {
-                float dis = Vector3.Distance(center, point.transform.position);
+                float dis = Vector3.Distance(center, pos);
                 if (dis > maxDistance)
                     maxDistance = dis;
             }
-            foreach (var point in Objects)
+            foreach (var pointName in tempPosDic.Keys)
             {
-                Color color = colors[index].Evaluate(Vector3.Distance(point.transform.position, center) / maxDistance);
-                dics[index].Add(point.name, color);
+                Color color = colors[index].Evaluate(Vector3.Distance(tempPosDic[pointName], center) / maxDistance);
+                dics[index].Add(pointName, color);
             }
         }
         else
         {
             Camera mainCamera = Camera.main;
             float? xMin = null, xMax = null, yMin = null, yMax = null;
-            foreach (var point in Objects)
+            foreach (var tempPos in tempPosDic.Values)
             {
-                Vector2 screenPos = mainCamera.WorldToScreenPoint(point.transform.position);
+                Vector2 screenPos = mainCamera.WorldToScreenPoint(tempPos);
                 if (!xMin.HasValue || screenPos.x < xMin)
                     xMin = screenPos.x;
                 if (!xMax.HasValue || screenPos.x > xMax)
@@ -153,9 +163,9 @@ public class MappingData
             }
             Vector2 pos;
             float maxDistance = 0;
-            foreach (var point in Objects)
+            foreach (var tempPos in tempPosDic.Values)
             {
-                float dis = Vector2.Distance(mainCamera.WorldToScreenPoint(point.transform.position), new Vector2((xMax.Value + xMin.Value) / 2, (yMin.Value + yMax.Value) / 2));
+                float dis = Vector2.Distance(mainCamera.WorldToScreenPoint(tempPos), new Vector2((xMax.Value + xMin.Value) / 2, (yMin.Value + yMax.Value) / 2));
                 if (dis > maxDistance)
                     maxDistance = dis;
 
@@ -163,55 +173,55 @@ public class MappingData
             switch (dirType)
             {
                 case DirType.Up_Down:
-                    foreach (var point in Objects)
+                    foreach (var pointName in tempPosDic.Keys)
                     {
-                        pos = mainCamera.WorldToScreenPoint(point.transform.position);
-                        dics[index].Add(point.name, colors[index].Evaluate(1 - ((pos.y - yMin.Value) / (yMax.Value - yMin.Value))));
+                        pos = mainCamera.WorldToScreenPoint(tempPosDic[pointName]);
+                        dics[index].Add(pointName, colors[index].Evaluate(1 - ((pos.y - yMin.Value) / (yMax.Value - yMin.Value))));
                     }
                     break;
                 case DirType.Down_UP:
-                    foreach (var point in Objects)
+                    foreach (var pointName in tempPosDic.Keys)
                     {
-                        pos = mainCamera.WorldToScreenPoint(point.transform.position);
-                        dics[index].Add(point.name, colors[index].Evaluate((pos.y - yMin.Value) / (yMax.Value - yMin.Value)));
+                        pos = mainCamera.WorldToScreenPoint(tempPosDic[pointName]);
+                        dics[index].Add(pointName, colors[index].Evaluate((pos.y - yMin.Value) / (yMax.Value - yMin.Value)));
                     }
                     break;
                 case DirType.Left_Right:
-                    foreach (var point in Objects)
+                    foreach (var pointName in tempPosDic.Keys)
                     {
-                        pos = mainCamera.WorldToScreenPoint(point.transform.position);
-                        dics[index].Add(point.name, colors[index].Evaluate((pos.x - xMin.Value) / (xMax.Value - xMin.Value)));
+                        pos = mainCamera.WorldToScreenPoint(tempPosDic[pointName]);
+                        dics[index].Add(pointName, colors[index].Evaluate((pos.x - xMin.Value) / (xMax.Value - xMin.Value)));
                     }
                     break;
                 case DirType.Right_Left:
-                    foreach (var point in Objects)
+                    foreach (var pointName in tempPosDic.Keys)
                     {
-                        pos = mainCamera.WorldToScreenPoint(point.transform.position);
-                        dics[index].Add(point.name, colors[index].Evaluate(1 - ((pos.x - xMin.Value) / (xMax.Value - xMin.Value))));
+                        pos = mainCamera.WorldToScreenPoint(tempPosDic[pointName]);
+                        dics[index].Add(pointName, colors[index].Evaluate(1 - ((pos.x - xMin.Value) / (xMax.Value - xMin.Value))));
                     }
                     break;
                 case DirType.In_Out:
 
-                    foreach (var point in Objects)
+                    foreach (var pointName in tempPosDic.Keys)
                     {
-                        float value = Vector2.Distance(mainCamera.WorldToScreenPoint(point.transform.position), new Vector2(xMin.Value + (xMax.Value - xMin.Value) * anchorX, yMin.Value + (yMax.Value - yMin.Value) * anchorY));
-                        dics[index].Add(point.name, colors[index].Evaluate(value / maxDistance));
+                        float value = Vector2.Distance(mainCamera.WorldToScreenPoint(tempPosDic[pointName]), new Vector2(xMin.Value + (xMax.Value - xMin.Value) * anchorX, yMin.Value + (yMax.Value - yMin.Value) * anchorY));
+                        dics[index].Add(pointName, colors[index].Evaluate(value / maxDistance));
                     }
                     break;
                 case DirType.Out_In:
-                    foreach (var point in Objects)
+                    foreach (var pointName in tempPosDic.Keys)
                     {
-                        float value = Vector2.Distance(mainCamera.WorldToScreenPoint(point.transform.position), new Vector2(xMin.Value + (xMax.Value - xMin.Value) * anchorX, yMin.Value + (yMax.Value - yMin.Value) * anchorY));
-                        dics[index].Add(point.name, colors[index].Evaluate(1 - (value / maxDistance)));
+                        float value = Vector2.Distance(mainCamera.WorldToScreenPoint(tempPosDic[pointName]), new Vector2(xMin.Value + (xMax.Value - xMin.Value) * anchorX, yMin.Value + (yMax.Value - yMin.Value) * anchorY));
+                        dics[index].Add(pointName, colors[index].Evaluate(1 - (value / maxDistance)));
                     }
                     break;
             }
         }
         if (ShowAngle)
         {
-            var temp = MainCamera.transform.rotation;
+            var temp = Camera.main.transform.rotation;
             temp.eulerAngles = new Vector3(temp.eulerAngles.x, temp.eulerAngles.y, 0);
-            mainCamera.transform.rotation = temp;
+            Camera.main.transform.rotation = temp;
         }
         NeedCau = false;
         Debug.Log("计算完成");
@@ -227,13 +237,22 @@ public class MappingData
     {
         NeedCau = true;
     }
+    Camera mainCamera;
     void RotateCamera()
     {
-        var temp = MainCamera.transform.rotation;
+        if (mainCamera == null)
+            mainCamera = Camera.main;
+        var temp = mainCamera.transform.rotation;
         temp.eulerAngles = new Vector3(temp.eulerAngles.x, temp.eulerAngles.y, angle);
         mainCamera.transform.rotation = temp;
         SetState();
 
+    }
+    Color GetGroupColor()
+    {
+        var temp = ProjectManager.Instance.RecordProject.globalPosDic.Count;
+        float c = (float)1f / temp * groupIndex;
+        return Color.HSVToRGB(c, 0.4f, 1f);
     }
 
 

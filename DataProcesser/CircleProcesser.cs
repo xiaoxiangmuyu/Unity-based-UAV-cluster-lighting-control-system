@@ -29,7 +29,13 @@ public class CircleProcesser : IDataProcesser
         float? xMin = null;
         float? yMax = null;
         float? yMin = null;
-        foreach (var pos in data.posDic.Values)
+        tempPosDic=new StringVector3Dictionary();
+        foreach(var pointName in data.ObjNames)
+        {
+            var pos=ProjectManager.Instance.RecordProject.globalPosDic[data.groupIndex-1][pointName];
+            tempPosDic.Add(pointName,pos);
+        }
+        foreach (var pos in tempPosDic.Values)
         {
             Vector2 screenPos = mainCamera.WorldToScreenPoint(pos);
             if (!xMax.HasValue || screenPos.x > xMax.Value)
@@ -43,7 +49,7 @@ public class CircleProcesser : IDataProcesser
         }
         anchorPoint = new Vector2(xMin.Value + (xMax.Value - xMin.Value) * center_X, yMin.Value + (yMax.Value - yMin.Value) * center_Y);
         float maxDistance = 0;
-        foreach (var pos in data.posDic.Values)
+        foreach (var pos in tempPosDic.Values)
         {
             if (Vector2.Distance(anchorPoint, mainCamera.WorldToScreenPoint(pos)) > maxDistance)
                 maxDistance = Vector2.Distance(anchorPoint, mainCamera.WorldToScreenPoint(pos));
@@ -71,11 +77,11 @@ public class CircleProcesser : IDataProcesser
     void OnValueUpdate(float value,float animTime)
     {
         //Debug.Log(value);
-        foreach (var pointName in data.posDic.Keys)
+        foreach (var pointName in tempPosDic.Keys)
         {
             if (index.Contains(pointName))
                 continue;
-            float tempDistance = Vector2.Distance(mainCamera.WorldToScreenPoint(data.posDic[pointName]), anchorPoint);
+            float tempDistance = Vector2.Distance(mainCamera.WorldToScreenPoint(tempPosDic[pointName]), anchorPoint);
             if (tempDistance <= value)
             {
                 tempTimes.Add(timer);
@@ -93,6 +99,7 @@ public class CircleProcesser : IDataProcesser
             data.times = tempTimes;
             ProcessComplete();
             isProcessed = true;
+            tempPosDic.Clear();
             Debug.Log("处理完成");
         }
     }

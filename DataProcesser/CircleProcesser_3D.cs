@@ -31,7 +31,13 @@ public class CircleProcesser_3D : IDataProcesser
         float? yMin = null;
         float? zMax = null;
         float? zMin = null;
-        foreach (var pos in data.posDic.Values)
+        tempPosDic=new StringVector3Dictionary();
+        foreach(var pointName in data.ObjNames)
+        {
+            var pos=ProjectManager.Instance.RecordProject.globalPosDic[data.groupIndex-1][pointName];
+            tempPosDic.Add(pointName,pos);
+        }
+        foreach (var pos in tempPosDic.Values)
         {
             if (!xMax.HasValue || pos.x > xMax.Value)
                 xMax = pos.x;
@@ -48,7 +54,7 @@ public class CircleProcesser_3D : IDataProcesser
         }
         anchorPoint = new Vector3(xMin.Value + (xMax.Value - xMin.Value) * center_X, yMin.Value + (yMax.Value - yMin.Value) * center_Y,zMin.Value+(zMax.Value-zMin.Value)*center_Z);
         float maxDistance = 0;
-        foreach (var pos in data.posDic.Values)
+        foreach (var pos in tempPosDic.Values)
         {
             if (Vector3.Distance(anchorPoint, pos) > maxDistance)
                 maxDistance = Vector3.Distance(anchorPoint, pos);
@@ -75,11 +81,11 @@ public class CircleProcesser_3D : IDataProcesser
     void OnValueUpdate(float value,float animTime)
     {
         //Debug.Log(value);
-        foreach (var pointName in data.posDic.Keys)
+        foreach (var pointName in tempPosDic.Keys)
         {
             if (index.Contains(pointName))
                 continue;
-            float tempDistance = Vector3.Distance(data.posDic[pointName], anchorPoint);
+            float tempDistance = Vector3.Distance(tempPosDic[pointName], anchorPoint);
             if (tempDistance <= value)
             {
                 tempTimes.Add(timer);
@@ -97,6 +103,7 @@ public class CircleProcesser_3D : IDataProcesser
             data.times = tempTimes;
             ProcessComplete();
             isProcessed = true;
+            tempPosDic.Clear();
             Debug.Log("处理完成");
         }
     }

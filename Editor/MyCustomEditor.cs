@@ -27,6 +27,7 @@ public class MyCustomEditor : Editor
             menu.AddItem(new GUIContent("创建映射组"), false, CreatMapping, "menu_5");
             menu.AddItem(new GUIContent("创建旧映射组"), false, CreatOldMapping, "menu_5");
             menu.AddItem(new GUIContent("刷新时间轴"), false, Resfrsh, "menu_7");
+            menu.AddItem(new GUIContent("创建全局位置数据"), false, CreatGlobalPosData, "menu_8");
             menu.ShowAsContext();
         }
     }
@@ -55,9 +56,28 @@ public class MyCustomEditor : Editor
         obj.transform.SetAsFirstSibling();
 
     }
-    static void CancelTween(object userData)
+    //创建全局数据组
+    static void CreatGlobalPosData(object userData)
     {
-        ProjectManager.ResetAllColorAndTween();
+        var tempDic = new StringVector3Dictionary();
+        foreach (var point in Selection.gameObjects)
+        {
+            if (point.name == "Main Camera")
+                continue;
+            if (point.transform.childCount != 0)
+            {
+                foreach (var child in point.GetComponentsInChildren<ColorPoint>())
+                {
+                    tempDic.Add(child.name, child.transform.position);
+                }
+            }
+            else
+            {
+                tempDic.Add(point.name, point.transform.position);
+            }
+        }
+        ProjectManager.Instance.RecordProject.globalPosDic.Add(tempDic);
+
     }
     //创建数据组
     static void CreatGroup(object userData)
@@ -73,7 +93,7 @@ public class MyCustomEditor : Editor
                 {
                     tempdata.ObjNames.Add(child.name);
                     tempdata.times.Add(0);
-                    tempdata.posDic.Add(child.name, child.transform.position);
+                    //tempdata.posDic.Add(child.name, child.transform.position);
                 }
                 tempdata.dataName = point.name;
             }
@@ -81,7 +101,7 @@ public class MyCustomEditor : Editor
             {
                 tempdata.ObjNames.Add(point.name);
                 tempdata.times.Add(0);
-                tempdata.posDic.Add(point.name, point.transform.position);
+                //tempdata.posDic.Add(point.name, point.transform.position);
 
             }
         }
@@ -113,7 +133,7 @@ public class MyCustomEditor : Editor
         {
             tempdata.ObjNames.Add(point.gameObject.name);
             tempdata.times.Add(0);
-            tempdata.posDic.Add(point.name, point.transform.position);
+            //tempdata.posDic.Add(point.name, point.transform.position);
         }
         ProjectManager.Instance.RecordProject.AddData(ProjectManager.GetCurrentMR().name, tempdata);
         Debug.Log("创建数据组成功");
@@ -133,6 +153,19 @@ public class MyCustomEditor : Editor
         ProjectManager.Instance.RecordProject.AddMappingData(tempdata);
         Debug.Log("创建映射组成功");
     }
+    // [MenuItem("GameObject/工具/创建全局数据组", priority = 0)]
+    // static void CreatGlobalPosData()
+    // {
+    //     var temp=new StringVector3Dictionary();
+    //     foreach (var point in Selection.activeGameObject.GetComponentsInChildren<ColorPoint>())
+    //     {
+    //         temp.Add(point.name,point.transform.position);
+    //     }
+    //     ProjectManager.Instance.RecordProject.AddMappingData(tempdata);
+    //     Debug.Log("创建映射组成功");
+    // }
+
+
     [MenuItem("GameObject/工具/创建映射组", priority = 0)]
     static void CreatMapping()
     {

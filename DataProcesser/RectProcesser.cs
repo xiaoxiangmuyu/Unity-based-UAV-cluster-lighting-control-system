@@ -34,7 +34,13 @@ public class RectProcesser : IDataProcesser
         float? xMin = null;
         float? yMax = null;
         float? yMin = null;
-        foreach (var pos in data.posDic.Values)
+        tempPosDic=new StringVector3Dictionary();
+        foreach(var pointName in data.ObjNames)
+        {
+            var pos=ProjectManager.Instance.RecordProject.globalPosDic[data.groupIndex-1][pointName];
+            tempPosDic.Add(pointName,pos);
+        }
+        foreach (var pos in tempPosDic.Values)
         {
             Vector2 screenPos = mainCamera.WorldToScreenPoint(pos);
             if (!xMax.HasValue)
@@ -70,7 +76,7 @@ public class RectProcesser : IDataProcesser
             if (offset_Max < corner.y - K * corner.x)
                 offset_Max = corner.y - K * corner.x;
         }
-        foreach (var pos in data.posDic.Values)
+        foreach (var pos in tempPosDic.Values)
         {
             Vector2 screenPos = mainCamera.WorldToScreenPoint(pos);
             tempDistance = Mathf.Abs(A * screenPos.x + B * screenPos.y + C) / Mathf.Sqrt(Mathf.Pow(A, 2) + Mathf.Pow(B, 2));
@@ -101,11 +107,11 @@ public class RectProcesser : IDataProcesser
     void OnValueUpdate(float value,float animTime)
     {
         //Debug.Log(value);
-        foreach (var pointName in data.posDic.Keys)
+        foreach (var pointName in tempPosDic.Keys)
         {
             if (index.Contains(pointName))
                 continue;
-            Vector2 coordinate = mainCamera.WorldToScreenPoint(data.posDic[pointName]);
+            Vector2 coordinate = mainCamera.WorldToScreenPoint(tempPosDic[pointName]);
             float tempDistance = Mathf.Abs(A * coordinate.x + B * coordinate.y + C) / Mathf.Sqrt(Mathf.Pow(A, 2) + Mathf.Pow(B, 2));
             if (tempDistance <= value)
             {
@@ -125,6 +131,7 @@ public class RectProcesser : IDataProcesser
             data.times = tempTimes;
             ProcessComplete();
             isProcessed = true;
+            tempPosDic.Clear();
             Debug.Log("处理完成");
         }
     }

@@ -22,6 +22,7 @@ public abstract class IDataProcesser
     protected Camera mainCamera;
     protected float timer;
     protected RecordData data;
+    protected StringVector3Dictionary tempPosDic;
 
 
     public virtual void EventDispatch()
