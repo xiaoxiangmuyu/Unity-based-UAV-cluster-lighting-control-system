@@ -17,13 +17,13 @@ public class In_1:OrderGroup
     public In_1()
     {
         OrderGroup orderGroup=new OrderGroup();
-        orderGroup.colorOrders.Add(new DoColor(ColorType.ColorMapping,0.2f));
+        orderGroup.colorOrders.Add(new DoColor(ColorType.MappingData,0.2f));
         orderGroup.colorOrders.Add(new DoColor(ColorType.Black,0.2f));
         orderGroup.colorOrders.Add(new Interval(false,0.5f));
         orderGroup.playCount=3;
         this.colorOrders.Add(orderGroup);
         this.colorOrders.Add(new DoColor(ColorType.SingleColor,0.2f));
-        this.colorOrders.Add(new DoColor(ColorType.ColorMapping,0.5f));
+        this.colorOrders.Add(new DoColor(ColorType.MappingData,0.5f));
     }
 }
 [LabelText("出画:随机闪消失")]
@@ -34,7 +34,7 @@ public class Out_RandomFade:OrderGroup
         OrderGroup orderGroup=new OrderGroup();
         orderGroup.colorOrders.Add(new Interval(true,0.3f));
         orderGroup.colorOrders.Add(new DoColor(ColorType.Black,0.1f));
-        orderGroup.colorOrders.Add(new DoColor(ColorType.ColorMapping,0.1f));
+        orderGroup.colorOrders.Add(new DoColor(ColorType.MappingData,0.1f));
         orderGroup.playCount=1;
         this.colorOrders.Add(orderGroup);
         this.colorOrders.Add(new DoColor(ColorType.Black,0.5f));
@@ -46,7 +46,7 @@ public class PathLight:OrderGroup
     public PathLight()
     {
         this.colorOrders.Add(new DoColor(ColorType.SingleColor,0.2f));
-        this.colorOrders.Add(new DoColor(ColorType.ColorMapping,0.3f));
+        this.colorOrders.Add(new DoColor(ColorType.MappingData,0.3f));
         this.colorOrders.Add(new DoColor(ColorType.Black,0.2f));
     }
 }
@@ -56,7 +56,7 @@ public class FlowLight:OrderGroup
     public FlowLight()
     {
         this.colorOrders.Add(new DoColor(ColorType.SingleColor,0.2f));
-        this.colorOrders.Add(new DoColor(ColorType.ColorMapping,0.5f));
+        this.colorOrders.Add(new DoColor(ColorType.MappingData,0.5f));
         this.colorOrders.Add(new Interval(false,1f));
 
     }
@@ -67,7 +67,7 @@ public class BreathLight:OrderGroup
 {
     public BreathLight()
     {
-        this.colorOrders.Add(new DoColor(ColorType.ColorMapping,0.5f));
+        this.colorOrders.Add(new DoColor(ColorType.MappingData,0.5f));
         this.colorOrders.Add(new DoColor(ColorType.Black,0.5f));
     }
 
@@ -78,7 +78,7 @@ public class StarLight:OrderGroup
     public StarLight()
     {
         this.colorOrders.Add(new Interval(true,1));
-        this.colorOrders.Add(new DoColor(ColorType.ColorMapping,0.5f));
+        this.colorOrders.Add(new DoColor(ColorType.MappingData,0.5f));
         this.colorOrders.Add(new DoColor(ColorType.Black,0.5f));
         this.playCount=10;
     }

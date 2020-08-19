@@ -43,7 +43,7 @@ public class MappingData
             return mainCamera;
         }
     }
-    public GameObject[] Objects
+    GameObject[] Objects
     {
         get
         {
@@ -75,7 +75,7 @@ public class MappingData
     {
         if (!dics[colorIndex].ContainsKey(name))
         {
-            Debug.LogError("键不存在:" + name);
+            Debug.LogError(dataName+"没有:" + name+"的颜色信息");
             return Color.red;
         }
         if (random)

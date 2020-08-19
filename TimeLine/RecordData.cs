@@ -10,11 +10,13 @@ public class RecordData
     [SerializeField][OnValueChanged("EventDispatch")]
     public float animTime;
 
-    [SerializeField]
+    public string group;
+
+    [SerializeField][HideInInspector]
     public List<string>ObjNames;
-    [SerializeField]
+    [SerializeField][HideInInspector]
     public List<float>times;
-    [SerializeField]
+    [SerializeField][HideInInspector]
     public StringVector3Dictionary posDic;
  
     List<System.Action>Actions;
@@ -85,7 +87,7 @@ public class RecordData
     {
         MappingData data=new MappingData ();
         data.names=new List<string>(ObjNames);
-        data.Objects=MyTools.FindObjs(ObjNames).ToArray();
+        //data.Objects=MyTools.FindObjs(ObjNames).ToArray();
         data.dataName=dataName;
         ProjectManager.Instance.RecordProject.AddMappingData(data);
     }

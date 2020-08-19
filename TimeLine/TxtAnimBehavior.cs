@@ -10,7 +10,7 @@ public class TxtAnimBehavior : PlayableBehaviour
     public PlayableDirector director;
     public MovementManager movementManager;
     public int startFrame;
-    int curframe;
+    int curframe=0;
     bool isExportMode;
     
     public override void ProcessFrame(Playable playable, FrameData info, object playerData)
@@ -34,15 +34,22 @@ public class TxtAnimBehavior : PlayableBehaviour
         //初始化点的位置，防止瞬间读取动画造成超速
         if(isExportMode)
         script.MyUpdate(0);
+        else
+        curframe=Mathf.FloorToInt((float)director.time*25f)-startFrame;
+
     }
     //随时间轴进度条更新位置
     void UpdatePos()
     {
         if(!script)
         return;
-        curframe=Mathf.FloorToInt((float)director.time*25f)-startFrame;
+        //curframe=Mathf.FloorToInt((float)director.time*25f)-startFrame;
         //Debug.Log(curframe);
         script.MyUpdate(curframe);
+        if(Application.isPlaying)
+        curframe+=1;
+        else
+        curframe=Mathf.FloorToInt((float)director.time*25f)-startFrame;
         //Debug.LogFormat("startFrame:{0}",startFrame);
     }
     //逐帧更新位置

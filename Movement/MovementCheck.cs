@@ -53,7 +53,7 @@ public class MovementCheck : MonoBehaviour
             distance = Vector3.Distance(curPos, lastPos);
             VecticalDis = Mathf.Abs(lastPos.y - curPos.y);
         }
-        SpeedCheck();
+        //SpeedCheck();
         lastPos = curPos;
         RecordInfo(curPos, mat.color);
     }

@@ -129,18 +129,18 @@ public class DoColor : GradualOrder
     {
         get
         {
-            return new List<string>(){"null","1","2","3","4","5","6","7","8"};
+            return new List<string>() { "null", "1", "2", "3", "4", "5", "6", "7", "8" };
         }
     }
     MappingData GetMappingData(ColorPoint point)
     {
-        if(targetHead=="null")
-        return ProjectManager.Instance.RecordProject.mappingDatas.Find((a) => a.names.Contains(point.name));
+        if (targetHead == "null")
+            return ProjectManager.Instance.RecordProject.mappingDatas.Find((a) => a.names.Contains(point.name));
         else
         {
-            var data=ProjectManager.Instance.RecordProject.mappingDatas;
-            List<MappingData>temp=new List<MappingData>(data.FindAll((a)=>a.dataName.StartsWith(targetHead)));
-            return temp.Find((a)=>a.names.Contains(point.name));
+            var data = ProjectManager.Instance.RecordProject.mappingDatas;
+            List<MappingData> temp = new List<MappingData>(data.FindAll((a) => a.dataName.StartsWith(targetHead)));
+            return temp.Find((a) => a.names.Contains(point.name));
         }
     }
     bool hideColor { get { return colorType != ColorType.SingleColor; } }
@@ -157,6 +157,8 @@ public class DoColor : GradualOrder
             ColorTypeName = "Gradient";
         else if (ColorTypeName.Equals("7"))
             ColorTypeName = "Black";
+        else if (ColorTypeName.Equals("ColorMapping"))
+            ColorTypeName = "MappingData";
         else
         {
             ColorType d = (ColorType)Enum.Parse(typeof(ColorType), colorTypeName);
@@ -200,9 +202,9 @@ public class DoColor : GradualOrder
                         var datalist = ProjectManager.Instance.RecordProject.mappingDatas;
                         mappingData = datalist.Find((a) => a.dataName == dataName);
                     }
-                    if(mappingData==null)
+                    if (mappingData == null)
                     {
-                        Debug.LogError(point.name+"找不到映射颜色");
+                        Debug.LogError(point.name + "找不到映射颜色");
                         break;
                     }
                     if (isWithIndex)

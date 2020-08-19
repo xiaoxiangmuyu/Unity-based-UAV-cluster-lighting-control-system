@@ -122,7 +122,7 @@ public class MyCustomEditor : Editor
     static void CreatMapping(object userData)
     {
         MappingData tempdata = new MappingData();
-        tempdata.Objects = Selection.gameObjects;
+        //tempdata.Objects = Selection.gameObjects;
         tempdata.names = new List<string>();
         foreach (var point in Selection.gameObjects)
         {
@@ -137,7 +137,7 @@ public class MyCustomEditor : Editor
     static void CreatMapping()
     {
         MappingData tempdata = new MappingData();
-        tempdata.Objects = Selection.gameObjects;
+        //tempdata.Objects = Selection.gameObjects;
         tempdata.names = new List<string>();
         foreach (var point in Selection.activeGameObject.GetComponentsInChildren<ColorPoint>())
         {
