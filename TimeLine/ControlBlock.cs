@@ -16,12 +16,12 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
     {
         get
         {
-            if(data==null)
-            return BlockState.NoData;
+            if (data == null)
+                return BlockState.NoData;
             if (ProjectManager.Instance.RecordProject.RecordDic.Exists((a) => a.dataName == data.dataName))
             {
                 var objNames = ProjectManager.Instance.RecordProject.RecordDic.Find((a) => a.dataName == data.dataName).ObjNames;
-                if (objNames.Count != data.ObjNames.Count||objs.Exists(a=>a==null)||objs.Exists(a=>!a.activeInHierarchy))
+                if (objNames.Count != data.ObjNames.Count || objs.Exists(a => a == null) || objs.Exists(a => !a.activeInHierarchy))
                 {
                     return BlockState.NeedRefresh;
                 }
@@ -31,6 +31,24 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
                 return BlockState.NoData;
             }
             return BlockState.Ready;
+        }
+    }
+    public Color blockColor
+    {
+        get
+        {
+
+            switch (state)
+            {
+                case BlockState.NeedRefresh:
+                    return Color.yellow;
+                case BlockState.NoData:
+                    return Color.red;
+                case BlockState.Ready:
+                    return data.GetGroupColor();
+                default:
+                    return Color.red;
+            }
         }
     }
     [EnumToggleButtons]
@@ -43,7 +61,7 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
     [BoxGroup("控制块属性")]
     public bool isflip;
     [BoxGroup("控制块属性")]
-    public bool forceMode=true;
+    public bool forceMode = true;
     [BoxGroup("控制块属性")]
     public bool timeInit;
 
@@ -148,8 +166,8 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
     //[ShowIf("needProcess")]
     public void ProcessData()
     {
-        if(processer==null)
-        return;
+        if (processer == null)
+            return;
         if (processer.Process(ref data, data.animTime))
         {
 
@@ -158,10 +176,10 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
     }
     Color GetColor()
     {
-        if(needProcess)
-        return Color.red;
+        if (needProcess)
+            return Color.red;
         else
-        return Color.green;
+            return Color.green;
     }
 
     //刷新数据，重新从data建立索引
@@ -206,8 +224,8 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
     }
     public void Init()
     {
-        if(data==null)
-        return;
+        if (data == null)
+            return;
         objs = new List<GameObject>();
         GameObject parent = GameObject.Find(ProjectManager.GetCurrentMR().gameObject.name);
         if (parent == null)

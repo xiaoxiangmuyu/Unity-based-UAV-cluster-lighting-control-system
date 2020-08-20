@@ -12,18 +12,19 @@ public class TransformTweenClipEditor : ClipEditor
     {
         var cb = clip.asset as ControlBlock;
         ClipDrawOptions clipOptions = base.GetClipOptions(clip);
-        if (cb.state==BlockState.Ready)
-        {
-            clipOptions.highlightColor = Color.green;
-        }
-        else if(cb.state==BlockState.NoData)
-        {
-            clipOptions.highlightColor = Color.red;
-        }
-        else if(cb.state==BlockState.NeedRefresh)
-        {
-            clipOptions.highlightColor = Color.yellow;
-        }
+        // if (cb.state==BlockState.Ready)
+        // {
+        //     clipOptions.highlightColor = Color.green;
+        // }
+        // else if(cb.state==BlockState.NoData)
+        // {
+        //     clipOptions.highlightColor = Color.red;
+        // }
+        // else if(cb.state==BlockState.NeedRefresh)
+        // {
+        //     clipOptions.highlightColor = Color.yellow;
+        // }
+        clipOptions.highlightColor=cb.blockColor;
         return clipOptions;
     }
 }

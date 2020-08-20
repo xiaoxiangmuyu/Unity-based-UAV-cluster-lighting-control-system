@@ -78,7 +78,8 @@ public class RecordData
         times = new List<float>(data.times.ToArray());
         if (data.animTime != 0)
             animTime = data.animTime;
-        groupIndex = data.groupIndex;
+        if (!dataName.Equals("All") && !dataName.Equals("all"))
+            groupIndex = data.groupIndex;
         //posDic=data.posDic;
     }
     public void AddListener(System.Action action)
@@ -104,23 +105,63 @@ public class RecordData
         }
     }
     [Button("Add", ButtonSizes.Medium)]
-    [HorizontalGroup("Buttons")]
+    [HorizontalGroup("添加映射")]
     void AddMappingData()
     {
-        MappingData data = new MappingData();
-        data.names = new List<string>(ObjNames);
-        //data.Objects=MyTools.FindObjs(ObjNames).ToArray();
-        data.dataName = dataName;
-        ProjectManager.Instance.RecordProject.AddMappingData(data);
+        if (!ProjectManager.Instance.RecordProject.mappingDatas.Exists((a) => a.dataName == dataName))
+        {
+            MappingData data = new MappingData();
+            data.names = new List<string>(ObjNames);
+            data.dataName = dataName;
+            data.groupIndex = groupIndex;
+            ProjectManager.Instance.RecordProject.AddMappingData(data);
+            Debug.Log("添加映射成功");
+        }
+        else
+        {
+            var targetData=ProjectManager.Instance.RecordProject.mappingDatas.Find((a)=>a.dataName==dataName);
+            targetData.names.Clear();
+            targetData.groupIndex=groupIndex;
+            targetData.names=new List<string>(ObjNames);
+            Debug.Log("数据更新完毕");
+        }
     }
     [Button("Show", ButtonSizes.Medium)]
-    [HorizontalGroup("Buttons")]
+    [HorizontalGroup("View")]
     [GUIColor(0.7f, 1, 1)]
     public void ShowObjects()
     {
-        UnityEditor.Selection.objects = MyTools.FindObjs(ObjNames).ToArray();
+        var objects = MyTools.FindObjs(ObjNames).ToArray();
+        for (int i = 0; i < objects.Length; i++)
+        {
+            objects[i].SetActive(true);
+        }
+        UnityEditor.Selection.objects = objects;
     }
-    Color GetGroupColor()
+    [Button("Hide", ButtonSizes.Medium)]
+    [HorizontalGroup("View")]
+    [GUIColor(0.5f, 1, 1)]
+    public void HideObjects()
+    {
+        var objects = MyTools.FindObjs(ObjNames);
+        objects.ForEach((a) => a.SetActive(false));
+    }
+    [Button("Update", ButtonSizes.Medium)]
+    [HorizontalGroup("View")]
+    public void UpdateContent()
+    {
+        if(UnityEditor.Selection.objects.Length==0)
+        return;
+        ObjNames.Clear();
+        times.Clear();
+        foreach (var point in UnityEditor.Selection.objects)
+        {
+            ObjNames.Add(point.name);
+            times.Add(0);
+        }
+        Debug.Log(dataName + "内容更换完毕");
+    }
+    public Color GetGroupColor()
     {
         var temp = ProjectManager.Instance.RecordProject.globalPosDic.Count;
         float c = (float)1f / temp * groupIndex;

@@ -73,7 +73,33 @@ public class MappingData
     public void ShowObjects()
     {
         var objects = MyTools.FindObjs(names).ToArray();
+        for (int i = 0; i < objects.Length; i++)
+        {
+            objects[i].SetActive(true);
+        }
         Selection.objects = objects;
+    }
+    [Button("Hide", ButtonSizes.Medium)]
+    [VerticalGroup("Buttons")]
+    [GUIColor(0.5f, 1, 1)]
+    public void HideObjects()
+    {
+        var objects = MyTools.FindObjs(names);
+        objects.ForEach((a) => a.SetActive(false));
+    }
+    [Button("Update", ButtonSizes.Medium)]
+    [VerticalGroup("Buttons")]
+    public void UpdateContent()
+    {
+        if(UnityEditor.Selection.objects.Length==0)
+        return;
+        names.Clear();
+        foreach (var point in UnityEditor.Selection.objects)
+        {
+            names.Add(point.name);
+        }
+        NeedCau=true;
+        Debug.Log(dataName + "内容更换完毕");
     }
     public Color GetMappingColor(string name, int colorIndex = 0, bool random = false)
     {
@@ -95,7 +121,7 @@ public class MappingData
     // }
     [Button("计算", ButtonSizes.Medium)]
     [GUIColor("GetColor")]
-    [VerticalGroup("Buttons")]
+    [VerticalGroup("Main")]
     public void CaulateAll()
     {
         dics = new List<StringColorDictionary>();
