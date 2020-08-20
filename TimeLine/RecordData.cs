@@ -156,6 +156,8 @@ public class RecordData
         times.Clear();
         foreach (var point in UnityEditor.Selection.objects)
         {
+            if(point.name.Equals("Main Camera"))
+            continue;
             ObjNames.Add(point.name);
             times.Add(0);
         }

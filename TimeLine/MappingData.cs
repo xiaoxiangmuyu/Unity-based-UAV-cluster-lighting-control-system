@@ -96,6 +96,8 @@ public class MappingData
         names.Clear();
         foreach (var point in UnityEditor.Selection.objects)
         {
+            if(point.name.Equals("Main Camera"))
+            continue;
             names.Add(point.name);
         }
         NeedCau=true;
