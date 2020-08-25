@@ -10,55 +10,55 @@ public class TxtAnimBehavior : PlayableBehaviour
     public PlayableDirector director;
     public MovementManager movementManager;
     public int startFrame;
-    int curframe=0;
+    int curframe = 0;
     bool isExportMode;
-    
+
     public override void ProcessFrame(Playable playable, FrameData info, object playerData)
     {
-        if(!isExportMode)
-        UpdatePos();//编辑模式,会跳帧或者不连续播放
+        if (!isExportMode)
+            UpdatePos();//编辑模式,会跳帧或者不连续播放
         else
-        UpdatePosFrameByFrame();//导出模式，逐帧播放，不允许丢帧或者跳跃
+            UpdatePosFrameByFrame();//导出模式，逐帧播放，不允许丢帧或者跳跃
 
     }
     public override void OnBehaviourPlay(Playable playable, FrameData info)
     {
-        
+
     }
     public override void OnGraphStart(Playable playable)
-    {   
-        if(!GraphParent.activeSelf)
-        return;
+    {
+        if (!GraphParent.activeSelf)
+            return;
         MyTools.UpdateDuring(GraphParent);
-        isExportMode=movementManager.isWorking;
+        isExportMode = movementManager.isWorking;
         //初始化点的位置，防止瞬间读取动画造成超速
-        if(isExportMode)
-        script.MyUpdate(0);
+        if (isExportMode)
+            script.MyUpdate(0);
         else
-        curframe=Mathf.FloorToInt((float)director.time*25f)-startFrame;
+            curframe = Mathf.FloorToInt((float)director.time * 25f) - startFrame;
 
     }
     //随时间轴进度条更新位置
     void UpdatePos()
     {
-        if(!script)
-        return;
-        //curframe=Mathf.FloorToInt((float)director.time*25f)-startFrame;
-        //Debug.Log(curframe);
+        if (!script)
+            return;
+        if (curframe < 0)
+            curframe = 0;
         script.MyUpdate(curframe);
-        if(Application.isPlaying)
-        curframe+=1;
+        if (Application.isPlaying)
+            curframe += 1;
         else
-        curframe=Mathf.FloorToInt((float)director.time*25f)-startFrame;
+            curframe = Mathf.FloorToInt((float)director.time * 25f) - startFrame;
         //Debug.LogFormat("startFrame:{0}",startFrame);
     }
     //逐帧更新位置
     void UpdatePosFrameByFrame()
     {
-        if(!script)
-        return;
-        ConsoleProDebug.Watch("curframe",curframe.ToString());
+        if (!script)
+            return;
+        ConsoleProDebug.Watch("curframe", curframe.ToString());
         script.MyUpdate(curframe);
-        curframe+=1;
+        curframe += 1;
     }
 }

@@ -78,7 +78,7 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
     public int processTimes;
     [BoxGroup("数据处理模块")]
     [OnValueChanged("Register")]
-    public RecordData data;
+    public RecordData data = new RecordData();
     [BoxGroup("数据处理模块")]
     [OnValueChanged("Register")]
     public IDataProcesser processer;

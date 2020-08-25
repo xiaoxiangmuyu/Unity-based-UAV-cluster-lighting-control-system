@@ -165,6 +165,8 @@ public class RecordData
     }
     public Color GetGroupColor()
     {
+        if(groupIndex==0)
+        return Color.red;
         var temp = ProjectManager.Instance.RecordProject.globalPosDic.Count;
         float c = (float)1f / temp * groupIndex;
         return Color.HSVToRGB(c, 0.4f, 1f);
