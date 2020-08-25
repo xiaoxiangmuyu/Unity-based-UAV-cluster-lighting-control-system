@@ -8,8 +8,8 @@ public class MyTools
 {
     public static bool RandomTool(float value)
     {
-        var result=Random.Range(0f,1f);
-        return result<=value;
+        var result = Random.Range(0f, 1f);
+        return result <= value;
     }
     public static float GetTotalTime(List<ColorOrderBase> orders)
     {
@@ -34,10 +34,10 @@ public class MyTools
             if (order is Interval)
             {
                 Interval temp = order as Interval;
-                if(!temp.Random)
-                totalTime += temp.during;
+                if (!temp.Random)
+                    totalTime += temp.during;
                 else
-                totalTime+=temp.range.y;
+                    totalTime += temp.range.y;
             }
             else if (order is OrderGroup)
             {
@@ -57,10 +57,10 @@ public class MyTools
                     totalTime += temp.during;
                 }
             }
-            else if(order is Function.GlobalGradientColor)
+            else if (order is Function.GlobalGradientColor)
             {
-                var temp=(Function.GlobalGradientColor)order;
-                totalTime+=temp.time;
+                var temp = (Function.GlobalGradientColor)order;
+                totalTime += temp.time;
             }
         }
         return totalTime;
@@ -81,29 +81,30 @@ public class MyTools
                     temp.Register();
                     if (temp.GetDuring() == 0)
                         clip.duration = 3;
-                    else if(!temp.isDynamic)
+                    else if (!temp.isDynamic)
                         clip.duration = temp.GetDuring();
                     else
-                    clip.duration=temp.GetDuring()*temp.processTimes;
-                    if(temp.targetDataName!=string.Empty)
-                    clip.displayName=temp.targetDataName;
+                        clip.duration = temp.GetDuring() * temp.processTimes;
+                    if (temp.targetDataName != string.Empty)
+                        clip.displayName = temp.targetDataName;
                 }
                 else
                 {
                     var temp2 = clip.asset as TxtAnimAsset;
                     if (temp2 != null)
                     {
-                        clip.duration = temp2.seconds+temp2.safeSeconds;
+                        clip.duration = temp2.seconds + temp2.safeSeconds;
                         temp2.SetStartFrame(Mathf.RoundToInt((float)clip.start * 25));
+                        clip.displayName = temp2.animName;
                     }
                     else
                     {
-                        var temp3 = clip.asset as OverallAsset;
-                        if (temp3 != null)
-                        {
-                            clip.duration=temp3.GetDuring();
-                            temp3.RefreshObjs();
-                        }
+                        // var temp3 = clip.asset as OverallAsset;
+                        // if (temp3 != null)
+                        // {
+                        //     clip.duration = temp3.GetDuring();
+                        //     temp3.RefreshObjs();
+                        // }
                     }
                 }
             }
@@ -140,6 +141,13 @@ public class MyTools
                 FindChild(tran.GetChild(i), childName);
             }
         }
+    }
+    static Color EvaluateColor(Color from, Color to, float percent, Ease ease = Ease.Linear)
+    {
+        return new Color(DOVirtual.EasedValue(from.r, to.r, percent, ease),
+        DOVirtual.EasedValue(from.g, to.g, percent, ease),
+        DOVirtual.EasedValue(from.b, to.b, percent, ease)
+        );
     }
 
 }

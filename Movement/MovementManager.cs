@@ -213,11 +213,12 @@ public class MovementManager : MonoBehaviour
             ConsoleProDebug.LogToFilter("导出路径不合法", "Result");
             return false;
         }
-        if (GetComponent<TxtForAnimation>())
+        var anims = GetComponents<TxtForAnimation>();
+        for (int i = 0; i < anims.Length; i++)
         {
-            if (!GetComponent<TxtForAnimation>().HasFinish)
+            if (!anims[i].HasFinish)
             {
-                ConsoleProDebug.LogToFilter("导出时间过短，TxT没播放完", "Result");
+                ConsoleProDebug.LogToFilter("动画片段:" + anims[i].animName + " 导出时间过短，TxT没播放完", "Result");
                 return false;
             }
         }

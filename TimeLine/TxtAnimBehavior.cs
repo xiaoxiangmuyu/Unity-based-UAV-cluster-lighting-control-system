@@ -3,16 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Playables;
 using DG.Tweening;
+using Sirenix.OdinInspector;
 public class TxtAnimBehavior : PlayableBehaviour
 {
     public GameObject GraphParent;
-    public TxtForAnimation script;
     public PlayableDirector director;
     public MovementManager movementManager;
     public int startFrame;
     int curframe = 0;
     bool isExportMode;
-
+    public TxtForAnimation target;
     public override void ProcessFrame(Playable playable, FrameData info, object playerData)
     {
         if (!isExportMode)
@@ -33,7 +33,7 @@ public class TxtAnimBehavior : PlayableBehaviour
         isExportMode = movementManager.isWorking;
         //初始化点的位置，防止瞬间读取动画造成超速
         if (isExportMode)
-            script.MyUpdate(0);
+            target.MyUpdate(0);
         else
             curframe = Mathf.FloorToInt((float)director.time * 25f) - startFrame;
 
@@ -41,24 +41,24 @@ public class TxtAnimBehavior : PlayableBehaviour
     //随时间轴进度条更新位置
     void UpdatePos()
     {
-        if (!script)
+        if (target == null)
             return;
         if (curframe < 0)
             curframe = 0;
-        script.MyUpdate(curframe);
+        target.MyUpdate(curframe);
         if (Application.isPlaying)
             curframe += 1;
         else
             curframe = Mathf.FloorToInt((float)director.time * 25f) - startFrame;
         //Debug.LogFormat("startFrame:{0}",startFrame);
     }
-    //逐帧更新位置
+    //s
     void UpdatePosFrameByFrame()
     {
-        if (!script)
+        if (target == null)
             return;
-        ConsoleProDebug.Watch("curframe", curframe.ToString());
-        script.MyUpdate(curframe);
+        ConsoleProDebug.Watch("curframe:", curframe.ToString());
+        target.MyUpdate(curframe);
         curframe += 1;
     }
 }

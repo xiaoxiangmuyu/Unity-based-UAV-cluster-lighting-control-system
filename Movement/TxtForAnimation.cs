@@ -32,15 +32,16 @@ public class TxtForAnimation : MonoBehaviour
 
 
     #region {Public field}
+    public string animName;
     [ShowInInspector]
     public float time { get { return (float)totalFrameCount / 25; } }
-    [FolderPath(AbsolutePath=true)]
+    [FolderPath(AbsolutePath = true)]
     public string path;
     [ReadOnly]
     public int totalFrameCount;
     public bool HasFinish { get { return hasFinish; } }
     [ShowInInspector]
-    public int childCount{get{if(childs!=null)return childs.Count;else return 0;}}
+    public int childCount { get { if (childs != null) return childs.Count; else return 0; } }
     #endregion
 
 
@@ -50,10 +51,10 @@ public class TxtForAnimation : MonoBehaviour
     private bool hasFinish;
     [SerializeField]
     [HideInInspector]
-    private List<PointInfo> cords=new List<PointInfo>();
+    private List<PointInfo> cords = new List<PointInfo>();
     [SerializeField]
     [HideInInspector]
-    private List<Transform> childs=new List<Transform>();
+    private List<Transform> childs = new List<Transform>();
     float timer;
     bool hasBegin;
     #endregion
@@ -63,7 +64,7 @@ public class TxtForAnimation : MonoBehaviour
     }
     void Start()
     {
-        
+
     }
     void AnimatorCheck()
     {
@@ -79,6 +80,7 @@ public class TxtForAnimation : MonoBehaviour
             cords.Clear();
         hasCount = false;
         totalFrameCount = 0;
+        animName = Path.GetFileNameWithoutExtension(path);
         if (Directory.Exists(path))
         {
             int fileIndex = 0;
@@ -138,7 +140,7 @@ public class TxtForAnimation : MonoBehaviour
                 int temp;
                 if (!int.TryParse(tra.GetChild(i).name, out temp))
                     continue;
-                Transform child=tra.GetChild(i);
+                Transform child = tra.GetChild(i);
                 childs.Add(child);
             }
             else
@@ -162,9 +164,9 @@ public class TxtForAnimation : MonoBehaviour
         //     return;
         if (frame >= totalFrameCount)
         {
-            if(hasFinish)
-            return;
-            ConsoleProDebug.LogToFilter("播放完成,共" + frame + "帧","Result");
+            if (hasFinish)
+                return;
+            ConsoleProDebug.LogToFilter("播放完成,共" + frame + "帧", "Result");
             //Debug.Log("播放完成,共" + frame + "帧");
             hasFinish = true;
             return;
@@ -203,7 +205,7 @@ public class TxtForAnimation : MonoBehaviour
             // Debug.LogError("i超出范围:"+i.ToString());
             // if(curFrameindex>cords[0].Count-1)
             // Debug.LogError("curFrameindex超出范围:"+curFrameindex.ToString());
-            Vector3 pos=cords[i].GetPos(frame);
+            Vector3 pos = cords[i].GetPos(frame);
             //Debug.Log(pos);
             childs[i].transform.position = pos;
             //Debug.Log(childs[i].transform.position);
