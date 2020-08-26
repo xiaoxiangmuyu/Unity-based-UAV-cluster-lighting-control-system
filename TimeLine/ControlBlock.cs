@@ -94,6 +94,7 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
     [ListDrawerSettings(Expanded = true)]
     [PropertyOrder(3)]
     public List<ColorOrderBase> colorOrders = new List<ColorOrderBase>();
+    [HideInInspector]
     public List<GameObject> objs;
     [ValueDropdown("availableData")]
     [OnValueChanged("RefreshData")]
@@ -262,11 +263,49 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
             }
         }
     }
-    [Button(ButtonSizes.Large)]
-    [LabelText("高亮显示点位置")]
-    void ShowObjects()
+    [ShowInInspector]
+    [ValueDropdown("availableIndex")]
+    [HorizontalGroup("SetColorGroup")]
+    int groupIndex;
+    IEnumerable availableIndex
     {
-        UnityEditor.Selection.objects = objs.ToArray();
+        get
+        {
+            int count = ProjectManager.Instance.RecordProject.globalPosDic.Count;
+            var temp = new List<int>();
+            for (int i = 0; i < count; i++)
+            {
+                temp.Add(i + 1);
+            }
+            return temp;
+        }
+    }
+    [Button("设置全部颜色序号")]
+    [HorizontalGroup("SetColorGroup")]
+    void SetColorIndex()
+    {
+        SetColorGroup(colorOrders);
+        ConsoleProDebug.LogToFilter("设置颜色序号成功","Log");
+    }
+    void SetColorGroup(List<ColorOrderBase>orders)
+    {
+        foreach (var order in orders)
+        {
+            if (order is DoColor)
+            {
+                var temp = order as DoColor;
+                if (temp.colorType == ColorType.MappingData)
+                {
+                    temp.groupIndex = groupIndex;
+                }
+            }
+            else if(order is OrderGroup)
+            {
+                var temp=order as OrderGroup;
+                SetColorGroup(temp.colorOrders);
+            }
+        }
+
     }
 
 }

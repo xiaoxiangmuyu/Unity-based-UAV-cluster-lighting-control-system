@@ -127,6 +127,8 @@ public class MappingData
     public void CaulateAll()
     {
         dics = new List<StringColorDictionary>();
+        if(ShowAngle)
+        RotateCamera();
         for (int i = 0; i < colors.Count; i++)
         {
             Caulate(i);

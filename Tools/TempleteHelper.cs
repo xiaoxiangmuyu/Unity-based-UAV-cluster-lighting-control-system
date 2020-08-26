@@ -5,6 +5,7 @@ using UnityEngine.Timeline;
 using Sirenix.OdinInspector;
 using UnityEngine.Playables;
 using UnityEditor;
+using UnityEditor.Timeline;
 [ExecuteInEditMode]
 public class TempleteHelper : MonoBehaviour
 {
@@ -20,6 +21,7 @@ public class TempleteHelper : MonoBehaviour
         }
     }
     [Button(ButtonSizes.Gigantic)]
+    [LabelText("添加模版")]
     public void UseTemplete()
     {
         // if (!Application.isPlaying)
@@ -32,30 +34,29 @@ public class TempleteHelper : MonoBehaviour
             Debug.LogError("没有选择模版");
             return;
         }
-        Selection.activeGameObject = null;
-        AssetDatabase.CopyAsset("Assets/Resources/Templetes/" + targetTemplete.name + ".playable", "Assets/Resources/Projects/" + ProjectManager.Instance.projectName + "/" + gameObject.name + ".playable");
-        var asset = Resources.Load<TimelineAsset>("Projects/" + ProjectManager.Instance.projectName + "/" + gameObject.name);
-        GetComponent<PlayableDirector>().playableAsset = asset;
-        float maxTime = 0;
-        foreach (var track in asset.GetOutputTracks())
+        var templete = Resources.Load<TimelineAsset>("Templetes/" + targetTemplete.name);
+        //var asset = Resources.Load<TimelineAsset>("Projects/" + ProjectManager.Instance.projectName + "/" + gameObject.name);
+        var asset = GetComponent<PlayableDirector>().playableAsset as TimelineAsset;
+        var trackRoot=asset.CreateTrack<GroupTrack>(targetTemplete.name);
+        var timelineLength=asset.duration;
+        foreach (var track in templete.GetOutputTracks())
         {
-            foreach (var clip in track.GetClips())
+            if(track.name=="Markers")
+            continue;
+            var tempTrack= asset.CreateTrack<PlayableTrack>(trackRoot,track.name);
+            foreach(var clip in track.GetClips())
             {
-                var temp = clip.asset as ControlBlock;
-                if (temp != null)
-                {
-                    temp.targetDataName = temp.data.dataName;
-                    temp.RefreshData();
-                    temp.SetWorkRangeMax();
-                    if (temp.processer != null)
-                    {
-                        if (temp.data.animTime > maxTime)
-                            maxTime = temp.data.animTime;
-                    }
-                }
+                var tempClip=tempTrack.CreateClip<ControlBlock>();
+                tempClip.start=clip.start;
+                tempClip.duration=clip.duration;
+                tempClip.displayName=clip.displayName;
+                tempClip.asset=clip.asset;
+                tempClip.start+=timelineLength;
             }
         }
-        Selection.activeGameObject = gameObject;
+        //Selection.activeGameObject = gameObject;
+        TimelineEditor.Refresh(RefreshReason.ContentsAddedOrRemoved);
+        
         Debug.Log("应用模版完成");
     }
     // [Button(ButtonSizes.Gigantic)]
