@@ -143,12 +143,12 @@ public class MyCustomEditor : Editor
     {
         MappingData tempdata = new MappingData();
         //tempdata.Objects = Selection.gameObjects;
-        tempdata.names = new List<string>();
+        tempdata.pointNames = new List<string>();
         foreach (var point in Selection.gameObjects)
         {
             if (point.name == "Main Camera")
                 continue;
-            tempdata.names.Add(point.name);
+            tempdata.pointNames.Add(point.name);
         }
         ProjectManager.Instance.RecordProject.AddMappingData(tempdata);
         Debug.Log("创建映射组成功");
@@ -171,10 +171,10 @@ public class MyCustomEditor : Editor
     {
         MappingData tempdata = new MappingData();
         //tempdata.Objects = Selection.gameObjects;
-        tempdata.names = new List<string>();
+        tempdata.pointNames = new List<string>();
         foreach (var point in Selection.activeGameObject.GetComponentsInChildren<ColorPoint>())
         {
-            tempdata.names.Add(point.name);
+            tempdata.pointNames.Add(point.name);
         }
         tempdata.dataName = Selection.activeGameObject.name;
         ProjectManager.Instance.RecordProject.AddMappingData(tempdata);

@@ -149,5 +149,20 @@ public class MyTools
         DOVirtual.EasedValue(from.b, to.b, percent, ease)
         );
     }
+    static float Trunc(float num)
+    {
+        var temp = num.ToString("f2");
+        return float.Parse(temp);
+    }
+
+    public static Vector3 TruncVector3(Vector3 v)
+    {
+        float x = Trunc(v.x);
+        float y = Trunc(v.y);
+        float z = Trunc(v.z);
+
+        return new Vector3(x, y, z);
+    }
+
 
 }

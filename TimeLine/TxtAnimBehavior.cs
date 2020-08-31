@@ -10,9 +10,10 @@ public class TxtAnimBehavior : PlayableBehaviour
     public PlayableDirector director;
     public MovementManager movementManager;
     public int startFrame;
-    int curframe = 0;
+    public int curframe = 0;
     bool isExportMode;
     public TxtForAnimation target;
+    public bool isMappingIndex;
     public override void ProcessFrame(Playable playable, FrameData info, object playerData)
     {
         if (!isExportMode)
@@ -23,7 +24,8 @@ public class TxtAnimBehavior : PlayableBehaviour
     }
     public override void OnBehaviourPlay(Playable playable, FrameData info)
     {
-
+        ProjectManager.currentAnim=target;
+        ProjectManager.currentAnimBehavior=this;
     }
     public override void OnGraphStart(Playable playable)
     {
@@ -33,7 +35,7 @@ public class TxtAnimBehavior : PlayableBehaviour
         isExportMode = movementManager.isWorking;
         //初始化点的位置，防止瞬间读取动画造成超速
         if (isExportMode)
-            target.MyUpdate(0);
+            target.MyUpdate(0,isMappingIndex);
         else
             curframe = Mathf.FloorToInt((float)director.time * 25f) - startFrame;
 
@@ -45,7 +47,11 @@ public class TxtAnimBehavior : PlayableBehaviour
             return;
         if (curframe < 0)
             curframe = 0;
-        target.MyUpdate(curframe);
+        if(curframe==0&&isMappingIndex)
+        {
+            target.CorrectPointIndex();
+        }
+        target.MyUpdate(curframe,isMappingIndex);
         if (Application.isPlaying)
             curframe += 1;
         else
@@ -58,7 +64,7 @@ public class TxtAnimBehavior : PlayableBehaviour
         if (target == null)
             return;
         ConsoleProDebug.Watch("curframe:", curframe.ToString());
-        target.MyUpdate(curframe);
+        target.MyUpdate(curframe,isMappingIndex);
         curframe += 1;
     }
 }

@@ -61,7 +61,7 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
     [BoxGroup("控制块属性")]
     public bool isflip;
     [BoxGroup("控制块属性")]
-    public bool forceMode = true;
+    public bool forceMode;
     [BoxGroup("控制块属性")]
     public bool timeInit;
 
@@ -190,7 +190,7 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
         if (result != null)
         {
             data.CopyFrom(result);
-            objs.Clear();
+            objs=new List<GameObject>();
             Register();
             SetWorkRangeMax();
             if (processer != null)

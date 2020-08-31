@@ -10,6 +10,8 @@ public class ProjectManager : MonoBehaviour
     static MovementManager currentTarget;
     const string ProjectParentPath = "Projects/";
     static ProjectManager instance;
+    public static TxtForAnimation currentAnim;
+    public static TxtAnimBehavior currentAnimBehavior;
     public static ProjectManager Instance
     {
         get
@@ -81,7 +83,9 @@ public class ProjectManager : MonoBehaviour
     public static void ResetAllColorAndTween()
     {
         DOTween.CompleteAll();
+        DOTween.KillAll();
         currentTarget.ResetAllColor();
     }
+
 
 }

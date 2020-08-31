@@ -6,19 +6,34 @@ using UnityEditor;
 [System.Serializable]
 public class MappingData
 {
-    // public MappingData(GameObject[]objs)
-    // {
-    //     this.objs=objs;
-    //     dic=new Dictionary<string, Color>();
-    // }
+    struct CameraPosSetting
+    {
+        public Vector3 pos;
+        public Vector3 eulerAngles;
+        public void Set(Transform transform)
+        {
+            pos=transform.position;
+            eulerAngles=transform.eulerAngles;
+        }
+        public void Show(Transform transform)
+        {
+            transform.position=pos;
+            transform.eulerAngles=eulerAngles;
+        }
+        public void Clear()
+        {
+            pos=Vector3.zero;
+            eulerAngles=Vector3.zero;
+        }
+        public bool isNull()
+        {
+            return pos==Vector3.zero&&eulerAngles==Vector3.zero;
+        }
+
+    }
     [VerticalGroup("Main")]
     [HideLabel]
     public string dataName;
-    [Range(0, 360)]
-    [OnValueChanged("RotateCamera")]
-    [VerticalGroup("Properties")]
-
-    public float angle;
     [ValueDropdown("availableIndex")]
     [VerticalGroup("Main")]
     [HideLabel]
@@ -26,8 +41,8 @@ public class MappingData
     public int groupIndex;
     [SerializeField]
     [HideInInspector]
-    List<StringColorDictionary> dics;
-    [OnValueChanged("CaulateAll")]
+    List<StringColorDictionary> colorDics;
+    [OnValueChanged("SetStateDirty")]
     [VerticalGroup("Properties")]
     public DirType dirType;
     [ShowIf("ShowXY")]
@@ -40,9 +55,10 @@ public class MappingData
     public float anchorZ;
     [VerticalGroup("Properties")]
     [ListDrawerSettings(Expanded = false)]
+    [OnValueChanged("SetStateDirty")]
     public List<Gradient> colors;
     [HideInInspector]
-    public List<string> names;
+    public List<string> pointNames;
 
     IEnumerable availableIndex
     {
@@ -60,89 +76,128 @@ public class MappingData
     Vector3 center;
     bool ShowXY { get { return dirType == DirType.In_Out || dirType == DirType.Out_In || dirType == DirType.Ball; } }
     bool ShowZ { get { return dirType == DirType.Ball; } }
-    bool ShowAngle { get { return angle != 0; } }
     bool NeedCau;
-    public bool isNull()
-    {
-        return names == null;
-    }
+    [SerializeField]
+    CameraPosSetting cameraPosSetting;
+    
+    [SerializeField]
+    [HideInInspector]
+    StringVector3Dictionary screenPosDic = new StringVector3Dictionary();
 
-    [Button("Show", ButtonSizes.Medium)]
+
+
+    [Button("显示", ButtonSizes.Medium)]
     [VerticalGroup("Buttons")]
+    [HorizontalGroup("Buttons/view")]
     [GUIColor(0.7f, 1, 1)]
-    public void ShowObjects()
+    void ShowObjects()
     {
-        var objects = MyTools.FindObjs(names).ToArray();
+        var objects = MyTools.FindObjs(pointNames).ToArray();
         for (int i = 0; i < objects.Length; i++)
         {
             objects[i].SetActive(true);
         }
         Selection.objects = objects;
     }
-    [Button("Hide", ButtonSizes.Medium)]
+    [Button("隐藏", ButtonSizes.Medium)]
     [VerticalGroup("Buttons")]
+    [HorizontalGroup("Buttons/view")]
     [GUIColor(0.5f, 1, 1)]
-    public void HideObjects()
+    void HideObjects()
     {
-        var objects = MyTools.FindObjs(names);
+        var objects = MyTools.FindObjs(pointNames);
         objects.ForEach((a) => a.SetActive(false));
     }
-    [Button("Update", ButtonSizes.Medium)]
+    [Button("更新", ButtonSizes.Medium)]
     [VerticalGroup("Buttons")]
-    public void UpdateContent()
+    void UpdateContent()
     {
-        if(UnityEditor.Selection.objects.Length==0)
-        return;
-        names.Clear();
+        if (UnityEditor.Selection.objects.Length == 0)
+            return;
+        pointNames.Clear();
         foreach (var point in UnityEditor.Selection.objects)
         {
-            if(point.name.Equals("Main Camera"))
-            continue;
-            names.Add(point.name);
+            if (point.name.Equals("Main Camera"))
+                continue;
+            pointNames.Add(point.name);
         }
-        NeedCau=true;
+        NeedCau = true;
         Debug.Log(dataName + "内容更换完毕");
+    }
+    [Button("记录映射角度", ButtonSizes.Medium)]
+    [VerticalGroup("Buttons")]
+    void SavePointScreenPos()
+    {
+        var mainCamera = Camera.main;
+        screenPosDic.Clear();
+        foreach (var pointName in pointNames)
+        {
+            screenPosDic.Add(pointName, mainCamera.WorldToScreenPoint(ProjectManager.Instance.RecordProject.globalPosDic[groupIndex - 1][pointName]));
+        }
+        cameraPosSetting.Set(mainCamera.transform);
+        SetStateDirty();
+    }
+    CameraPosSetting temp;
+    [Button("切换显示映射角度", ButtonSizes.Medium)]
+    [VerticalGroup("Buttons")]
+    void ShowScreenPos()
+    {
+        var mainCamera = Camera.main;
+        if(temp.isNull())
+        {
+        temp.Set(mainCamera.transform);
+        cameraPosSetting.Show(mainCamera.transform);
+        }
+        else
+        {
+            temp.Show(mainCamera.transform);
+            temp.Clear();
+        }
     }
     public Color GetMappingColor(string name, int colorIndex = 0, bool random = false)
     {
-        if (!dics[colorIndex].ContainsKey(name))
+        if (!colorDics[colorIndex].ContainsKey(name))
         {
             Debug.LogError(dataName + "没有:" + name + "的颜色信息");
             return Color.red;
         }
         if (random)
         {
-            int result = Random.Range(0, dics.Count);
-            return dics[result][name];
+            int result = Random.Range(0, colorDics.Count);
+            return colorDics[result][name];
         }
-        return dics[colorIndex][name];
+        return colorDics[colorIndex][name];
     }
     // public bool ContainsPoint(string name)
     // {
     //     return dics.ContainsKey(name);
     // }
     [Button("计算", ButtonSizes.Medium)]
-    [GUIColor("GetColor")]
+    [GUIColor("GetStateColor")]
     [VerticalGroup("Main")]
     public void CaulateAll()
     {
-        dics = new List<StringColorDictionary>();
-        if(ShowAngle)
-        RotateCamera();
+        colorDics = new List<StringColorDictionary>();
+        if (screenPosDic.Count == 0)
+        {
+            SavePointScreenPos();
+        }
         for (int i = 0; i < colors.Count; i++)
         {
             Caulate(i);
         }
+        NeedCau = false;
+        Debug.Log("计算完成");
     }
     public void Caulate(int index)
     {
         var tempPosDic = new StringVector3Dictionary();
-        foreach (var pointName in names)
+        foreach (var pointName in pointNames)
         {
             var pos = ProjectManager.Instance.RecordProject.globalPosDic[groupIndex - 1][pointName];
             tempPosDic.Add(pointName, pos);
         }
-        dics.Add(new StringColorDictionary());
+        colorDics.Add(new StringColorDictionary());
         if (dirType == DirType.Ball)
         {
             float maxDistance = 0;
@@ -172,16 +227,14 @@ public class MappingData
             foreach (var pointName in tempPosDic.Keys)
             {
                 Color color = colors[index].Evaluate(Vector3.Distance(tempPosDic[pointName], center) / maxDistance);
-                dics[index].Add(pointName, color);
+                colorDics[index].Add(pointName, color);
             }
         }
         else
         {
-            Camera mainCamera = Camera.main;
             float? xMin = null, xMax = null, yMin = null, yMax = null;
-            foreach (var tempPos in tempPosDic.Values)
+            foreach (var screenPos in screenPosDic.Values)
             {
-                Vector2 screenPos = mainCamera.WorldToScreenPoint(tempPos);
                 if (!xMin.HasValue || screenPos.x < xMin)
                     xMin = screenPos.x;
                 if (!xMax.HasValue || screenPos.x > xMax)
@@ -191,11 +244,11 @@ public class MappingData
                 if (!yMax.HasValue || screenPos.y > yMax)
                     yMax = screenPos.y;
             }
-            Vector2 pos;
+            Vector2 tempScreenPos;
             float maxDistance = 0;
-            foreach (var tempPos in tempPosDic.Values)
+            foreach (var screenPos in screenPosDic.Values)
             {
-                float dis = Vector2.Distance(mainCamera.WorldToScreenPoint(tempPos), new Vector2((xMax.Value + xMin.Value) / 2, (yMin.Value + yMax.Value) / 2));
+                float dis = Vector2.Distance(screenPos, new Vector2((xMax.Value + xMin.Value) / 2, (yMin.Value + yMax.Value) / 2));
                 if (dis > maxDistance)
                     maxDistance = dis;
 
@@ -203,80 +256,61 @@ public class MappingData
             switch (dirType)
             {
                 case DirType.Up_Down:
-                    foreach (var pointName in tempPosDic.Keys)
+                    foreach (var pointName in screenPosDic.Keys)
                     {
-                        pos = mainCamera.WorldToScreenPoint(tempPosDic[pointName]);
-                        dics[index].Add(pointName, colors[index].Evaluate(1 - ((pos.y - yMin.Value) / (yMax.Value - yMin.Value))));
+                        tempScreenPos = screenPosDic[pointName]; ;
+                        colorDics[index].Add(pointName, colors[index].Evaluate(1 - ((tempScreenPos.y - yMin.Value) / (yMax.Value - yMin.Value))));
                     }
                     break;
                 case DirType.Down_UP:
-                    foreach (var pointName in tempPosDic.Keys)
+                    foreach (var pointName in screenPosDic.Keys)
                     {
-                        pos = mainCamera.WorldToScreenPoint(tempPosDic[pointName]);
-                        dics[index].Add(pointName, colors[index].Evaluate((pos.y - yMin.Value) / (yMax.Value - yMin.Value)));
+                        tempScreenPos = screenPosDic[pointName];
+                        colorDics[index].Add(pointName, colors[index].Evaluate((tempScreenPos.y - yMin.Value) / (yMax.Value - yMin.Value)));
                     }
                     break;
                 case DirType.Left_Right:
-                    foreach (var pointName in tempPosDic.Keys)
+                    foreach (var pointName in screenPosDic.Keys)
                     {
-                        pos = mainCamera.WorldToScreenPoint(tempPosDic[pointName]);
-                        dics[index].Add(pointName, colors[index].Evaluate((pos.x - xMin.Value) / (xMax.Value - xMin.Value)));
+                        tempScreenPos = screenPosDic[pointName];
+                        colorDics[index].Add(pointName, colors[index].Evaluate((tempScreenPos.x - xMin.Value) / (xMax.Value - xMin.Value)));
                     }
                     break;
                 case DirType.Right_Left:
-                    foreach (var pointName in tempPosDic.Keys)
+                    foreach (var pointName in screenPosDic.Keys)
                     {
-                        pos = mainCamera.WorldToScreenPoint(tempPosDic[pointName]);
-                        dics[index].Add(pointName, colors[index].Evaluate(1 - ((pos.x - xMin.Value) / (xMax.Value - xMin.Value))));
+                        tempScreenPos = screenPosDic[pointName];
+                        colorDics[index].Add(pointName, colors[index].Evaluate(1 - ((tempScreenPos.x - xMin.Value) / (xMax.Value - xMin.Value))));
                     }
                     break;
                 case DirType.In_Out:
 
-                    foreach (var pointName in tempPosDic.Keys)
+                    foreach (var pointName in screenPosDic.Keys)
                     {
-                        float value = Vector2.Distance(mainCamera.WorldToScreenPoint(tempPosDic[pointName]), new Vector2(xMin.Value + (xMax.Value - xMin.Value) * anchorX, yMin.Value + (yMax.Value - yMin.Value) * anchorY));
-                        dics[index].Add(pointName, colors[index].Evaluate(value / maxDistance));
+                        float value = Vector2.Distance(screenPosDic[pointName], new Vector2(xMin.Value + (xMax.Value - xMin.Value) * anchorX, yMin.Value + (yMax.Value - yMin.Value) * anchorY));
+                        colorDics[index].Add(pointName, colors[index].Evaluate(value / maxDistance));
                     }
                     break;
                 case DirType.Out_In:
-                    foreach (var pointName in tempPosDic.Keys)
+                    foreach (var pointName in screenPosDic.Keys)
                     {
-                        float value = Vector2.Distance(mainCamera.WorldToScreenPoint(tempPosDic[pointName]), new Vector2(xMin.Value + (xMax.Value - xMin.Value) * anchorX, yMin.Value + (yMax.Value - yMin.Value) * anchorY));
-                        dics[index].Add(pointName, colors[index].Evaluate(1 - (value / maxDistance)));
+                        float value = Vector2.Distance(screenPosDic[pointName], new Vector2(xMin.Value + (xMax.Value - xMin.Value) * anchorX, yMin.Value + (yMax.Value - yMin.Value) * anchorY));
+                        colorDics[index].Add(pointName, colors[index].Evaluate(1 - (value / maxDistance)));
                     }
                     break;
             }
         }
-        if (ShowAngle)
-        {
-            var temp = Camera.main.transform.rotation;
-            temp.eulerAngles = new Vector3(temp.eulerAngles.x, temp.eulerAngles.y, 0);
-            Camera.main.transform.rotation = temp;
-        }
-        NeedCau = false;
-        Debug.Log("计算完成");
     }
-    Color GetColor()
+    Color GetStateColor()
     {
-        if (dics == null || NeedCau || dics.Count == 0)
+        if (colorDics == null || NeedCau || colorDics.Count == 0)
             return Color.red;
         else
             return Color.green;
     }
-    void SetState()
+    void SetStateDirty()
     {
         NeedCau = true;
-    }
-    Camera mainCamera;
-    void RotateCamera()
-    {
-        if (mainCamera == null)
-            mainCamera = Camera.main;
-        var temp = mainCamera.transform.rotation;
-        temp.eulerAngles = new Vector3(temp.eulerAngles.x, temp.eulerAngles.y, angle);
-        mainCamera.transform.rotation = temp;
-        SetState();
-
     }
     Color GetGroupColor()
     {

@@ -23,6 +23,10 @@ public class TxtAnimAsset : SerializedScriptableObject, IPlayableAsset
     [LabelText("总时长")]
     [ShowInInspector]
     public float seconds { get { return totalFrameCount / 25f; } }
+    [LabelText("是否需要手动指派")]
+    [InfoBox("除了第一段都勾上")]
+    public bool NeedMappingIndex = true;
+
     TxtForAnimation[] scripts;
     ScriptPlayable<TxtAnimBehavior> scriptPlayable;
 
@@ -46,10 +50,14 @@ public class TxtAnimAsset : SerializedScriptableObject, IPlayableAsset
         if (scripts != null)
         {
             var temp = new List<TxtForAnimation>(scripts);
-            var anim = temp.Find((a) => a.animName == animName);
-            totalFrameCount = anim.totalFrameCount;
-            scriptPlayable.GetBehaviour().target = anim;
+            if (animName != null)
+            {
+                var anim = temp.Find((a) => a.animName == animName);
+                totalFrameCount = anim.totalFrameCount;
+                scriptPlayable.GetBehaviour().target = anim;
+            }
             scriptPlayable.GetBehaviour().GraphParent = owner;
+            scriptPlayable.GetBehaviour().isMappingIndex = NeedMappingIndex;
             //scriptPlayable.GetBehaviour().animIndex = animIndex;
         }
         scriptPlayable.GetBehaviour().director = owner.GetComponent<PlayableDirector>();

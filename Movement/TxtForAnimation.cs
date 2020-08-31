@@ -36,7 +36,9 @@ public class TxtForAnimation : MonoBehaviour
     [ShowInInspector]
     public float time { get { return (float)totalFrameCount / 25; } }
     [FolderPath(AbsolutePath = true)]
-    public string path;
+    public string animFolderPath;
+    [FilePath(AbsolutePath = true)]
+    public string staticFilePath;
     [ReadOnly]
     public int totalFrameCount;
     public bool HasFinish { get { return hasFinish; } }
@@ -54,7 +56,20 @@ public class TxtForAnimation : MonoBehaviour
     private List<PointInfo> cords = new List<PointInfo>();
     [SerializeField]
     [HideInInspector]
+    private List<Vector3> staticPositions = new List<Vector3>();
+    [SerializeField]
+    [HideInInspector]
     private List<Transform> childs = new List<Transform>();
+    [SerializeField]
+    List<int> indexs;
+    [ShowInInspector]
+    public bool isMappingFinish
+    {
+        get
+        {
+            return (!indexs.Exists((a) => a == -1)) && indexs.Count != 0;
+        }
+    }
     float timer;
     bool hasBegin;
     #endregion
@@ -74,18 +89,18 @@ public class TxtForAnimation : MonoBehaviour
                 Debug.LogError(gameObject.name + "动画组件没关");
         }
     }
-    void ReadTxtFile()
+    void ReadAnimTxtFile()
     {
         if (cords != null && cords.Count != 0)
             cords.Clear();
         hasCount = false;
         totalFrameCount = 0;
-        animName = Path.GetFileNameWithoutExtension(path);
-        if (Directory.Exists(path))
+        animName = Path.GetFileNameWithoutExtension(animFolderPath);
+        if (Directory.Exists(animFolderPath))
         {
             int fileIndex = 0;
             cords = new List<PointInfo>();
-            String[] fileArray = Directory.GetFiles(path, "*.txt");
+            String[] fileArray = Directory.GetFiles(animFolderPath, "*.txt");
             List<String> files = new List<string>(fileArray);
             files.Sort((a, b) => int.Parse(Path.GetFileNameWithoutExtension(a)) - int.Parse(Path.GetFileNameWithoutExtension(b)));
             foreach (string file in files)
@@ -124,6 +139,22 @@ public class TxtForAnimation : MonoBehaviour
         }
 
     }
+    void ReadStaticTxtFile()
+    {
+        animName = Path.GetFileNameWithoutExtension(staticFilePath);
+        using (var reader = new StreamReader(staticFilePath))
+        {
+            string line = null;
+            while ((line = reader.ReadLine()) != null)
+            {
+                var Pos = line.Split(' ');
+                Vector3 tempPos = new Vector3(float.Parse(Pos[1]), float.Parse(Pos[3]), -float.Parse(Pos[2]));
+                staticPositions.Add(tempPos);
+            }
+
+            reader.Close();
+        }
+    }
     void GetChilds()
     {
         if (childs != null && childs.Count != 0)
@@ -147,21 +178,60 @@ public class TxtForAnimation : MonoBehaviour
                 AddChild(tra.GetChild(i));
         }
     }
-    [Button(ButtonSizes.Gigantic)]
-    public void Init()
+    [Button("读取动画", ButtonSizes.Gigantic)]
+    public void InitForAnim()
     {
-
         cords.Clear();
+        staticPositions.Clear();
         childs.Clear();
-        ReadTxtFile();
+        ReadAnimTxtFile();
         GetChilds();
-        Debug.Log("Init Success");
+        Debug.Log("读取动画成功");
     }
-    // Update is called once per frame
-    public void MyUpdate(int frame)
+    [Button("读取静态模型", ButtonSizes.Gigantic)]
+    public void InitForStatic()
     {
-        // if (hasFinish&&isExportMode)
-        //     return;
+        cords.Clear();
+        staticPositions.Clear();
+        childs.Clear();
+        ReadStaticTxtFile();
+        GetChilds();
+        Debug.Log("读取静态模型成功");
+    }
+
+    // Update is called once per frame
+    public void MyUpdate(int frame, bool mappingIndex)
+    {
+        if (staticPositions.Count != 0)
+        {
+            StaticUpdate(mappingIndex);
+        }
+        else
+        {
+            AnimUpdate(frame, mappingIndex);
+        }
+        //curFrameindex++;
+    }
+    void StaticUpdate(bool mappingIndex)
+    {
+        if (mappingIndex)
+        {
+            for (int i = 0; i < childs.Count; i++)
+            {
+                childs[i].transform.position = staticPositions[indexs[i]];
+            }
+        }
+        else
+        {
+            for (int i = 0; i < childs.Count; i++)
+            {
+                childs[i].transform.position = staticPositions[i];
+            }
+        }
+        hasFinish = true;
+    }
+    void AnimUpdate(int frame, bool mappingIndex)
+    {
         if (frame >= totalFrameCount)
         {
             if (hasFinish)
@@ -171,8 +241,7 @@ public class TxtForAnimation : MonoBehaviour
             hasFinish = true;
             return;
         }
-        SetChildPos(frame);
-        //curFrameindex++;
+        SetChildPos(frame, mappingIndex);
     }
     // void Update()
     // {
@@ -197,18 +266,39 @@ public class TxtForAnimation : MonoBehaviour
     //     SetChildPos(curFrameindex);
     //     curFrameindex++;
     // }
-    void SetChildPos(int frame)
+    public void CorrectPointIndex()
     {
-        for (int i = 0; i < childs.Count; i++)
+        if (isMappingFinish)
+            return;
+        indexs = new List<int>();
+        foreach (var point in childs)
         {
-            // if(i>childs.Count-1)
-            // Debug.LogError("i超出范围:"+i.ToString());
-            // if(curFrameindex>cords[0].Count-1)
-            // Debug.LogError("curFrameindex超出范围:"+curFrameindex.ToString());
-            Vector3 pos = cords[i].GetPos(frame);
-            //Debug.Log(pos);
-            childs[i].transform.position = pos;
-            //Debug.Log(childs[i].transform.position);
+            int index = cords.FindIndex((a) => a.GetPos(0) == MyTools.TruncVector3(point.transform.position));
+            indexs.Add(index);
         }
+    }
+    void SetChildPos(int frame, bool mappingIndex)
+    {
+        if (mappingIndex)
+        {
+            for (int i = 0; i < childs.Count; i++)
+            {
+                Vector3 pos = cords[indexs[i]].GetPos(frame);
+                childs[i].transform.position = pos;
+            }
+        }
+        else
+        {
+            for (int i = 0; i < childs.Count; i++)
+            {
+                Vector3 pos = cords[i].GetPos(frame);
+                childs[i].transform.position = pos;
+            }
+        }
+    }
+    public Vector3 GetPointPosByFrame(string pointName, int frame)
+    {
+        int index = int.Parse(pointName);
+        return cords[index - 1].GetPos(frame);
     }
 }

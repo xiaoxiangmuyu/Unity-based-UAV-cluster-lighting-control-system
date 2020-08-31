@@ -111,7 +111,7 @@ public class RecordData
         if (!ProjectManager.Instance.RecordProject.mappingDatas.Exists((a) => a.dataName == dataName))
         {
             MappingData data = new MappingData();
-            data.names = new List<string>(ObjNames);
+            data.pointNames = new List<string>(ObjNames);
             data.dataName = dataName;
             data.groupIndex = groupIndex;
             ProjectManager.Instance.RecordProject.AddMappingData(data);
@@ -120,9 +120,9 @@ public class RecordData
         else
         {
             var targetData=ProjectManager.Instance.RecordProject.mappingDatas.Find((a)=>a.dataName==dataName);
-            targetData.names.Clear();
+            targetData.pointNames.Clear();
             targetData.groupIndex=groupIndex;
-            targetData.names=new List<string>(ObjNames);
+            targetData.pointNames=new List<string>(ObjNames);
             Debug.Log("数据更新完毕");
         }
     }
