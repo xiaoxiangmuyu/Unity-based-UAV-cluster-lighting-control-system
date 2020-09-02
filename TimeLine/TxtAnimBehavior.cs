@@ -13,7 +13,7 @@ public class TxtAnimBehavior : PlayableBehaviour
     public int curframe = 0;
     bool isExportMode;
     public TxtForAnimation target;
-    public bool isMappingIndex;
+    public TxtAnimAsset asset;
     public override void ProcessFrame(Playable playable, FrameData info, object playerData)
     {
         if (!isExportMode)
@@ -35,7 +35,7 @@ public class TxtAnimBehavior : PlayableBehaviour
         isExportMode = movementManager.isWorking;
         //初始化点的位置，防止瞬间读取动画造成超速
         if (isExportMode)
-            target.MyUpdate(0,isMappingIndex);
+            target.MyUpdate(0,asset.NeedMappingIndex);
         else
             curframe = Mathf.FloorToInt((float)director.time * 25f) - startFrame;
 
@@ -47,11 +47,11 @@ public class TxtAnimBehavior : PlayableBehaviour
             return;
         if (curframe < 0)
             curframe = 0;
-        if(curframe==0&&isMappingIndex)
+        if(curframe==0&&asset.NeedMappingIndex)
         {
             target.CorrectPointIndex();
         }
-        target.MyUpdate(curframe,isMappingIndex);
+        target.MyUpdate(curframe,asset.NeedMappingIndex);
         if (Application.isPlaying)
             curframe += 1;
         else
@@ -64,7 +64,7 @@ public class TxtAnimBehavior : PlayableBehaviour
         if (target == null)
             return;
         ConsoleProDebug.Watch("curframe:", curframe.ToString());
-        target.MyUpdate(curframe,isMappingIndex);
+        target.MyUpdate(curframe,asset.NeedMappingIndex);
         curframe += 1;
     }
 }

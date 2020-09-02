@@ -35,9 +35,9 @@ public class TxtForAnimation : MonoBehaviour
     public string animName;
     [ShowInInspector]
     public float time { get { return (float)totalFrameCount / 25; } }
-    [FolderPath(AbsolutePath = true)]
+    [FolderPath(AbsolutePath = false)]
     public string animFolderPath;
-    [FilePath(AbsolutePath = true)]
+    [FilePath(AbsolutePath = false)]
     public string staticFilePath;
     [ReadOnly]
     public int totalFrameCount;
@@ -271,10 +271,21 @@ public class TxtForAnimation : MonoBehaviour
         if (isMappingFinish)
             return;
         indexs = new List<int>();
-        foreach (var point in childs)
+        if (totalFrameCount != 0)
         {
-            int index = cords.FindIndex((a) => a.GetPos(0) == MyTools.TruncVector3(point.transform.position));
-            indexs.Add(index);
+            foreach (var point in childs)
+            {
+                int index = cords.FindIndex((a) => a.GetPos(0) == MyTools.TruncVector3(point.transform.position));
+                indexs.Add(index);
+            }
+        }
+        else
+        {
+            foreach (var point in childs)
+            {
+                int index = staticPositions.FindIndex((a) => a == MyTools.TruncVector3(point.transform.position));
+                indexs.Add(index);
+            }
         }
     }
     void SetChildPos(int frame, bool mappingIndex)
@@ -300,5 +311,24 @@ public class TxtForAnimation : MonoBehaviour
     {
         int index = int.Parse(pointName);
         return cords[index - 1].GetPos(frame);
+    }
+    public void SetAnimEnd(bool mappingIndex)
+    {
+        if (totalFrameCount == 0)
+        {
+            StaticUpdate(mappingIndex);
+        }
+        else
+            SetChildPos(totalFrameCount - 1, mappingIndex);
+    }
+    public void SetAnimBegin(bool mappingIndex)
+    {
+        if (totalFrameCount == 0)
+        {
+            StaticUpdate(mappingIndex);
+        }
+        else
+        SetChildPos(0, mappingIndex);
+
     }
 }

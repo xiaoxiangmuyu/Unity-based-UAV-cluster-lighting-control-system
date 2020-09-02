@@ -107,6 +107,7 @@ public class MappingData
     {
         var objects = MyTools.FindObjs(pointNames);
         objects.ForEach((a) => a.SetActive(false));
+        UnityEditor.Selection.objects=null;
     }
     [Button("更新", ButtonSizes.Medium)]
     [VerticalGroup("Buttons")]

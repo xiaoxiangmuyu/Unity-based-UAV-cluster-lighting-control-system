@@ -48,7 +48,7 @@ public class TriggerBase : SerializedMonoBehaviour
     {
         ProjectManager.Instance.RecordProject.AddData(currentTarget,data);
         data.Clear();
-        GetComponent<Collider>().enabled=false;
+        //GetComponent<Collider>().enabled=false;
         recordTimer=0;
     }
 
