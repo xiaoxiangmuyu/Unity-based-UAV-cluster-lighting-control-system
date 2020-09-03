@@ -42,12 +42,19 @@ public class ColorPoint : MonoBehaviour
     }
     [HideInInspector]
     public Gradient gradient;
-    public GlobalGradient mappingSource;
-    public Color globalColor
+    public ColorMapper colorMapper;
+    int curFrame = 0;
+    public Color MapperColor
     {
         get
         {
-            return mappingSource.GetColor(gradient,transform.position);
+            Vector3 curPos = ProjectManager.currentAnim.GetPointPosByFrame(name, curFrame);
+            //curFrame+=Mathf.FloorToInt(during/0.04f);
+            //ConsoleProDebug.Watch("frame", curFrame.ToString());
+            curFrame += 10;
+            var color=colorMapper.GetColor(gradient, curPos);
+            //Debug.Log(color.ToString());
+            return color;
         }
     }
     #endregion
@@ -106,7 +113,7 @@ public class ColorPoint : MonoBehaviour
         }
         if (!TriggerBase.recordMode)
         {
-            SetProcessType(TriggerBase.colorOrders,TriggerBase.forceMode,TriggerBase.possibility);
+            SetProcessType(TriggerBase.colorOrders, TriggerBase.forceMode, TriggerBase.possibility);
         }
         else
         {
@@ -148,7 +155,7 @@ public class ColorPoint : MonoBehaviour
         }
         if (!TriggerBase.recordMode)
         {
-            SetProcessType(TriggerBase.colorOrders,TriggerBase.forceMode,TriggerBase.possibility);
+            SetProcessType(TriggerBase.colorOrders, TriggerBase.forceMode, TriggerBase.possibility);
         }
         else
         {
@@ -320,9 +327,9 @@ public class ColorPoint : MonoBehaviour
             Debug.LogError(gameObject.name + "ColorMapping为空");
             return Color.white;
         }
-        if(colorMapping.ColorChangeCount==0)
+        if (colorMapping.ColorChangeCount == 0)
         {
-            return colorMapping.GetMappingColor(transform,0);
+            return colorMapping.GetMappingColor(transform, 0);
         }
         texCounter += 1;
         if (texCounter <= colorMapping.ColorChangeCount)
@@ -370,13 +377,13 @@ public class ColorPoint : MonoBehaviour
     }
 
 
-    public void SetProcessType(List<ColorOrderBase> colorOrders, bool forceMode = false,float possible=1)
+    public void SetProcessType(List<ColorOrderBase> colorOrders, bool forceMode = false, float possible = 1)
     {
         if (state == PointState.Busy && !forceMode)
         {
             return;
         }
-        if(!MyTools.RandomTool(possible))
+        if (!MyTools.RandomTool(possible))
         {
             return;
         }
@@ -392,22 +399,22 @@ public class ColorPoint : MonoBehaviour
     {
         filterTags.Add(tag);
     }
-    public IEnumerator UpdateColorByPos(float times,float interval)
+    public IEnumerator UpdateColorByPos(float times, float interval)
     {
-        Debug.Log(Time.time);
-        float timer=0;
-        while(true)
+        //Debug.Log(Time.time);
+        float timer = 0;
+        while (true)
         {
-            mat.DOColor(mappingSource.GetColor(gradient,transform.position),interval);
-            timer+=interval;
-            if(timer>times)
-            break;
+            mat.DOColor(colorMapper.GetColor(gradient, transform.position), interval);
+            timer += interval;
+            if (timer > times)
+                break;
             //Debug.Log(timer);
             yield return new WaitForSeconds(interval);
         }
         Debug.Log(Time.time);
     }
-    
+
 
 
 }

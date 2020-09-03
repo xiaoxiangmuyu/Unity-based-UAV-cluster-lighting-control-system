@@ -147,7 +147,7 @@ public class TxtForAnimation : MonoBehaviour
             string line = null;
             while ((line = reader.ReadLine()) != null)
             {
-                var Pos = line.Split(' ');
+                var Pos = line.Split('\t');
                 Vector3 tempPos = new Vector3(float.Parse(Pos[1]), float.Parse(Pos[3]), -float.Parse(Pos[2]));
                 staticPositions.Add(tempPos);
             }

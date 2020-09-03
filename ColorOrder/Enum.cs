@@ -5,7 +5,7 @@ using Sirenix.OdinInspector;
 using System;
 public static class ColorManager
 {
-    public static readonly List<string>ColorTypes=new List<string>{"SingleColor","Gradient","ColorMapping","MappingData","HSV","Black"};
+    public static readonly List<string>ColorTypes=new List<string>{"SingleColor","Gradient","ColorMapping","MappingData","HSV","ColorByMapper","Black"};
 }
 public enum ColorType
 {
@@ -19,7 +19,8 @@ public enum ColorType
     //Origin,//取光点的originColor，需要提前上色的时候勾选recordColor，不然就会取到默认的白色
     Gradient,//渐变色，可以提前指定一个渐变色，相当于复合颜色的流光，可以想象成一个多彩的SingleColor,非常好用
     //Dark,//变暗
-    Black//纯黑
+    Black,//纯黑
+    ColorByMapper
 
 }
 public enum OrderType

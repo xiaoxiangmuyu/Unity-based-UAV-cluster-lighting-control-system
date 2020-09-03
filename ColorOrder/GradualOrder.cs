@@ -84,7 +84,7 @@ public class DoColor : GradualOrder
 
     [ShowIf("isMapping")]
     [BoxGroup("Color")]
-    [HorizontalGroup("Color/ColorPro")]
+    //[HorizontalGroup("Color/ColorPro")]
     public bool isWithIndex;
     [ShowIf("isMapping")]
     [BoxGroup("Color")]
@@ -104,9 +104,6 @@ public class DoColor : GradualOrder
     [PropertyOrder(11)]
     [BoxGroup("Color")]
     public string mappingDataName;
-    // [ShowIf("isMappingData")]
-    // [SerializeField]
-    // public MappingData mappingData;
     MappingData mappingData;
     IEnumerable availableData
     {
@@ -124,10 +121,10 @@ public class DoColor : GradualOrder
             else
             {
                 var datalist = ProjectManager.Instance.RecordProject.mappingDatas;
-                datalist.ForEach((a)=>
+                datalist.ForEach((a) =>
                 {
-                    if(a.groupIndex==groupIndex)
-                    dataNames.Add(a.dataName);
+                    if (a.groupIndex == groupIndex)
+                        dataNames.Add(a.dataName);
                 });
                 return dataNames;
             }
@@ -155,23 +152,41 @@ public class DoColor : GradualOrder
     }
     MappingData GetMappingData(ColorPoint point)
     {
-        if (mappingDataName!="UnSelect"&&mappingDataName!=null&&mappingDataName!=String.Empty)
+        if (mappingDataName != "UnSelect" && mappingDataName != null && mappingDataName != String.Empty)
             return ProjectManager.Instance.RecordProject.mappingDatas.Find((a) => a.dataName == mappingDataName);
         else
         {
             var data = ProjectManager.Instance.RecordProject.mappingDatas;
             List<MappingData> temp = new List<MappingData>(data.FindAll((a) => a.groupIndex == groupIndex));
-            return temp.Find((a) => a.names.Contains(point.name));
+            return temp.Find((a) => a.pointNames.Contains(point.name));
         }
     }
+    #region ColorMapper
+    [ValueDropdown("availableMappingSource")]
+    [ShowIf("isColorByMapper")]
+    public string mapperName;
+    void GetMapper()
+    {
+        colorMapper = ProjectManager.Instance.RecordProject.GetColorMapper(mapperName);
+    }
+    IEnumerable availableMappingSource
+    {
+        get
+        {
+            return ProjectManager.Instance.RecordProject.ColorMapperNames;
+        }
+    }
+    ColorMapper colorMapper;
+    #endregion
     bool hideColor { get { return colorType != ColorType.SingleColor; } }
-    bool hideGradient { get { return colorType != ColorType.Gradient; } }
+    bool hideGradient { get { return colorType != ColorType.Gradient && colorType != ColorType.ColorByMapper; } }
     bool showHSVInfo { get { return colorType == ColorType.HSV; } }
     //bool showDarkInfo { get { return colorType == ColorType.Dark; } }
     bool showColorMappingInfo { get { return colorType == ColorType.ColorMapping; } }
     //bool showTextureMappingInfo { get { return colorType == ColorType.TextureMapping; } }
     bool isMapping { get { return colorType == ColorType.ColorMapping || colorType == ColorType.MappingData; } }
     bool isMappingData { get { return colorType == ColorType.MappingData; } }
+    bool isColorByMapper { get { return colorType == ColorType.ColorByMapper; } }
     public override Tween GetOrder(ColorPoint point)
     {
         if (ColorTypeName.Equals("6"))
@@ -196,13 +211,14 @@ public class DoColor : GradualOrder
                 {
                     targetColor = Color.black; break;
                 }
-            // case ColorType.GlobalGradient:
-            //     {
-            //         point.gradient=gradient2;
-            //         point.mappingSource=MappingSource;
-            //         targetColor = point.globalColor;
-            //         break;
-            //     }
+            case ColorType.ColorByMapper:
+                {
+                    if (colorMapper == null)
+                        GetMapper();
+                    point.gradient = gradient;
+                    point.colorMapper = colorMapper;
+                    return point.mat.DOColor(point.MapperColor,during);
+                }
             case ColorType.ColorMapping:
                 {
                     if (isWithIndex)

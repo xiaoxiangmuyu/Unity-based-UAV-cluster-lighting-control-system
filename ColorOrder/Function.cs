@@ -18,8 +18,8 @@ public abstract class Function : ColorOrderBase
         public float time;
         public float interval;
         public Gradient gradient;
-        private GlobalGradient mappingSource;
-        public GlobalGradient MappingSource
+        private ColorMapper mappingSource;
+        public ColorMapper MappingSource
         {
             get
             {
@@ -37,7 +37,7 @@ public abstract class Function : ColorOrderBase
         {
             get
             {
-                var datalist = GameObject.FindObjectsOfType<GlobalGradient>();
+                var datalist = GameObject.FindObjectsOfType<ColorMapper>();
                 List<string> dataName = new List<string>();
                 foreach (var data in datalist)
                     dataName.Add(data.name);
@@ -46,7 +46,7 @@ public abstract class Function : ColorOrderBase
         }
         void GetMappingSource()
         {
-            foreach (var obj in GameObject.FindObjectsOfType<GlobalGradient>())
+            foreach (var obj in GameObject.FindObjectsOfType<ColorMapper>())
             {
                 if (obj.name == mappingSourceName || System.String.Equals(obj, mappingSourceName))
                 {
@@ -58,7 +58,7 @@ public abstract class Function : ColorOrderBase
         }
         protected override void Action(ColorPoint point)
         {
-            point.mappingSource=MappingSource;
+            point.colorMapper=MappingSource;
             point.gradient=gradient;
             point.StartCoroutine(point.UpdateColorByPos(time,interval));
         }

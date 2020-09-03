@@ -193,8 +193,7 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
             objs=new List<GameObject>();
             Register();
             SetWorkRangeMax();
-            if (processer != null)
-                ProcessData();
+            ProcessData();
         }
         else
         {
@@ -212,10 +211,10 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
         if (processer != null)
         {
             processer.AddValueChangeListener(BtnSwitch);
-            processer.AddProcessCompleteListener(Init);
+            processer.AddProcessCompleteListener(FindPoints);
         }
         if (objs == null || objs.Count == 0 || objs.Exists((a) => a == null))
-            Init();
+            FindPoints();
         //Debug.Log("注册完成");
     }
     void BtnSwitch()
@@ -223,7 +222,7 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
         if (processer != null)
             needProcess = true;
     }
-    public void Init()
+    public void FindPoints()
     {
         if (data == null)
             return;

@@ -18,6 +18,8 @@ public class RecordProject : SerializedScriptableObject
     [TabGroup("GlobalPos")]
     [SerializeField]
     public List<StringVector3Dictionary> globalPosDic = new List<StringVector3Dictionary>();
+    public List<string>ColorMapperNames=new List<string>();
+    private List<ColorMapper>colorMappers=new List<ColorMapper>();
 
     public void AddData(string ImageName, RecordData data)
     {
@@ -52,6 +54,20 @@ public class RecordProject : SerializedScriptableObject
         RecordDic.Sort((a, b) => a.groupIndex - b.groupIndex);
         mappingDatas.Sort((a, b) => a.groupIndex - b.groupIndex);
 
+    }
+    public ColorMapper GetColorMapper(string name)
+    {
+        // if(colorMappers.Exists((a)=>a.name.Equals(name)))
+        // return colorMappers.Find((a)=>a.name.Equals(name));
+        ColorMapper result= GameObject.Find(name).GetComponent<ColorMapper>();
+        //colorMappers.Add(result);
+        return result;
+    }
+    public void AddMapper(ColorMapper mapper)
+    {
+        if(ColorMapperNames.Exists((a)=>a.Equals(mapper.name)))
+        return;
+        ColorMapperNames.Add(mapper.name);
     }
 
 }

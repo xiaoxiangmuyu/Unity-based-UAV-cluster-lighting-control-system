@@ -7,8 +7,11 @@ public enum GGType//GlobalGradient Type
     Horizontal,
     Distances,
 }
-public class GlobalGradient : MonoBehaviour
+public class ColorMapper : MonoBehaviour
 {
+    private void OnEnable() {
+        ProjectManager.Instance.RecordProject.AddMapper(this);
+    }
     public GGType gGType;
     public Color GetColor(Gradient gradient,Vector3 pos)
     {
