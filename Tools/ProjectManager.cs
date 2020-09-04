@@ -4,7 +4,7 @@ using UnityEngine;
 using DG.Tweening;
 using UnityEngine.Playables;
 using Sirenix.OdinInspector;
-using UnityEditor.Timeline;
+using UnityEditor;
 public class ProjectManager : MonoBehaviour
 {
     static GameObject currentTarget;

@@ -69,6 +69,7 @@ public class RecordProject : SerializedScriptableObject
         return;
         ColorMapperNames.Add(mapper.name);
     }
+    [Button("一键指派",ButtonSizes.Gigantic)]
     void MappingAll()
     {
         var anims=ProjectManager.GetPointsRoot().GetComponents<TxtForAnimation>();
@@ -93,7 +94,6 @@ public class RecordProject : SerializedScriptableObject
     [Button("全局校准",ButtonSizes.Gigantic)]
     void CorrectAll()
     {
-        MappingAll();
         foreach(var data in RecorDataList)
         {
             data.CorrectIndex();
