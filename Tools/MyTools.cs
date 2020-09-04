@@ -111,10 +111,12 @@ public class MyTools
 
         }
     }
-    public static List<GameObject> FindObjs(List<string> names)
+    public static List<GameObject> FindObjs(PointIndexInfo pointsInfo)
     {
         List<GameObject> objects = new List<GameObject>();
-        Transform parent = ProjectManager.GetCurrentMR().transform;
+        Transform parent = ProjectManager.GetPointsRoot().transform;
+        TxtForAnimation target=ProjectManager.FindAnimByName(pointsInfo.animName);
+        List<string>names=new List<string>(target.FindPointNames(pointsInfo.posList,pointsInfo.frame));
         foreach (var name in names)
         {
             MyTools.FindChild(parent, name);
@@ -124,6 +126,29 @@ public class MyTools
         }
         return objects;
 
+    }
+    public static List<GameObject> FindObjs(List<string> names)
+    {
+        List<GameObject> objects = new List<GameObject>();
+        Transform parent = ProjectManager.GetPointsRoot().transform;
+        foreach (var name in names)
+        {
+            MyTools.FindChild(parent, name);
+            if (tempObj == null)
+                Debug.LogError("没有找到" + name);
+            objects.Add(tempObj.gameObject);
+        }
+        return objects;
+
+    }
+    public static List<string>FindNamesByPointsInfo(PointIndexInfo pointsInfo)
+    {
+        var names=new List<string>();
+        foreach(var point in MyTools.FindObjs(pointsInfo))
+        {
+            names.Add(point.name);
+        }
+        return names;
     }
     static Transform tempObj;
     static void FindChild(Transform tran, string childName)
@@ -162,6 +187,23 @@ public class MyTools
         float z = Trunc(v.z);
 
         return new Vector3(x, y, z);
+    }
+    public static void ResfrshTimeLine()
+    {
+        var obj = ProjectManager.GetPointsRoot();
+        var asset = obj.GetComponent<PlayableDirector>().playableAsset as TimelineAsset;
+        foreach (var track in asset.GetOutputTracks())
+        {
+            foreach (var clip in track.GetClips())
+            {
+                var temp = clip.asset as ControlBlock;
+                if (temp != null)
+                {
+                    temp.targetDataName = temp.data.dataName;
+                    temp.RefreshData();
+                }
+            }
+        }
     }
 
 

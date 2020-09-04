@@ -59,6 +59,8 @@ public class MappingData
     public List<Gradient> colors;
     [HideInInspector]
     public List<string> pointNames;
+    [HideInInspector]
+    public PointIndexInfo pointsInfo;
 
     IEnumerable availableIndex
     {
@@ -116,12 +118,17 @@ public class MappingData
         if (UnityEditor.Selection.objects.Length == 0)
             return;
         pointNames.Clear();
-        foreach (var point in UnityEditor.Selection.objects)
+        pointsInfo.animName=ProjectManager.curAnimName;
+        pointsInfo.frame=ProjectManager.curAnimFrame;
+        pointsInfo.posList.Clear();
+        foreach (var point in UnityEditor.Selection.gameObjects)
         {
             if (point.name.Equals("Main Camera"))
                 continue;
+            pointsInfo.posList.Add(MyTools.TruncVector3(point.transform.position));
             pointNames.Add(point.name);
         }
+        SavePointScreenPos();
         NeedCau = true;
         Debug.Log(dataName + "内容更换完毕");
     }
@@ -259,7 +266,7 @@ public class MappingData
                 case DirType.Up_Down:
                     foreach (var pointName in screenPosDic.Keys)
                     {
-                        tempScreenPos = screenPosDic[pointName]; ;
+                        tempScreenPos = screenPosDic[pointName]; 
                         colorDics[index].Add(pointName, colors[index].Evaluate(1 - ((tempScreenPos.y - yMin.Value) / (yMax.Value - yMin.Value))));
                     }
                     break;
@@ -318,6 +325,21 @@ public class MappingData
         var temp = ProjectManager.Instance.RecordProject.globalPosDic.Count;
         float c = (float)1f / temp * groupIndex;
         return Color.HSVToRGB(c, 0.4f, 1f);
+    }
+    public void CorrectIndex()
+    {
+        var newNames=MyTools.FindNamesByPointsInfo(pointsInfo);
+        pointNames=new List<string>(newNames);
+        var newDic=new StringVector3Dictionary();
+        int index=0;
+        foreach(var pair in screenPosDic)
+        {
+            newDic.Add(newNames[index],pair.Value);
+            index++;
+        }
+        screenPosDic.Clear();
+        screenPosDic=newDic;
+        CaulateAll();
     }
 
 

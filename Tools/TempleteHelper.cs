@@ -90,11 +90,11 @@ public class TempleteHelper : MonoBehaviour
     }
     private void OnEnable()
     {
-        ProjectManager.SetOperateTarget(GetComponent<MovementManager>());
+        ProjectManager.SetOperateTarget(gameObject);
     }
     private void OnDisable()
     {
-        if (ProjectManager.GetCurrentMR() == GetComponent<MovementManager>())
+        if (ProjectManager.GetPointsRoot() == GetComponent<MovementManager>())
         {
             ProjectManager.RefreshCurTarget();
         }

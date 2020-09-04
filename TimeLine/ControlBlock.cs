@@ -18,9 +18,9 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
         {
             if (data == null)
                 return BlockState.NoData;
-            if (ProjectManager.Instance.RecordProject.RecordDic.Exists((a) => a.dataName == data.dataName))
+            if (ProjectManager.Instance.RecordProject.RecorDataList.Exists((a) => a.dataName == data.dataName))
             {
-                var objNames = ProjectManager.Instance.RecordProject.RecordDic.Find((a) => a.dataName == data.dataName).ObjNames;
+                var objNames = ProjectManager.Instance.RecordProject.RecorDataList.Find((a) => a.dataName == data.dataName).ObjNames;
                 if (objNames.Count != data.ObjNames.Count || objs.Exists(a => a == null) || objs.Exists(a => !a.activeInHierarchy))
                 {
                     return BlockState.NeedRefresh;
@@ -105,7 +105,7 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
     {
         get
         {
-            var datalist = ProjectManager.Instance.RecordProject.RecordDic;
+            var datalist = ProjectManager.Instance.RecordProject.RecorDataList;
             List<string> names = new List<string>();
             foreach (var data in datalist)
             {
@@ -186,7 +186,7 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
     //刷新数据，重新从data建立索引
     public void RefreshData()
     {
-        var result = ProjectManager.Instance.RecordProject.RecordDic.Find((a) => a.dataName == targetDataName);
+        var result = ProjectManager.Instance.RecordProject.RecorDataList.Find((a) => a.dataName == targetDataName);
         if (result != null)
         {
             data.CopyFrom(result);
@@ -213,7 +213,7 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
             processer.AddValueChangeListener(BtnSwitch);
             processer.AddProcessCompleteListener(FindPoints);
         }
-        if (objs == null || objs.Count == 0 || objs.Exists((a) => a == null))
+        if (objs == null || objs.Count == 0 || objs.Exists((a) => a == null)||objs.Exists((a)=>!data.ObjNames.Contains(a.name)))
             FindPoints();
         //Debug.Log("注册完成");
     }
@@ -227,10 +227,10 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
         if (data == null)
             return;
         objs = new List<GameObject>();
-        GameObject parent = GameObject.Find(ProjectManager.GetCurrentMR().gameObject.name);
+        GameObject parent = GameObject.Find(ProjectManager.GetPointsRoot().gameObject.name);
         if (parent == null)
         {
-            Debug.LogError("没有找到父物体 " + ProjectManager.GetCurrentMR().gameObject.name);
+            Debug.LogError("没有找到父物体 " + ProjectManager.GetPointsRoot().gameObject.name);
             return;
         }
         if (data.ObjNames != null)

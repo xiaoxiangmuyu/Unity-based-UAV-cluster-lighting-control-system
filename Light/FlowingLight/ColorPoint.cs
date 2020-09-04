@@ -123,6 +123,7 @@ public class ColorPoint : MonoBehaviour
             if (TriggerBase.recordTimer == 0)
             {
                 TriggerBase.data.ObjNames.Add(gameObject.name);
+                TriggerBase.data.pointsInfo.posList.Add(MyTools.TruncVector3(transform.position));
                 TriggerBase.data.times.Add(0);
                 TriggerBase.recordTimer = Time.time;
             }
@@ -130,6 +131,7 @@ public class ColorPoint : MonoBehaviour
             {
                 TriggerBase.data.times.Add(Time.time - TriggerBase.recordTimer);
                 TriggerBase.data.ObjNames.Add(gameObject.name);
+                TriggerBase.data.pointsInfo.posList.Add(MyTools.TruncVector3(transform.position));
             }
             mat.DOColor(Color.red, 0f);
         }
@@ -165,6 +167,7 @@ public class ColorPoint : MonoBehaviour
             if (TriggerBase.recordTimer == 0)
             {
                 TriggerBase.data.ObjNames.Add(gameObject.name);
+                TriggerBase.data.pointsInfo.posList.Add(MyTools.TruncVector3(transform.position));
                 TriggerBase.data.times.Add(0);
                 TriggerBase.recordTimer = Time.time;
             }
@@ -172,6 +175,7 @@ public class ColorPoint : MonoBehaviour
             {
                 TriggerBase.data.times.Add(Time.time - TriggerBase.recordTimer);
                 TriggerBase.data.ObjNames.Add(gameObject.name);
+                TriggerBase.data.pointsInfo.posList.Add(MyTools.TruncVector3(transform.position));
             }
             mat.DOColor(Color.red, 0f);
         }

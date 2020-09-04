@@ -3,6 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using Sirenix.OdinInspector;
 [System.Serializable]
+public struct PointIndexInfo
+{
+    public string animName;
+    public int frame;
+    [SerializeField]
+    public List<Vector3> posList;
+}
+[System.Serializable]
 public class RecordData
 {
     [SerializeField]
@@ -18,6 +26,8 @@ public class RecordData
     [GUIColor("GetGroupColor")]
 
     public int groupIndex;
+    [HideInInspector]
+    public PointIndexInfo pointsInfo;
 
     [SerializeField]
     [HideInInspector]
@@ -80,6 +90,9 @@ public class RecordData
             animTime = data.animTime;
         if (!dataName.Equals("All") && !dataName.Equals("all"))
             groupIndex = data.groupIndex;
+        pointsInfo.animName=data.pointsInfo.animName;
+        pointsInfo.frame=data.pointsInfo.frame;
+        pointsInfo.posList=new List<Vector3>(data.pointsInfo.posList);
         //posDic=data.posDic;
     }
     public void AddListener(System.Action action)
@@ -111,6 +124,9 @@ public class RecordData
         if (!ProjectManager.Instance.RecordProject.mappingDatas.Exists((a) => a.dataName == dataName))
         {
             MappingData data = new MappingData();
+            data.pointsInfo.animName=pointsInfo.animName;
+            data.pointsInfo.frame=pointsInfo.frame;
+            data.pointsInfo.posList=pointsInfo.posList;
             data.pointNames = new List<string>(ObjNames);
             data.dataName = dataName;
             data.groupIndex = groupIndex;
@@ -119,10 +135,13 @@ public class RecordData
         }
         else
         {
-            var targetData=ProjectManager.Instance.RecordProject.mappingDatas.Find((a)=>a.dataName==dataName);
+            var targetData = ProjectManager.Instance.RecordProject.mappingDatas.Find((a) => a.dataName == dataName);
             targetData.pointNames.Clear();
             targetData.groupIndex=groupIndex;
             targetData.pointNames=new List<string>(ObjNames);
+            targetData.pointsInfo.animName=pointsInfo.animName;
+            targetData.pointsInfo.frame=pointsInfo.frame;
+            targetData.pointsInfo.posList=pointsInfo.posList;
             Debug.Log("数据更新完毕");
         }
     }
@@ -150,14 +169,18 @@ public class RecordData
     [HorizontalGroup("View")]
     public void UpdateContent()
     {
-        if(UnityEditor.Selection.objects.Length==0)
-        return;
+        if (UnityEditor.Selection.objects.Length == 0)
+            return;
         ObjNames.Clear();
+        pointsInfo.animName=ProjectManager.curAnimName;
+        pointsInfo.frame=ProjectManager.curAnimFrame;
+        pointsInfo.posList.Clear();
         times.Clear();
-        foreach (var point in UnityEditor.Selection.objects)
+        foreach (var point in UnityEditor.Selection.gameObjects)
         {
-            if(point.name.Equals("Main Camera"))
-            continue;
+            if (point.name.Equals("Main Camera"))
+                continue;
+            pointsInfo.posList.Add(MyTools.TruncVector3(point.transform.position));
             ObjNames.Add(point.name);
             times.Add(0);
         }
@@ -165,11 +188,15 @@ public class RecordData
     }
     public Color GetGroupColor()
     {
-        if(groupIndex==0)
-        return Color.red;
+        if (groupIndex == 0)
+            return Color.red;
         var temp = ProjectManager.Instance.RecordProject.globalPosDic.Count;
         float c = (float)1f / temp * groupIndex;
         return Color.HSVToRGB(c, 0.4f, 1f);
     }
+   public void CorrectIndex()
+   {
+        ObjNames=new List<string>(MyTools.FindNamesByPointsInfo(pointsInfo));
+   }
 
 }

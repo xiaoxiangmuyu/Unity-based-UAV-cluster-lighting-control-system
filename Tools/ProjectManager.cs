@@ -7,7 +7,7 @@ using Sirenix.OdinInspector;
 using UnityEditor;
 public class ProjectManager : MonoBehaviour
 {
-    static MovementManager currentTarget;
+    static GameObject currentTarget;
     const string ProjectParentPath = "Projects/";
     static ProjectManager instance;
     public static TxtForAnimation currentAnim;
@@ -20,6 +20,10 @@ public class ProjectManager : MonoBehaviour
             return instance;
         }
     }
+    [SerializeField]
+    public static string curAnimName;
+    [SerializeField]
+    public static int curAnimFrame;
     RecordProject recordProject;
     public RecordProject RecordProject
     {
@@ -39,20 +43,11 @@ public class ProjectManager : MonoBehaviour
     {
         instance = this;
     }
-
-    void Start()
-    {
-
-    }
-    void Update()
-    {
-
-    }
-    public static void SetOperateTarget(MovementManager mr)
+    public static void SetOperateTarget(GameObject mr)
     {
         currentTarget = mr;
     }
-    public static MovementManager GetCurrentMR()
+    public static GameObject GetPointsRoot()
     {
         if (ProjectManager.currentTarget == null)
         {
@@ -61,7 +56,7 @@ public class ProjectManager : MonoBehaviour
             {
                 if (m.enabled)
                 {
-                    ProjectManager.currentTarget = m;
+                    ProjectManager.currentTarget = m.gameObject;
                     break;
                 }
             }
@@ -75,7 +70,7 @@ public class ProjectManager : MonoBehaviour
         {
             if (m.gameObject.activeSelf)
             {
-                ProjectManager.currentTarget = m;
+                ProjectManager.currentTarget = m.gameObject;
                 return;
             }
         }
@@ -84,7 +79,23 @@ public class ProjectManager : MonoBehaviour
     {
         DOTween.CompleteAll();
         DOTween.KillAll();
-        currentTarget.ResetAllColor();
+        //currentTarget.ResetAllColor();
+    }
+    public static void SetAnimProcess(string name,int curframe)
+    {
+        ProjectManager.curAnimName=name;
+        ProjectManager.curAnimFrame=curframe;
+    }
+    public static TxtForAnimation FindAnimByName(string name)
+    {
+        var anims=GetPointsRoot().GetComponents<TxtForAnimation>();
+        for(int i=0;i<anims.Length;i++)
+        {
+            if(anims[i].animName==name)
+            return anims[i];
+        }
+        Debug.LogError(name+"   动画没有找到");
+        return null;
     }
 
 

@@ -25,7 +25,7 @@ public class MyCustomEditor : Editor
             menu.AddItem(new GUIContent("MoveToView"), false, SetCameraPos, "menu_3");
             menu.AddItem(new GUIContent("创建数据组"), false, CreatGroup, "menu_4");
             menu.AddItem(new GUIContent("创建映射组"), false, CreatMapping, "menu_5");
-            menu.AddItem(new GUIContent("创建旧映射组"), false, CreatOldMapping, "menu_5");
+            //menu.AddItem(new GUIContent("创建旧映射组"), false, CreatOldMapping, "menu_5");
             menu.AddItem(new GUIContent("刷新时间轴"), false, Resfrsh, "menu_7");
             menu.AddItem(new GUIContent("创建全局位置数据"), false, CreatGlobalPosData, "menu_8");
             menu.ShowAsContext();
@@ -82,7 +82,15 @@ public class MyCustomEditor : Editor
     //创建数据组
     static void CreatGroup(object userData)
     {
+        if(ProjectManager.curAnimName==null)
+        {
+            Debug.LogError("没有当前动画名字信息");
+            return;
+        }
         RecordData tempdata = new RecordData();
+        tempdata.pointsInfo.animName=ProjectManager.curAnimName;
+        tempdata.pointsInfo.frame=ProjectManager.curAnimFrame;
+        tempdata.pointsInfo.posList=new List<Vector3>();
         foreach (var point in Selection.gameObjects)
         {
             if (point.name == "Main Camera")
@@ -91,7 +99,8 @@ public class MyCustomEditor : Editor
             {
                 foreach (var child in point.GetComponentsInChildren<ColorPoint>())
                 {
-                    tempdata.ObjNames.Add(child.name);
+                    tempdata.ObjNames.Add(point.name);
+                    tempdata.pointsInfo.posList.Add(MyTools.TruncVector3(child.transform.position));
                     tempdata.times.Add(0);
                     //tempdata.posDic.Add(child.name, child.transform.position);
                 }
@@ -100,48 +109,60 @@ public class MyCustomEditor : Editor
             else
             {
                 tempdata.ObjNames.Add(point.name);
+                tempdata.pointsInfo.posList.Add(MyTools.TruncVector3(point.transform.position));
                 tempdata.times.Add(0);
                 //tempdata.posDic.Add(point.name, point.transform.position);
 
             }
         }
-        ProjectManager.Instance.RecordProject.AddData(ProjectManager.GetCurrentMR().name, tempdata);
+        ProjectManager.Instance.RecordProject.AddData(ProjectManager.GetPointsRoot().name, tempdata);
         Debug.Log("创建数据组成功");
     }
-    //创建旧映射组
-    static void CreatOldMapping(object userData)
-    {
-        GameObject parent = ProjectManager.GetCurrentMR().gameObject;
-        GameObject temp = new GameObject();
-        temp.AddComponent<ColorMapping>();
-        temp.transform.SetParent(parent.transform);
-        temp.transform.SetAsFirstSibling();
-        foreach (var point in Selection.gameObjects)
-        {
-            if (point.name == "Main Camera")
-                continue;
-            point.transform.SetParent(temp.transform);
-        }
-        Debug.Log("创建旧映射组成功");
-        Selection.activeGameObject = temp;
-    }
-    [MenuItem("GameObject/工具/创建数据组", priority = 0)]
-    static void CreatGroup()
-    {
-        RecordData tempdata = new RecordData(Selection.activeGameObject.name);
-        foreach (var point in Selection.activeGameObject.GetComponentsInChildren<ColorPoint>())
-        {
-            tempdata.ObjNames.Add(point.gameObject.name);
-            tempdata.times.Add(0);
-            //tempdata.posDic.Add(point.name, point.transform.position);
-        }
-        ProjectManager.Instance.RecordProject.AddData(ProjectManager.GetCurrentMR().name, tempdata);
-        Debug.Log("创建数据组成功");
+    // //创建旧映射组
+    // static void CreatOldMapping(object userData)
+    // {
+    //     GameObject parent = ProjectManager.GetPointsRoot().gameObject;
+    //     GameObject temp = new GameObject();
+    //     temp.AddComponent<ColorMapping>();
+    //     temp.transform.SetParent(parent.transform);
+    //     temp.transform.SetAsFirstSibling();
+    //     foreach (var point in Selection.gameObjects)
+    //     {
+    //         if (point.name == "Main Camera")
+    //             continue;
+    //         point.transform.SetParent(temp.transform);
+    //     }
+    //     Debug.Log("创建旧映射组成功");
+    //     Selection.activeGameObject = temp;
+    // }
+    // [MenuItem("GameObject/工具/创建数据组", priority = 0)]
+    // static void CreatGroup()
+    // {
+    //     RecordData tempdata = new RecordData(Selection.activeGameObject.name);
+    //     tempdata.pointsInfo.animName=ProjectManager.curAnimName;
+    //     tempdata.pointsInfo.frame=ProjectManager.curAnimFrame;
+    //     tempdata.pointsInfo.posList=new List<Vector3>();
+    //     foreach (var point in Selection.activeGameObject.GetComponentsInChildren<ColorPoint>())
+    //     {
+    //         tempdata.pointsInfo.posList.Add(MyTools.TruncVector3(point.transform.position));
+    //         tempdata.times.Add(0);
+    //         //tempdata.posDic.Add(point.name, point.transform.position);
+    //     }
+    //     ProjectManager.Instance.RecordProject.AddData(ProjectManager.GetPointsRoot().name, tempdata);
+    //     Debug.Log("创建数据组成功");
 
-    }
+    // }
     static void CreatMapping(object userData)
     {
+        if(ProjectManager.curAnimName==null)
+        {
+            Debug.LogError("没有当前动画名字信息");
+            return;
+        }
         MappingData tempdata = new MappingData();
+        tempdata.pointsInfo.animName=ProjectManager.curAnimName;
+        tempdata.pointsInfo.frame=ProjectManager.curAnimFrame;
+        tempdata.pointsInfo.posList=new List<Vector3>();
         //tempdata.Objects = Selection.gameObjects;
         tempdata.pointNames = new List<string>();
         foreach (var point in Selection.gameObjects)
@@ -149,6 +170,7 @@ public class MyCustomEditor : Editor
             if (point.name == "Main Camera")
                 continue;
             tempdata.pointNames.Add(point.name);
+            tempdata.pointsInfo.posList.Add(MyTools.TruncVector3(point.transform.position));
         }
         ProjectManager.Instance.RecordProject.AddMappingData(tempdata);
         Debug.Log("创建映射组成功");
@@ -203,7 +225,7 @@ public class MyCustomEditor : Editor
     }
     static void Resfrsh(object userData)
     {
-        var obj = ProjectManager.GetCurrentMR();
+        var obj = ProjectManager.GetPointsRoot();
         var asset = obj.GetComponent<PlayableDirector>().playableAsset as TimelineAsset;
         foreach (var track in asset.GetOutputTracks())
         {

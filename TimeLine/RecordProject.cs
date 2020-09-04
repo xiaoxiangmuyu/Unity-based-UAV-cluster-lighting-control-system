@@ -9,7 +9,7 @@ public class RecordProject : SerializedScriptableObject
     [TableList(DrawScrollView=false)]
     [TabGroup("Data")]
     [ListDrawerSettings(Expanded=true)]
-    public List<RecordData> RecordDic;
+    public List<RecordData> RecorDataList;
     [SerializeField]
     [TableList(DrawScrollView=false)]
     [TabGroup("Mapping")]
@@ -28,15 +28,15 @@ public class RecordProject : SerializedScriptableObject
         //     Debug.LogError("没有找到这个父物体" + ImageName);
         //     return;
         // }
-        if (RecordDic.Exists((a) => a.dataName == data.dataName))
+        if (RecorDataList.Exists((a) => a.dataName == data.dataName))
         {
-            RecordDic.Find((a) => a.dataName == data.dataName).CopyFrom(data);
+            RecorDataList.Find((a) => a.dataName == data.dataName).CopyFrom(data);
         }
         else
         {
             RecordData tempData = new RecordData();
             tempData.CopyFrom(data);
-            RecordDic.Add(tempData);
+            RecorDataList.Add(tempData);
         }
         EditorUtility.SetDirty(this);
         AssetDatabase.SaveAssets();
@@ -51,7 +51,7 @@ public class RecordProject : SerializedScriptableObject
     [Button("整理", ButtonSizes.Gigantic)]
     void Sort()
     {
-        RecordDic.Sort((a, b) => a.groupIndex - b.groupIndex);
+        RecorDataList.Sort((a, b) => a.groupIndex - b.groupIndex);
         mappingDatas.Sort((a, b) => a.groupIndex - b.groupIndex);
 
     }
@@ -69,5 +69,42 @@ public class RecordProject : SerializedScriptableObject
         return;
         ColorMapperNames.Add(mapper.name);
     }
+    [Button("一键指派",ButtonSizes.Gigantic)]
+    void MappingAll()
+    {
+        var anims=ProjectManager.GetPointsRoot().GetComponents<TxtForAnimation>();
+        List<Vector3>temp=new List<Vector3>();
+        for(int i=0;i<anims.Length;i++)
+        {
+            if(i==0)
+            {
+                anims[i].useMapping=false;
+                temp=new List<Vector3>(anims[i].GetEndPoitions());
+            }
+            else
+            {
+                anims[i].useMapping=true;
+                anims[i].CorrectPointIndex(temp);
+                temp=new List<Vector3>(anims[i].GetEndPoitions());
+            }
+
+        }
+        Debug.Log("一键指派完成");
+    }
+    [Button("全局校准",ButtonSizes.Gigantic)]
+    void CorrectAll()
+    {
+        foreach(var data in RecorDataList)
+        {
+            data.CorrectIndex();
+        }
+        foreach(var data in mappingDatas)
+        {
+            data.CorrectIndex();
+        }
+        MyTools.ResfrshTimeLine();
+        Debug.Log("全局数据校准完成");
+    }
+    
 
 }

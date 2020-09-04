@@ -26,7 +26,7 @@ public class TriggerBase : SerializedMonoBehaviour
     [HideIf("recordMode")]
     public List<ColorOrderBase>colorOrders=new List<ColorOrderBase>();
 
-    string currentTarget{get{return ProjectManager.GetCurrentMR().gameObject.name;}}
+    string currentTarget{get{return ProjectManager.GetPointsRoot().gameObject.name;}}
     protected virtual void Awake()
     {
 

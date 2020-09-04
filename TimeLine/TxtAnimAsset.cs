@@ -23,9 +23,20 @@ public class TxtAnimAsset : SerializedScriptableObject, IPlayableAsset
     [LabelText("总时长")]
     [ShowInInspector]
     public float seconds { get { return totalFrameCount / 25f; } }
-    [LabelText("是否需要手动指派")]
-    [InfoBox("除了第一段都勾上")]
-    public bool NeedMappingIndex = true;
+    // [LabelText("是否需要手动指派")]
+    // public bool NeedMappingIndex
+    // {
+    //     get
+    //     {
+    //         if(target==null)
+    //         return false;
+    //         return target.useMapping;
+    //     }
+    //     set
+    //     {
+    //         target.useMapping = value;
+    //     }
+    // }
 
     TxtForAnimation[] scripts;
     ScriptPlayable<TxtAnimBehavior> scriptPlayable;
@@ -56,10 +67,9 @@ public class TxtAnimAsset : SerializedScriptableObject, IPlayableAsset
                 var anim = temp.Find((a) => a.animName == animName);
                 totalFrameCount = anim.totalFrameCount;
                 scriptPlayable.GetBehaviour().target = anim;
-                target=anim;
+                target = anim;
             }
             scriptPlayable.GetBehaviour().GraphParent = owner;
-            scriptPlayable.GetBehaviour().asset = this;
             //scriptPlayable.GetBehaviour().animIndex = animIndex;
         }
         scriptPlayable.GetBehaviour().director = owner.GetComponent<PlayableDirector>();
@@ -75,15 +85,15 @@ public class TxtAnimAsset : SerializedScriptableObject, IPlayableAsset
     {
         scriptPlayable.GetBehaviour().startFrame = frame;
     }
-    [Button("播放第一帧位置",ButtonSizes.Gigantic)]
+    [Button("播放第一帧位置", ButtonSizes.Gigantic)]
     void SetAnimBegin()
     {
-        target.SetAnimBegin(NeedMappingIndex);
+        target.SetAnimBegin();
     }
-    [Button("播放最后一帧位置",ButtonSizes.Gigantic)]
+    [Button("播放最后一帧位置", ButtonSizes.Gigantic)]
     void SetAnimEnd()
     {
-        target.SetAnimEnd(NeedMappingIndex);
+        target.SetAnimEnd();
     }
 
 }

@@ -167,7 +167,7 @@ public class EfyTools
         if (!File.Exists(projectPath + projectName + "/RecordParent.asset"))
         {
             recordProject = ScriptableObject.CreateInstance<RecordProject>();
-            recordProject.RecordDic = new List<RecordData>();
+            recordProject.RecorDataList = new List<RecordData>();
             AssetDatabase.CreateAsset(recordProject, projectPath + projectName + "/RecordParent.asset");
         }
         else

@@ -63,13 +63,7 @@ public class TxtForAnimation : MonoBehaviour
     [SerializeField]
     List<int> indexs;
     [ShowInInspector]
-    public bool isMappingFinish
-    {
-        get
-        {
-            return (!indexs.Exists((a) => a == -1)) && indexs.Count != 0;
-        }
-    }
+    public bool useMapping;
     float timer;
     bool hasBegin;
     #endregion
@@ -147,7 +141,7 @@ public class TxtForAnimation : MonoBehaviour
             string line = null;
             while ((line = reader.ReadLine()) != null)
             {
-                var Pos = line.Split('\t');
+                var Pos = line.Split(' ');
                 Vector3 tempPos = new Vector3(float.Parse(Pos[1]), float.Parse(Pos[3]), -float.Parse(Pos[2]));
                 staticPositions.Add(tempPos);
             }
@@ -200,21 +194,21 @@ public class TxtForAnimation : MonoBehaviour
     }
 
     // Update is called once per frame
-    public void MyUpdate(int frame, bool mappingIndex)
+    public void MyUpdatePos(int frame)
     {
         if (staticPositions.Count != 0)
         {
-            StaticUpdate(mappingIndex);
+            StaticUpdate();
         }
         else
         {
-            AnimUpdate(frame, mappingIndex);
+            AnimUpdate(frame);
         }
         //curFrameindex++;
     }
-    void StaticUpdate(bool mappingIndex)
+    void StaticUpdate()
     {
-        if (mappingIndex)
+        if (useMapping)
         {
             for (int i = 0; i < childs.Count; i++)
             {
@@ -230,7 +224,7 @@ public class TxtForAnimation : MonoBehaviour
         }
         hasFinish = true;
     }
-    void AnimUpdate(int frame, bool mappingIndex)
+    void AnimUpdate(int frame)
     {
         if (frame >= totalFrameCount)
         {
@@ -241,7 +235,7 @@ public class TxtForAnimation : MonoBehaviour
             hasFinish = true;
             return;
         }
-        SetChildPos(frame, mappingIndex);
+        SetChildPos(frame);
     }
     // void Update()
     // {
@@ -266,31 +260,29 @@ public class TxtForAnimation : MonoBehaviour
     //     SetChildPos(curFrameindex);
     //     curFrameindex++;
     // }
-    public void CorrectPointIndex()
+    public void CorrectPointIndex(List<Vector3> pos)
     {
-        if (isMappingFinish)
-            return;
         indexs = new List<int>();
         if (totalFrameCount != 0)
         {
-            foreach (var point in childs)
+            for (int i = 0; i < childs.Count; i++)
             {
-                int index = cords.FindIndex((a) => a.GetPos(0) == MyTools.TruncVector3(point.transform.position));
+                int index = cords.FindIndex((a) => a.GetPos(0) == pos[i]);
                 indexs.Add(index);
             }
         }
         else
         {
-            foreach (var point in childs)
+            for (int i = 0; i < childs.Count; i++)
             {
-                int index = staticPositions.FindIndex((a) => a == MyTools.TruncVector3(point.transform.position));
+                int index = staticPositions.FindIndex((a) => a == pos[i]);
                 indexs.Add(index);
             }
         }
     }
-    void SetChildPos(int frame, bool mappingIndex)
+    void SetChildPos(int frame)
     {
-        if (mappingIndex)
+        if (useMapping)
         {
             for (int i = 0; i < childs.Count; i++)
             {
@@ -312,23 +304,121 @@ public class TxtForAnimation : MonoBehaviour
         int index = int.Parse(pointName);
         return cords[index - 1].GetPos(frame);
     }
-    public void SetAnimEnd(bool mappingIndex)
+    public void SetAnimEnd()
     {
         if (totalFrameCount == 0)
         {
-            StaticUpdate(mappingIndex);
+            StaticUpdate();
         }
         else
-            SetChildPos(totalFrameCount - 1, mappingIndex);
+            SetChildPos(totalFrameCount - 1);
     }
-    public void SetAnimBegin(bool mappingIndex)
+    public void SetAnimBegin()
     {
         if (totalFrameCount == 0)
         {
-            StaticUpdate(mappingIndex);
+            StaticUpdate();
         }
         else
-        SetChildPos(0, mappingIndex);
+            SetChildPos(0);
+    }
+    string FindPointName(Vector3 pos, int frame)
+    {
+        if (totalFrameCount == 0)
+        {
+            for (int i = 0; i < childs.Count; i++)
+            {
+                if (useMapping)
+                {
+                    if (staticPositions[indexs[i]] == pos)
+                        return (i + 1).ToString();
+                }
+                else
+                {
+                    if (staticPositions[i] == pos)
+                        return (i + 1).ToString();
+                }
+            }
+        }
+        else
+        {
+            for (int i = 0; i < childs.Count; i++)
+            {
+                if (useMapping)
+                {
+                    if (cords[indexs[i]].GetPos(frame) == pos)
+                        return (i + 1).ToString();
+                }
+                else
+                {
+                    if (cords[i].GetPos(frame) == pos)
+                        return (i + 1).ToString();
+                }
+            }
+        }
+        return null;
+    }
+    public List<string> FindPointNames(List<Vector3>posList,int frame)
+    {
+        List<string>temp=new List<string>();
+        foreach(var pos in posList)
+        {
+            temp.Add(FindPointName(pos,frame));
+        }
+        if(!temp.Contains(null))
+        return temp;
+        //全动画帧遍历
+        temp.Clear();
+        for(int i=0;i<totalFrameCount;i++)
+        {
+            foreach(var pos in posList)
+            {
+                temp.Add(FindPointName(pos,i));
+            }
+            if(!temp.Contains(null))
+            return temp;
+            else
+            temp.Clear();
+        }
+        Debug.LogError("位置索引失败,已返回残缺的数据");
+        return temp;
 
+    }
+    public List<Vector3> GetEndPoitions()
+    {
+        if (staticPositions.Count != 0)
+        {
+            if (!useMapping)
+                return staticPositions;
+            else
+            {
+                List<Vector3> temp = new List<Vector3>();
+                for (int i = 0; i < indexs.Count; i++)
+                {
+                    temp.Add(staticPositions[indexs[i]]);
+                }
+                return temp;
+            }
+        }
+        else
+        {
+            var temp = new List<Vector3>();
+            if (!useMapping)
+            {
+                for (int i = 0; i < cords.Count; i++)
+                {
+                    temp.Add(cords[i].GetPos(totalFrameCount - 1));
+                }
+            }
+            else
+            {
+                for (int i = 0; i < indexs.Count; i++)
+                {
+                    temp.Add(cords[indexs[i]].GetPos(totalFrameCount - 1));
+                }
+            }
+            return temp;
+
+        }
     }
 }
