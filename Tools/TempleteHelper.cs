@@ -99,5 +99,22 @@ public class TempleteHelper : MonoBehaviour
             ProjectManager.RefreshCurTarget();
         }
     }
+    [Button("生成点",ButtonSizes.Gigantic)]
+    void GeneratePoint(int number)
+    {
+        if(transform.childCount!=0)
+        {
+            Debug.Log("已经有子物体了");
+            return;
+        }
+        GameObject pointPrefab=Resources.Load<GameObject>("PointPrefab");
+        GameObject temp;
+        for(int i=0;i<number;i++)
+        {
+            temp=Instantiate(pointPrefab);
+            temp.transform.SetParent(transform);
+            temp.name=(i+1).ToString();
+        }
+    }
 
 }
