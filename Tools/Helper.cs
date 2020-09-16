@@ -6,8 +6,9 @@ using Sirenix.OdinInspector;
 using UnityEngine.Playables;
 using UnityEditor;
 using UnityEditor.Timeline;
+
 [ExecuteInEditMode]
-public class TempleteHelper : MonoBehaviour
+public class Helper : MonoBehaviour
 {
     const string templetePath = "Templetes/";
     [ValueDropdown("available")]//[OnValueChanged("UseTemplete")]
@@ -50,7 +51,8 @@ public class TempleteHelper : MonoBehaviour
                 tempClip.start=clip.start;
                 tempClip.duration=clip.duration;
                 tempClip.displayName=clip.displayName;
-                tempClip.asset=clip.asset;
+                var from=JsonUtility.ToJson(clip.asset);
+                JsonUtility.FromJsonOverwrite(from,tempClip.asset);
                 tempClip.start+=timelineLength;
             }
         }
@@ -59,29 +61,6 @@ public class TempleteHelper : MonoBehaviour
         
         Debug.Log("应用模版完成");
     }
-    // [Button(ButtonSizes.Gigantic)]
-    // void Resfrsh()
-    // {
-    //     Selection.activeGameObject = null;
-    //     var asset = GetComponent<PlayableDirector>().playableAsset as TimelineAsset;
-    //     foreach (var track in asset.GetOutputTracks())
-    //     {
-    //         foreach (var clip in track.GetClips())
-    //         {
-    //             var temp = clip.asset as ControlBlock;
-    //             if (temp != null)
-    //             {
-    //                 temp.targetDataName = temp.data.dataName;
-    //                 temp.RefreshData();
-    //                 temp.SetWorkRangeMax();
-    //                 if (temp.processer != null)
-    //                 {
-    //                     temp.ProcessData();
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
     void SetCurrentObj()
     {
         Selection.activeGameObject = gameObject;
@@ -100,7 +79,7 @@ public class TempleteHelper : MonoBehaviour
         }
     }
     [Button("生成点",ButtonSizes.Gigantic)]
-    void GeneratePoint(int number)
+    public void GeneratePoint(int number)
     {
         if(transform.childCount!=0)
         {
@@ -116,5 +95,33 @@ public class TempleteHelper : MonoBehaviour
             temp.name=(i+1).ToString();
         }
     }
+    [Button("创建所有动画",ButtonSizes.Gigantic)]
+    void CreatAllAnimForTimeLine()
+    {
+        var anims=GetComponents<TxtForAnimation>();
+        var asset = GetComponent<PlayableDirector>().playableAsset as TimelineAsset;
+        var trackRoot=asset.CreateTrack<PlayableTrack>("Animation");
+        float end=0;
+        for(int i=0;i<anims.Length;i++)
+        {
+            var clip=trackRoot.CreateClip<TxtAnimAsset>();
+            clip.start=end;
+            var temp=clip.asset as TxtAnimAsset;
+            temp.animName=anims[i].animName;
+            if(anims[i].totalFrameCount==0)
+            {
+                temp.safeSeconds=20;
+                end+=20;
+            }
+            else
+            {
+                end+=anims[i].totalFrameCount/25f+2;
+            }
+        }
+        TimelineEditor.Refresh(RefreshReason.ContentsAddedOrRemoved);
+        Debug.Log("创建动画完成");
+
+    }
+
 
 }

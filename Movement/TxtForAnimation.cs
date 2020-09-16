@@ -64,6 +64,15 @@ public class TxtForAnimation : MonoBehaviour
     List<int> indexs;
     [ShowInInspector]
     public bool useMapping;
+    public bool mappingSuccess
+    {
+        get
+        {
+            if (!useMapping)
+                return true;
+            return !indexs.Exists((a) => a == -1);
+        }
+    }
     float timer;
     bool hasBegin;
     #endregion
@@ -141,7 +150,7 @@ public class TxtForAnimation : MonoBehaviour
             string line = null;
             while ((line = reader.ReadLine()) != null)
             {
-                var Pos = line.Split(' ');
+                var Pos = line.Split('\t');
                 Vector3 tempPos = new Vector3(float.Parse(Pos[1]), float.Parse(Pos[3]), -float.Parse(Pos[2]));
                 staticPositions.Add(tempPos);
             }
@@ -279,6 +288,8 @@ public class TxtForAnimation : MonoBehaviour
                 indexs.Add(index);
             }
         }
+        if (!mappingSuccess)
+            Debug.LogError(animName + "指派失败");
     }
     void SetChildPos(int frame)
     {
@@ -358,27 +369,27 @@ public class TxtForAnimation : MonoBehaviour
         }
         return null;
     }
-    public List<string> FindPointNames(List<Vector3>posList,int frame)
+    public List<string> FindPointNames(List<Vector3> posList, int frame)
     {
-        List<string>temp=new List<string>();
-        foreach(var pos in posList)
+        List<string> temp = new List<string>();
+        foreach (var pos in posList)
         {
-            temp.Add(FindPointName(pos,frame));
+            temp.Add(FindPointName(pos, frame));
         }
-        if(!temp.Contains(null))
-        return temp;
+        if (!temp.Contains(null))
+            return temp;
         //全动画帧遍历
         temp.Clear();
-        for(int i=0;i<totalFrameCount;i++)
+        for (int i = 0; i < totalFrameCount; i++)
         {
-            foreach(var pos in posList)
+            foreach (var pos in posList)
             {
-                temp.Add(FindPointName(pos,i));
+                temp.Add(FindPointName(pos, i));
             }
-            if(!temp.Contains(null))
-            return temp;
+            if (!temp.Contains(null))
+                return temp;
             else
-            temp.Clear();
+                temp.Clear();
         }
         Debug.LogError("位置索引失败,已返回残缺的数据");
         return temp;

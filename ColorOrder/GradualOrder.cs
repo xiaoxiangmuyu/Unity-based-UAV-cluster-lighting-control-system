@@ -235,6 +235,7 @@ public class DoColor : GradualOrder
                     mappingData = GetMappingData(point);
                     if (mappingData == null)
                     {
+                        targetColor=Color.white;
                         Debug.LogError(point.name + "找不到映射颜色");
                         break;
                     }

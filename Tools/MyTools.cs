@@ -73,6 +73,8 @@ public class MyTools
         var timeLineAsset = playableDirector.playableAsset as TimelineAsset;
         foreach (var track in timeLineAsset.GetOutputTracks())
         {
+            if (track.muted)
+                continue;
             foreach (var clip in track.GetClips())
             {
                 var temp = clip.asset as ControlBlock;
@@ -115,8 +117,8 @@ public class MyTools
     {
         List<GameObject> objects = new List<GameObject>();
         Transform parent = ProjectManager.GetPointsRoot().transform;
-        TxtForAnimation target=ProjectManager.FindAnimByName(pointsInfo.animName);
-        List<string>names=new List<string>(target.FindPointNames(pointsInfo.posList,pointsInfo.frame));
+        TxtForAnimation target = ProjectManager.FindAnimByName(pointsInfo.animName);
+        List<string> names = new List<string>(target.FindPointNames(pointsInfo.posList, pointsInfo.frame));
         foreach (var name in names)
         {
             MyTools.FindChild(parent, name);
@@ -141,10 +143,10 @@ public class MyTools
         return objects;
 
     }
-    public static List<string>FindNamesByPointsInfo(PointIndexInfo pointsInfo)
+    public static List<string> FindNamesByPointsInfo(PointIndexInfo pointsInfo)
     {
-        var names=new List<string>();
-        foreach(var point in MyTools.FindObjs(pointsInfo))
+        var names = new List<string>();
+        foreach (var point in MyTools.FindObjs(pointsInfo))
         {
             names.Add(point.name);
         }

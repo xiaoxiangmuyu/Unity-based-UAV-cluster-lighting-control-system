@@ -23,29 +23,15 @@ public class TxtAnimAsset : SerializedScriptableObject, IPlayableAsset
     [LabelText("总时长")]
     [ShowInInspector]
     public float seconds { get { return totalFrameCount / 25f; } }
-    // [LabelText("是否需要手动指派")]
-    // public bool NeedMappingIndex
-    // {
-    //     get
-    //     {
-    //         if(target==null)
-    //         return false;
-    //         return target.useMapping;
-    //     }
-    //     set
-    //     {
-    //         target.useMapping = value;
-    //     }
-    // }
-
     TxtForAnimation[] scripts;
     ScriptPlayable<TxtAnimBehavior> scriptPlayable;
     TxtForAnimation target;
-
     IEnumerable animIndexs
     {
         get
         {
+            if(scripts==null)
+            return null;
             List<string> temp = new List<string>();
             for (int i = 0; i < scripts.Length; i++)
             {
@@ -54,7 +40,12 @@ public class TxtAnimAsset : SerializedScriptableObject, IPlayableAsset
             return temp;
         }
     }
-
+    [ShowInInspector]
+    bool available{get{
+        if(target==null)
+        return false;
+        return target.mappingSuccess;
+    }}
     public Playable CreatePlayable(PlayableGraph graph, GameObject owner)
     {
         scriptPlayable = ScriptPlayable<TxtAnimBehavior>.Create(graph);

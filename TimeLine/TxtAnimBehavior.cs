@@ -11,12 +11,14 @@ public class TxtAnimBehavior : PlayableBehaviour
     public MovementManager movementManager;
     public int startFrame;
     public int curframe = 0;
-    bool isExportMode;
+    bool isExportMode{get{return movementManager.isWorking;}}
     public TxtForAnimation target;
     bool isFirstAnim
     {
         get
         {
+            if(!target)
+            return false;
             return ProjectManager.GetPointsRoot().GetComponents<TxtForAnimation>()[0].animName.Equals(target.animName);
         }
     }
@@ -25,6 +27,7 @@ public class TxtAnimBehavior : PlayableBehaviour
         if (!isExportMode)
         {
             UpdatePos();//编辑模式,会跳帧或者不连续播放
+            if(!Application.isPlaying)
             ProjectManager.SetAnimProcess(target.animName, curframe);
         }
         else
@@ -38,12 +41,12 @@ public class TxtAnimBehavior : PlayableBehaviour
     }
     public override void OnGraphStart(Playable playable)
     {
-        if (!GraphParent.activeSelf)
-            return;
-        if (isFirstAnim)
-            target.MyUpdatePos(0);
+        if(isFirstAnim)
         MyTools.UpdateDuring(GraphParent);
-        isExportMode = movementManager.isWorking;
+        if (!GraphParent.activeSelf||Application.isPlaying)
+            return;
+        if (isFirstAnim&&isExportMode)
+            target.MyUpdatePos(0);
         //初始化点的位置，防止瞬间读取动画造成超速
         // if (isExportMode)
         //     target.MyUpdatePos(0,asset.NeedMappingIndex);
@@ -58,15 +61,11 @@ public class TxtAnimBehavior : PlayableBehaviour
             return;
         if (curframe < 0)
             curframe = 0;
-        // if(curframe==0&&target.useMapping)
-        // {
-        //     target.CorrectPointIndex();
-        // }
         target.MyUpdatePos(curframe);
-        if (Application.isPlaying)
-            curframe += 1;
-        else
-            curframe = Mathf.FloorToInt((float)director.time * 25f) - startFrame;
+        // if (Application.isPlaying)
+        //     curframe += 1;
+        // else
+        curframe = Mathf.FloorToInt((float)director.time * 25f) - startFrame;
         //Debug.LogFormat("startFrame:{0}",startFrame);
     }
     //s

@@ -26,7 +26,6 @@ public class TriggerBase : SerializedMonoBehaviour
     [HideIf("recordMode")]
     public List<ColorOrderBase>colorOrders=new List<ColorOrderBase>();
 
-    string currentTarget{get{return ProjectManager.GetPointsRoot().gameObject.name;}}
     protected virtual void Awake()
     {
 
@@ -46,7 +45,7 @@ public class TriggerBase : SerializedMonoBehaviour
     [Button(ButtonSizes.Gigantic)][ShowIf("recordMode")]
     void Push()
     {
-        ProjectManager.Instance.RecordProject.AddData(currentTarget,data);
+        ProjectManager.Instance.RecordProject.AddData(data);
         data.Clear();
         //GetComponent<Collider>().enabled=false;
         recordTimer=0;

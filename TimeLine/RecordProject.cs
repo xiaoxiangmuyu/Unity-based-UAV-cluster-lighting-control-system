@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Sirenix.OdinInspector;
 using UnityEditor;
+using System.IO;
 public class RecordProject : SerializedScriptableObject
 {
     [SerializeField]
@@ -21,13 +22,13 @@ public class RecordProject : SerializedScriptableObject
     public List<string>ColorMapperNames=new List<string>();
     private List<ColorMapper>colorMappers=new List<ColorMapper>();
 
-    public void AddData(string ImageName, RecordData data)
+    public void AddData(RecordData data)
     {
-        // if (!RecordDic.ContainsKey(ImageName))
-        // {
-        //     Debug.LogError("没有找到这个父物体" + ImageName);
-        //     return;
-        // }
+        if (data.pointsInfo.animName.Equals(""))
+        {
+            Debug.LogError("要添加的数据动画名称为空，无法添加");
+            return;
+        }
         if (RecorDataList.Exists((a) => a.dataName == data.dataName))
         {
             RecorDataList.Find((a) => a.dataName == data.dataName).CopyFrom(data);
@@ -44,6 +45,11 @@ public class RecordProject : SerializedScriptableObject
     }
     public void AddMappingData(MappingData data)
     {
+        if (data.pointsInfo.animName.Equals(""))
+        {
+            Debug.LogError("要添加的数据动画名称为空,无法添加");
+            return;
+        }
         mappingDatas.Add(data);
         EditorUtility.SetDirty(this);
         AssetDatabase.SaveAssets();
@@ -69,6 +75,7 @@ public class RecordProject : SerializedScriptableObject
         return;
         ColorMapperNames.Add(mapper.name);
     }
+    //一键指派
     void MappingAll()
     {
         var anims=ProjectManager.GetPointsRoot().GetComponents<TxtForAnimation>();
@@ -104,6 +111,30 @@ public class RecordProject : SerializedScriptableObject
         }
         MyTools.ResfrshTimeLine();
         Debug.Log("全局数据校准完成");
+    }
+    [FilePath]
+    [ShowInInspector]
+    string path;
+    [Button(ButtonSizes.Gigantic)]
+    void ReadGroupInfo()
+    {
+        using (var reader = new StreamReader(path))
+        {
+            string line = null;
+            while ((line = reader.ReadLine()) != null)
+            {
+                RecordData temp=new RecordData();
+                var data = line.Split(' ');
+                temp.pointsInfo.animName=data[0];
+                for(int i=1;i<data.Length;i++)
+                {
+                    temp.ObjNames.Add(data[i]);
+                }
+                ProjectManager.Instance.RecordProject.AddData(temp);
+            }
+            reader.Close();
+        }
+
     }
     
 

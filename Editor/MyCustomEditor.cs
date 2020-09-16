@@ -115,7 +115,7 @@ public class MyCustomEditor : Editor
 
             }
         }
-        ProjectManager.Instance.RecordProject.AddData(ProjectManager.GetPointsRoot().name, tempdata);
+        ProjectManager.Instance.RecordProject.AddData(tempdata);
         Debug.Log("创建数据组成功");
     }
     // //创建旧映射组
@@ -216,8 +216,8 @@ public class MyCustomEditor : Editor
     static void UseTemplate()
     {
         GameObject obj = Selection.activeGameObject;
-        if (obj.GetComponent<TempleteHelper>())
-            obj.GetComponent<TempleteHelper>().UseTemplete();
+        if (obj.GetComponent<Helper>())
+            obj.GetComponent<Helper>().UseTemplete();
         else
         {
             Debug.LogError("请添加TempleteHelper组件");
