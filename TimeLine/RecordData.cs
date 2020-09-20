@@ -5,8 +5,6 @@ using Sirenix.OdinInspector;
 [System.Serializable]
 public struct PointIndexInfo
 {
-    public string animName;
-    public int frame;
     [SerializeField]
     public List<Vector3> posList;
 }
@@ -20,32 +18,26 @@ public class RecordData
     [SerializeField]
     [OnValueChanged("EventDispatch")]
     [GUIColor("GetGroupColor")]
-
     public float animTime;
-    [ValueDropdown("availableIndex")]
+    [ValueDropdown("availableNames")]
     [GUIColor("GetGroupColor")]
-
-    public int groupIndex;
+    public string groupName;
     [HideInInspector]
     public PointIndexInfo pointsInfo;
 
     [SerializeField]
     [HideInInspector]
-    public List<string> ObjNames;
+    public List<string> objNames;
     [SerializeField]
     [HideInInspector]
     public List<float> times;
-    IEnumerable availableIndex
+    // [SerializeField]
+    // public List<string> originNames;
+    IEnumerable availableNames
     {
         get
         {
-            int count = ProjectManager.Instance.RecordProject.globalPosDic.Count;
-            var temp = new List<int>();
-            for (int i = 0; i < count; i++)
-            {
-                temp.Add(i + 1);
-            }
-            return temp;
+            return ProjectManager.availableGroups;
         }
     }
 
@@ -55,26 +47,27 @@ public class RecordData
     {
         dataName = name;
         animTime = 0;
-        ObjNames = new List<string>();
+        objNames = new List<string>();
         times = new List<float>();
+        pointsInfo.posList = new List<Vector3>();
         //posDic=new StringVector3Dictionary();
     }
     public void Clear()
     {
-        ObjNames.Clear();
+        objNames.Clear();
         times.Clear();
         dataName = string.Empty;
         //posDic.Clear();
     }
     public void Init()
     {
-        ObjNames = new List<string>();
+        objNames = new List<string>();
         times = new List<float>();
         //posDic=new StringVector3Dictionary();
     }
     public bool IsEmpty()
     {
-        if (ObjNames.Count != 0 && times.Count != 0)
+        if (objNames.Count != 0 && times.Count != 0)
             return false;
         else
             return true;
@@ -84,15 +77,13 @@ public class RecordData
         Init();
         dataName = data.dataName;
         //parentName=data.parentName;
-        ObjNames = new List<string>(data.ObjNames.ToArray());
+        objNames = new List<string>(data.objNames.ToArray());
         times = new List<float>(data.times.ToArray());
         if (data.animTime != 0)
             animTime = data.animTime;
         if (!dataName.Equals("All") && !dataName.Equals("all"))
-            groupIndex = data.groupIndex;
-        pointsInfo.animName=data.pointsInfo.animName;
-        pointsInfo.frame=data.pointsInfo.frame;
-        pointsInfo.posList=new List<Vector3>(data.pointsInfo.posList);
+            groupName = data.groupName;
+        pointsInfo.posList = new List<Vector3>(data.pointsInfo.posList);
         //posDic=data.posDic;
     }
     public void AddListener(System.Action action)
@@ -124,24 +115,20 @@ public class RecordData
         if (!ProjectManager.Instance.RecordProject.mappingDatas.Exists((a) => a.dataName == dataName))
         {
             MappingData data = new MappingData();
-            data.pointsInfo.animName=pointsInfo.animName;
-            data.pointsInfo.frame=pointsInfo.frame;
-            data.pointsInfo.posList=pointsInfo.posList;
-            data.pointNames = new List<string>(ObjNames);
+            data.pointsInfo.posList = pointsInfo.posList;
+            data.ObjNames = new List<string>(objNames);
             data.dataName = dataName;
-            data.groupIndex = groupIndex;
+            data.groupName = groupName;
             ProjectManager.Instance.RecordProject.AddMappingData(data);
             Debug.Log("添加映射成功");
         }
         else
         {
             var targetData = ProjectManager.Instance.RecordProject.mappingDatas.Find((a) => a.dataName == dataName);
-            targetData.pointNames.Clear();
-            targetData.groupIndex=groupIndex;
-            targetData.pointNames=new List<string>(ObjNames);
-            targetData.pointsInfo.animName=pointsInfo.animName;
-            targetData.pointsInfo.frame=pointsInfo.frame;
-            targetData.pointsInfo.posList=pointsInfo.posList;
+            targetData.ObjNames.Clear();
+            targetData.groupName = groupName;
+            targetData.ObjNames = new List<string>(objNames);
+            targetData.pointsInfo.posList = pointsInfo.posList;
             Debug.Log("数据更新完毕");
         }
     }
@@ -150,7 +137,7 @@ public class RecordData
     [GUIColor(0.7f, 1, 1)]
     public void ShowObjects()
     {
-        var objects = MyTools.FindObjs(ObjNames).ToArray();
+        var objects = MyTools.FindObjs(objNames).ToArray();
         for (int i = 0; i < objects.Length; i++)
         {
             objects[i].SetActive(true);
@@ -162,8 +149,9 @@ public class RecordData
     [GUIColor(0.5f, 1, 1)]
     public void HideObjects()
     {
-        var objects = MyTools.FindObjs(ObjNames);
+        var objects = MyTools.FindObjs(objNames);
         objects.ForEach((a) => a.SetActive(false));
+        UnityEditor.Selection.objects=null;
     }
     [Button("Update", ButtonSizes.Medium)]
     [HorizontalGroup("View")]
@@ -171,9 +159,7 @@ public class RecordData
     {
         if (UnityEditor.Selection.objects.Length == 0)
             return;
-        ObjNames.Clear();
-        pointsInfo.animName=ProjectManager.curAnimName;
-        pointsInfo.frame=ProjectManager.curAnimFrame;
+        objNames.Clear();
         pointsInfo.posList.Clear();
         times.Clear();
         foreach (var point in UnityEditor.Selection.gameObjects)
@@ -181,22 +167,65 @@ public class RecordData
             if (point.name.Equals("Main Camera"))
                 continue;
             pointsInfo.posList.Add(MyTools.TruncVector3(point.transform.position));
-            ObjNames.Add(point.name);
+            objNames.Add(point.name);
             times.Add(0);
         }
         Debug.Log(dataName + "内容更换完毕");
     }
     public Color GetGroupColor()
     {
-        if (groupIndex == 0)
+        if (groupName == null || groupName.Equals(""))
             return Color.red;
-        var temp = ProjectManager.Instance.RecordProject.globalPosDic.Count;
-        float c = (float)1f / temp * groupIndex;
+        int index = 0;
+        foreach (var animName in ProjectManager.availableGroups)
+        {
+            if (animName.Equals(groupName))
+                break;
+            else
+                index++;
+        }
+        float c = (float)1f / ProjectManager.availableGroups.Count * index;
         return Color.HSVToRGB(c, 0.4f, 1f);
     }
-   public void CorrectIndex()
-   {
-        ObjNames=new List<string>(MyTools.FindNamesByPointsInfo(pointsInfo));
-   }
+    public int GetOrder()
+    {
+        List<string> anims = new List<string>();
+        int index = 0;
+        foreach (var animName in ProjectManager.availableGroups)
+        {
+            if (animName.Equals(groupName))
+                return index;
+            else
+                index++;
+        }
+        return 0;
+    }
+    //[Button("校正")]
+    public void CorrectIndex()
+    {
+        var animName=ProjectManager.GetGlobalPosInfo(groupName).animName;
+        objNames = new List<string>(MyTools.FindNamesByCurrentNames(objNames, animName));
+    }
+    //[Button("校正")]
+    //    public void CorrectIndex(string animName)
+    //    {
+    //        var anims=ProjectManager.GetPointsRoot().GetComponents<TxtForAnimation>();
+    //        TxtForAnimation anim=new TxtForAnimation();
+    //        foreach(var a in anims)
+    //        {
+    //             if(a.animName.Equals(animName))
+    //             anim=a;
+    //        }
+    //        var names=anim.FindPointNames(pointsInfo.posList);
+    //        if(names.Count!=0&&!names.Contains(null))
+    //        {
+    //            ObjNames=names;
+    //            Debug.Log("校正成功");
+    //        }
+    //        else
+    //        {
+    //            Debug.LogError("校正失败");
+    //        }
+    //    }
 
 }

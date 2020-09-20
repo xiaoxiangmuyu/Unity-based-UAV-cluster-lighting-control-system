@@ -5,6 +5,7 @@ using UnityEditor;
 using DG.Tweening;
 using UnityEngine.Playables;
 using UnityEngine.Timeline;
+using UnityEditor.Timeline;
 public class MyCustomEditor : Editor
 {
     [InitializeOnLoadMethod]
@@ -28,6 +29,7 @@ public class MyCustomEditor : Editor
             //menu.AddItem(new GUIContent("创建旧映射组"), false, CreatOldMapping, "menu_5");
             menu.AddItem(new GUIContent("刷新时间轴"), false, Resfrsh, "menu_7");
             menu.AddItem(new GUIContent("创建全局位置数据"), false, CreatGlobalPosData, "menu_8");
+            menu.AddItem(new GUIContent("校正所选效果"), false, CorrectIndex, "menu_9");
             menu.ShowAsContext();
         }
     }
@@ -68,29 +70,32 @@ public class MyCustomEditor : Editor
             {
                 foreach (var child in point.GetComponentsInChildren<ColorPoint>())
                 {
-                    tempDic.Add(child.name, child.transform.position);
+                    tempDic.Add(child.name,child.transform.position);
                 }
             }
             else
             {
-                tempDic.Add(point.name, point.transform.position);
+                tempDic.Add(point.name,point.transform.position);
             }
         }
-        ProjectManager.Instance.RecordProject.globalPosDic.Add(tempDic);
+        var tempPointNames=new List<string>(tempDic.Keys);
+        tempPointNames.Sort((a,b)=>int.Parse(a)-int.Parse(b));
+        var tempPos=new List<Vector3>();
+        for(int i=0;i<tempPointNames.Count;i++)
+        {
+            tempPos.Add(tempDic[tempPointNames[i]]);
+        }
+        var result=new GlobalPosInfo();
+        result.groupName="newAnim";
+        result.posList=new List<Vector3>(tempPos);
+        ProjectManager.Instance.RecordProject.globalPosDic.Add(result);
 
     }
     //创建数据组
     static void CreatGroup(object userData)
     {
-        if(ProjectManager.curAnimName==null)
-        {
-            Debug.LogError("没有当前动画名字信息");
-            return;
-        }
         RecordData tempdata = new RecordData();
-        tempdata.pointsInfo.animName=ProjectManager.curAnimName;
-        tempdata.pointsInfo.frame=ProjectManager.curAnimFrame;
-        tempdata.pointsInfo.posList=new List<Vector3>();
+        tempdata.pointsInfo.posList = new List<Vector3>();
         foreach (var point in Selection.gameObjects)
         {
             if (point.name == "Main Camera")
@@ -99,7 +104,7 @@ public class MyCustomEditor : Editor
             {
                 foreach (var child in point.GetComponentsInChildren<ColorPoint>())
                 {
-                    tempdata.ObjNames.Add(point.name);
+                    tempdata.objNames.Add(point.name);
                     tempdata.pointsInfo.posList.Add(MyTools.TruncVector3(child.transform.position));
                     tempdata.times.Add(0);
                     //tempdata.posDic.Add(child.name, child.transform.position);
@@ -108,7 +113,7 @@ public class MyCustomEditor : Editor
             }
             else
             {
-                tempdata.ObjNames.Add(point.name);
+                tempdata.objNames.Add(point.name);
                 tempdata.pointsInfo.posList.Add(MyTools.TruncVector3(point.transform.position));
                 tempdata.times.Add(0);
                 //tempdata.posDic.Add(point.name, point.transform.position);
@@ -154,22 +159,15 @@ public class MyCustomEditor : Editor
     // }
     static void CreatMapping(object userData)
     {
-        if(ProjectManager.curAnimName==null)
-        {
-            Debug.LogError("没有当前动画名字信息");
-            return;
-        }
         MappingData tempdata = new MappingData();
-        tempdata.pointsInfo.animName=ProjectManager.curAnimName;
-        tempdata.pointsInfo.frame=ProjectManager.curAnimFrame;
-        tempdata.pointsInfo.posList=new List<Vector3>();
+        tempdata.pointsInfo.posList = new List<Vector3>();
         //tempdata.Objects = Selection.gameObjects;
-        tempdata.pointNames = new List<string>();
+        tempdata.ObjNames = new List<string>();
         foreach (var point in Selection.gameObjects)
         {
             if (point.name == "Main Camera")
                 continue;
-            tempdata.pointNames.Add(point.name);
+            tempdata.ObjNames.Add(point.name);
             tempdata.pointsInfo.posList.Add(MyTools.TruncVector3(point.transform.position));
         }
         ProjectManager.Instance.RecordProject.AddMappingData(tempdata);
@@ -188,20 +186,20 @@ public class MyCustomEditor : Editor
     // }
 
 
-    [MenuItem("GameObject/工具/创建映射组", priority = 0)]
-    static void CreatMapping()
-    {
-        MappingData tempdata = new MappingData();
-        //tempdata.Objects = Selection.gameObjects;
-        tempdata.pointNames = new List<string>();
-        foreach (var point in Selection.activeGameObject.GetComponentsInChildren<ColorPoint>())
-        {
-            tempdata.pointNames.Add(point.name);
-        }
-        tempdata.dataName = Selection.activeGameObject.name;
-        ProjectManager.Instance.RecordProject.AddMappingData(tempdata);
-        Debug.Log("创建映射组成功");
-    }
+    // [MenuItem("GameObject/工具/创建映射组", priority = 0)]
+    // static void CreatMapping()
+    // {
+    //     MappingData tempdata = new MappingData();
+    //     //tempdata.Objects = Selection.gameObjects;
+    //     tempdata.pointNames = new List<string>();
+    //     foreach (var point in Selection.activeGameObject.GetComponentsInChildren<ColorPoint>())
+    //     {
+    //         tempdata.pointNames.Add(point.name);
+    //     }
+    //     tempdata.dataName = Selection.activeGameObject.name;
+    //     ProjectManager.Instance.RecordProject.AddMappingData(tempdata);
+    //     Debug.Log("创建映射组成功");
+    // }
     [MenuItem("GameObject/工具/批量添加Tag", priority = 0)]
     static void AddTag()
     {
@@ -212,24 +210,40 @@ public class MyCustomEditor : Editor
         }
         Debug.Log("添加Tag成功");
     }
-    [MenuItem("GameObject/工具/应用模板", priority = 0)]
-    static void UseTemplate()
-    {
-        GameObject obj = Selection.activeGameObject;
-        if (obj.GetComponent<Helper>())
-            obj.GetComponent<Helper>().UseTemplete();
-        else
-        {
-            Debug.LogError("请添加TempleteHelper组件");
-        }
-    }
+    // [MenuItem("GameObject/工具/应用模板", priority = 0)]
+    // static void UseTemplate()
+    // {
+    //     GameObject obj = Selection.activeGameObject;
+    //     if (obj.GetComponent<Helper>())
+    //         obj.GetComponent<Helper>().UseTemplete();
+    //     else
+    //     {
+    //         Debug.LogError("请添加TempleteHelper组件");
+    //     }
+    // }
     static void Resfrsh(object userData)
     {
-        var obj = ProjectManager.GetPointsRoot();
-        var asset = obj.GetComponent<PlayableDirector>().playableAsset as TimelineAsset;
-        foreach (var track in asset.GetOutputTracks())
+        var clips = TimelineEditor.selectedClips;
+        if (clips.Length == 0)
         {
-            foreach (var clip in track.GetClips())
+            var obj = ProjectManager.GetPointsRoot();
+            var asset = obj.GetComponent<PlayableDirector>().playableAsset as TimelineAsset;
+            foreach (var track in asset.GetOutputTracks())
+            {
+                foreach (var clip in track.GetClips())
+                {
+                    var temp = clip.asset as ControlBlock;
+                    if (temp != null)
+                    {
+                        temp.targetDataName = temp.data.dataName;
+                        temp.RefreshData();
+                    }
+                }
+            }
+        }
+        else
+        {
+            foreach (var clip in clips)
             {
                 var temp = clip.asset as ControlBlock;
                 if (temp != null)
@@ -239,6 +253,22 @@ public class MyCustomEditor : Editor
                 }
             }
         }
+    }
+    static void CorrectIndex(object userData)
+    {
+        var clips = TimelineEditor.selectedClips;
+        if(clips.Length==0)
+        {
+            Debug.LogError("没有选中效果");
+        }
+        foreach(var clip in clips)
+        {
+            var cb=clip.asset as ControlBlock;
+            var dataName=cb.data.dataName;
+            ProjectManager.Instance.RecordProject.RecorDataList.Find((a)=>a.dataName.Equals(dataName)).CorrectIndex();
+        }
+
+
     }
 }
 

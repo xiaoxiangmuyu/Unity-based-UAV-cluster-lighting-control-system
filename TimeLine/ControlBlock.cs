@@ -20,8 +20,8 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
                 return BlockState.NoData;
             if (ProjectManager.Instance.RecordProject.RecorDataList.Exists((a) => a.dataName == data.dataName))
             {
-                var objNames = ProjectManager.Instance.RecordProject.RecorDataList.Find((a) => a.dataName == data.dataName).ObjNames;
-                if (objNames.Count != data.ObjNames.Count || objs.Exists(a => a == null) || objs.Exists(a => !a.activeInHierarchy))
+                var objNames = ProjectManager.Instance.RecordProject.RecorDataList.Find((a) => a.dataName == data.dataName).objNames;
+                if (objNames.Count != data.objNames.Count || objs.Exists(a => a == null) || objs.Exists(a => !a.activeInHierarchy))
                 {
                     return BlockState.NeedRefresh;
                 }
@@ -96,6 +96,9 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
     public List<ColorOrderBase> colorOrders = new List<ColorOrderBase>();
     [HideInInspector]
     public List<GameObject> objs;
+    [ValueDropdown("availableFilter")]
+    [BoxGroup("数据读取模块")]
+    public string groupFilter;
     [ValueDropdown("availableData")]
     [OnValueChanged("RefreshData")]
     [BoxGroup("数据读取模块")]
@@ -105,13 +108,34 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
     {
         get
         {
-            var datalist = ProjectManager.Instance.RecordProject.RecorDataList;
-            List<string> names = new List<string>();
-            foreach (var data in datalist)
+            List<string> dataNames = new List<string>();
+            if (groupFilter == null || groupFilter.Equals(""))
             {
-                names.Add(data.dataName);
+                var datalist = ProjectManager.Instance.RecordProject.RecorDataList;
+                foreach (var data in datalist)
+                    dataNames.Add(data.dataName);
             }
-            return names;
+            else
+            {
+                var datalist = ProjectManager.Instance.RecordProject.RecorDataList;
+                foreach (var data in datalist)
+                {
+                    if (data.groupName == null || data.groupName == String.Empty)
+                        continue;
+                    var animName = ProjectManager.GetGlobalPosInfo(data.groupName).animName;
+                    if (animName != null)
+                        if (animName.Equals(groupFilter))
+                            dataNames.Add(data.dataName);
+                }
+            }
+            return dataNames;
+        }
+    }
+    IEnumerable availableFilter
+    {
+        get
+        {
+            return ProjectManager.AllAnimNames;
         }
     }
 
@@ -124,9 +148,9 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
                 return 0;
 
             }
-            else if (data.ObjNames != null)
+            else if (data.objNames != null)
             {
-                return data.ObjNames.Count - 1;
+                return data.objNames.Count - 1;
             }
             return 0;
 
@@ -149,6 +173,10 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
     }
     public double GetDuring()
     {
+        if (processer is VirusProcesser && data.objNames.Count != 0)
+        {
+            return MyTools.GetTotalTime(colorOrders) + data.times[data.times.Count - 1];
+        }
         return MyTools.GetTotalTime(colorOrders) + data.animTime;
     }
     // [Button(ButtonSizes.Large)]
@@ -186,11 +214,22 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
     //刷新数据，重新从data建立索引
     public void RefreshData()
     {
-        var result = ProjectManager.Instance.RecordProject.RecorDataList.Find((a) => a.dataName == targetDataName);
+        RecordData result = new RecordData();
+        foreach (var data in ProjectManager.Instance.RecordProject.RecorDataList)
+        {
+            if (data.dataName.Equals(targetDataName))
+            {
+                if (groupFilter != null || groupFilter != string.Empty)
+                {
+                    if (ProjectManager.GetGlobalPosInfo(data.groupName).animName.Equals(groupFilter))
+                        result = data;
+                }
+            }
+        }
         if (result != null)
         {
             data.CopyFrom(result);
-            objs=new List<GameObject>();
+            objs = new List<GameObject>();
             Register();
             SetWorkRangeMax();
             ProcessData();
@@ -213,7 +252,7 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
             processer.AddValueChangeListener(BtnSwitch);
             processer.AddProcessCompleteListener(FindPoints);
         }
-        if (objs == null || objs.Count == 0 || objs.Exists((a) => a == null)||objs.Exists((a)=>!data.ObjNames.Contains(a.name)))
+        if (objs == null || objs.Count == 0 || objs.Exists((a) => a == null) || objs.Exists((a) => !data.objNames.Contains(a.name)))
             FindPoints();
         //Debug.Log("注册完成");
     }
@@ -233,9 +272,9 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
             Debug.LogError("没有找到父物体 " + ProjectManager.GetPointsRoot().gameObject.name);
             return;
         }
-        if (data.ObjNames != null)
+        if (data.objNames != null)
         {
-            foreach (var name in data.ObjNames)
+            foreach (var name in data.objNames)
             {
                 FindChild(parent.transform, name);
                 if (!tempObj)
@@ -263,20 +302,15 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
         }
     }
     [ShowInInspector]
-    [ValueDropdown("availableIndex")]
+    [ValueDropdown("availableNames")]
     [HorizontalGroup("SetColorGroup")]
-    int groupIndex;
-    IEnumerable availableIndex
+    [LabelText("颜色分组")]
+    string groupName;
+    IEnumerable availableNames
     {
         get
         {
-            int count = ProjectManager.Instance.RecordProject.globalPosDic.Count;
-            var temp = new List<int>();
-            for (int i = 0; i < count; i++)
-            {
-                temp.Add(i + 1);
-            }
-            return temp;
+            return ProjectManager.availableGroups;
         }
     }
     [Button("设置全部颜色序号")]
@@ -284,9 +318,9 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
     void SetColorIndex()
     {
         SetColorGroup(colorOrders);
-        ConsoleProDebug.LogToFilter("设置颜色序号成功","Log");
+        ConsoleProDebug.LogToFilter("设置颜色序号成功", "Log");
     }
-    void SetColorGroup(List<ColorOrderBase>orders)
+    void SetColorGroup(List<ColorOrderBase> orders)
     {
         foreach (var order in orders)
         {
@@ -295,12 +329,12 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
                 var temp = order as DoColor;
                 if (temp.colorType == ColorType.MappingData)
                 {
-                    temp.groupIndex = groupIndex;
+                    temp.groupName = groupName;
                 }
             }
-            else if(order is OrderGroup)
+            else if (order is OrderGroup)
             {
-                var temp=order as OrderGroup;
+                var temp = order as OrderGroup;
                 SetColorGroup(temp.colorOrders);
             }
         }

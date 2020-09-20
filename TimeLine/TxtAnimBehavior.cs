@@ -27,8 +27,6 @@ public class TxtAnimBehavior : PlayableBehaviour
         if (!isExportMode)
         {
             UpdatePos();//编辑模式,会跳帧或者不连续播放
-            if(!Application.isPlaying)
-            ProjectManager.SetAnimProcess(target.animName, curframe);
         }
         else
             UpdatePosFrameByFrame();//导出模式，逐帧播放，不允许丢帧或者跳跃
@@ -36,8 +34,8 @@ public class TxtAnimBehavior : PlayableBehaviour
     }
     public override void OnBehaviourPlay(Playable playable, FrameData info)
     {
-        ProjectManager.currentAnim = target;
-        ProjectManager.currentAnimBehavior = this;
+        // ProjectManager.currentAnim = target;
+        // ProjectManager.currentAnimBehavior = this;
     }
     public override void OnGraphStart(Playable playable)
     {
@@ -62,9 +60,9 @@ public class TxtAnimBehavior : PlayableBehaviour
         if (curframe < 0)
             curframe = 0;
         target.MyUpdatePos(curframe);
-        // if (Application.isPlaying)
-        //     curframe += 1;
-        // else
+        if (Application.isPlaying)
+            curframe += 1;
+        else
         curframe = Mathf.FloorToInt((float)director.time * 25f) - startFrame;
         //Debug.LogFormat("startFrame:{0}",startFrame);
     }

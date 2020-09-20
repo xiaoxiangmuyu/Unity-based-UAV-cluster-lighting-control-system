@@ -4,27 +4,38 @@ using UnityEngine;
 using UnityEditor;
 public class NodeEditor : EditorWindow
 {
-    Rect window1;
-    Rect window2;
+    string number="number";
+    string animNumber="animNumber";
     [MenuItem("Window/Node editor")]
     static void ShowEditor()
     {
         NodeEditor editor = EditorWindow.GetWindow<NodeEditor>();
-        editor.Init();
+        //editor.Init();
     }
     public void Init()
     {
-        window1 = new Rect(10, 10, 100, 100);
-        window2 = new Rect(210, 210, 100, 100);
+        //window1 = new Rect(10, 10, 100, 100);
+        //window2 = new Rect(210, 210, 100, 100);
     }
     void OnGUI()
     {
-        //DrawNodeCurve(window1, window2); // Here the curve is drawn under the windows
-        BeginWindows();
-        window1 = GUI.Window(1, window1, DrawNodeWindow, "Window 1");   // Updates the Rect's when these are dragged
-        window2 = GUI.Window(2, window2, DrawNodeWindow, "Window 2");
-        GUI.TextField(window1,"text");
-        EndWindows();
+        GUILayout.Label("飞机数量");
+        number=EditorGUILayout.TextField("飞机数量",number);
+        GUILayout.Label("画面数量");
+        animNumber=EditorGUILayout.TextField("画面数量",animNumber);
+        if(GUI.Button(new Rect(10, 80, 100, 100),"初始化项目"))
+        {
+            var root=new GameObject("Main");
+            root.AddComponent<Helper>().GeneratePoint(int.Parse(number));
+            int animCount=int.Parse(animNumber);
+            animCount=animCount*2-1;
+            for(int i=0;i<animCount;i++)
+            {
+                root.AddComponent<TxtForAnimation>();
+            }
+            EfyTools.Init(new GameObject[1]{root});
+
+        }
     }
     void DrawNodeWindow(int id)
     {

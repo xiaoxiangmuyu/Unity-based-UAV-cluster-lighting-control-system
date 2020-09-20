@@ -95,7 +95,7 @@ public class DoColor : GradualOrder
     [HorizontalGroup("Color/ColorPro")]
     [ValueDropdown("availableIndex")]
     [PropertyOrder(-10)]
-    public int groupIndex;
+    public string groupName;
     [ShowIf("isWithIndex")]
     [BoxGroup("Color")]
     public int colorIndex;
@@ -111,7 +111,7 @@ public class DoColor : GradualOrder
         {
             List<string> dataNames = new List<string>();
             dataNames.Add("UnSelect");
-            if (groupIndex == 0)
+            if (groupName==null||groupName.Equals(""))
             {
                 var datalist = ProjectManager.Instance.RecordProject.mappingDatas;
                 foreach (var data in datalist)
@@ -123,7 +123,7 @@ public class DoColor : GradualOrder
                 var datalist = ProjectManager.Instance.RecordProject.mappingDatas;
                 datalist.ForEach((a) =>
                 {
-                    if (a.groupIndex == groupIndex)
+                    if (a.groupName.Equals(groupName))
                         dataNames.Add(a.dataName);
                 });
                 return dataNames;
@@ -141,13 +141,7 @@ public class DoColor : GradualOrder
     {
         get
         {
-            int count = ProjectManager.Instance.RecordProject.globalPosDic.Count;
-            var temp = new List<int>();
-            for (int i = 0; i < count; i++)
-            {
-                temp.Add(i + 1);
-            }
-            return temp;
+            return ProjectManager.availableGroups;
         }
     }
     MappingData GetMappingData(ColorPoint point)
@@ -157,8 +151,8 @@ public class DoColor : GradualOrder
         else
         {
             var data = ProjectManager.Instance.RecordProject.mappingDatas;
-            List<MappingData> temp = new List<MappingData>(data.FindAll((a) => a.groupIndex == groupIndex));
-            return temp.Find((a) => a.pointNames.Contains(point.name));
+            List<MappingData> temp = new List<MappingData>(data.FindAll((a) => a.groupName == groupName));
+            return temp.Find((a) => a.ObjNames.Contains(point.name));
         }
     }
     #region ColorMapper

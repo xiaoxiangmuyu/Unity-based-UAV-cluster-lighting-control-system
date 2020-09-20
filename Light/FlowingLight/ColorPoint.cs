@@ -48,13 +48,11 @@ public class ColorPoint : MonoBehaviour
     {
         get
         {
-            Vector3 curPos = ProjectManager.currentAnim.GetPointPosByFrame(name, curFrame);
-            //curFrame+=Mathf.FloorToInt(during/0.04f);
-            //ConsoleProDebug.Watch("frame", curFrame.ToString());
-            curFrame += 10;
-            var color=colorMapper.GetColor(gradient, curPos);
-            //Debug.Log(color.ToString());
-            return color;
+            // Vector3 curPos = ProjectManager.currentAnim.GetPointPosByFrame(name, curFrame);
+            // curFrame += 10;
+            // var color=colorMapper.GetColor(gradient, curPos);
+            //return color;
+            return Color.white;
         }
     }
     #endregion
@@ -118,11 +116,11 @@ public class ColorPoint : MonoBehaviour
         else
         {
 
-            if (TriggerBase.data.ObjNames.Exists((x) => x == gameObject.name))
+            if (TriggerBase.data.objNames.Exists((x) => x == gameObject.name))
                 return;
             if (TriggerBase.recordTimer == 0)
             {
-                TriggerBase.data.ObjNames.Add(gameObject.name);
+                TriggerBase.data.objNames.Add(gameObject.name);
                 TriggerBase.data.pointsInfo.posList.Add(MyTools.TruncVector3(transform.position));
                 TriggerBase.data.times.Add(0);
                 TriggerBase.recordTimer = Time.time;
@@ -130,7 +128,7 @@ public class ColorPoint : MonoBehaviour
             else
             {
                 TriggerBase.data.times.Add(Time.time - TriggerBase.recordTimer);
-                TriggerBase.data.ObjNames.Add(gameObject.name);
+                TriggerBase.data.objNames.Add(gameObject.name);
                 TriggerBase.data.pointsInfo.posList.Add(MyTools.TruncVector3(transform.position));
             }
             mat.DOColor(Color.red, 0f);
@@ -162,11 +160,11 @@ public class ColorPoint : MonoBehaviour
         else
         {
 
-            if (TriggerBase.data.ObjNames.Exists((x) => x == gameObject.name))
+            if (TriggerBase.data.objNames.Exists((x) => x == gameObject.name))
                 return;
             if (TriggerBase.recordTimer == 0)
             {
-                TriggerBase.data.ObjNames.Add(gameObject.name);
+                TriggerBase.data.objNames.Add(gameObject.name);
                 TriggerBase.data.pointsInfo.posList.Add(MyTools.TruncVector3(transform.position));
                 TriggerBase.data.times.Add(0);
                 TriggerBase.recordTimer = Time.time;
@@ -174,7 +172,7 @@ public class ColorPoint : MonoBehaviour
             else
             {
                 TriggerBase.data.times.Add(Time.time - TriggerBase.recordTimer);
-                TriggerBase.data.ObjNames.Add(gameObject.name);
+                TriggerBase.data.objNames.Add(gameObject.name);
                 TriggerBase.data.pointsInfo.posList.Add(MyTools.TruncVector3(transform.position));
             }
             mat.DOColor(Color.red, 0f);

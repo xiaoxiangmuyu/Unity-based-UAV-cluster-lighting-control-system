@@ -12,33 +12,33 @@ public class MappingData
         public Vector3 eulerAngles;
         public void Set(Transform transform)
         {
-            pos=transform.position;
-            eulerAngles=transform.eulerAngles;
+            pos = transform.position;
+            eulerAngles = transform.eulerAngles;
         }
         public void Show(Transform transform)
         {
-            transform.position=pos;
-            transform.eulerAngles=eulerAngles;
+            transform.position = pos;
+            transform.eulerAngles = eulerAngles;
         }
         public void Clear()
         {
-            pos=Vector3.zero;
-            eulerAngles=Vector3.zero;
+            pos = Vector3.zero;
+            eulerAngles = Vector3.zero;
         }
         public bool isNull()
         {
-            return pos==Vector3.zero&&eulerAngles==Vector3.zero;
+            return pos == Vector3.zero && eulerAngles == Vector3.zero;
         }
 
     }
     [VerticalGroup("Main")]
     [HideLabel]
     public string dataName;
-    [ValueDropdown("availableIndex")]
+    [ValueDropdown("availableNames")]
     [VerticalGroup("Main")]
     [HideLabel]
     [GUIColor("GetGroupColor")]
-    public int groupIndex;
+    public string groupName;
     [SerializeField]
     [HideInInspector]
     List<StringColorDictionary> colorDics;
@@ -58,21 +58,15 @@ public class MappingData
     [OnValueChanged("SetStateDirty")]
     public List<Gradient> colors;
     [HideInInspector]
-    public List<string> pointNames;
+    public List<string> ObjNames;
     [HideInInspector]
     public PointIndexInfo pointsInfo;
 
-    IEnumerable availableIndex
+    IEnumerable availableNames
     {
         get
         {
-            int count = ProjectManager.Instance.RecordProject.globalPosDic.Count;
-            var temp = new List<int>();
-            for (int i = 0; i < count; i++)
-            {
-                temp.Add(i + 1);
-            }
-            return temp;
+            return ProjectManager.availableGroups;
         }
     }
     Vector3 center;
@@ -81,7 +75,7 @@ public class MappingData
     bool NeedCau;
     [SerializeField]
     CameraPosSetting cameraPosSetting;
-    
+
     [SerializeField]
     [HideInInspector]
     StringVector3Dictionary screenPosDic = new StringVector3Dictionary();
@@ -94,7 +88,7 @@ public class MappingData
     [GUIColor(0.7f, 1, 1)]
     void ShowObjects()
     {
-        var objects = MyTools.FindObjs(pointNames).ToArray();
+        var objects = MyTools.FindObjs(ObjNames).ToArray();
         for (int i = 0; i < objects.Length; i++)
         {
             objects[i].SetActive(true);
@@ -107,9 +101,9 @@ public class MappingData
     [GUIColor(0.5f, 1, 1)]
     void HideObjects()
     {
-        var objects = MyTools.FindObjs(pointNames);
+        var objects = MyTools.FindObjs(ObjNames);
         objects.ForEach((a) => a.SetActive(false));
-        UnityEditor.Selection.objects=null;
+        UnityEditor.Selection.objects = null;
     }
     [Button("更新", ButtonSizes.Medium)]
     [VerticalGroup("Buttons")]
@@ -117,16 +111,14 @@ public class MappingData
     {
         if (UnityEditor.Selection.objects.Length == 0)
             return;
-        pointNames.Clear();
-        pointsInfo.animName=ProjectManager.curAnimName;
-        pointsInfo.frame=ProjectManager.curAnimFrame;
+        ObjNames.Clear();
         pointsInfo.posList.Clear();
         foreach (var point in UnityEditor.Selection.gameObjects)
         {
             if (point.name.Equals("Main Camera"))
                 continue;
             pointsInfo.posList.Add(MyTools.TruncVector3(point.transform.position));
-            pointNames.Add(point.name);
+            ObjNames.Add(point.name);
         }
         SavePointScreenPos();
         NeedCau = true;
@@ -138,9 +130,10 @@ public class MappingData
     {
         var mainCamera = Camera.main;
         screenPosDic.Clear();
-        foreach (var pointName in pointNames)
+        foreach (var pointName in ObjNames)
         {
-            screenPosDic.Add(pointName, mainCamera.WorldToScreenPoint(ProjectManager.Instance.RecordProject.globalPosDic[groupIndex - 1][pointName]));
+            var info = ProjectManager.Instance.RecordProject.globalPosDic.Find((a) => a.groupName.Equals(groupName));
+            screenPosDic.Add(pointName, mainCamera.WorldToScreenPoint(info.posList[int.Parse(pointName) - 1]));
         }
         cameraPosSetting.Set(mainCamera.transform);
         SetStateDirty();
@@ -151,10 +144,10 @@ public class MappingData
     void ShowScreenPos()
     {
         var mainCamera = Camera.main;
-        if(temp.isNull())
+        if (temp.isNull())
         {
-        temp.Set(mainCamera.transform);
-        cameraPosSetting.Show(mainCamera.transform);
+            temp.Set(mainCamera.transform);
+            cameraPosSetting.Show(mainCamera.transform);
         }
         else
         {
@@ -200,9 +193,10 @@ public class MappingData
     public void Caulate(int index)
     {
         var tempPosDic = new StringVector3Dictionary();
-        foreach (var pointName in pointNames)
+        foreach (var pointName in ObjNames)
         {
-            var pos = ProjectManager.Instance.RecordProject.globalPosDic[groupIndex - 1][pointName];
+            var info = ProjectManager.Instance.RecordProject.globalPosDic.Find((a) => a.groupName.Equals(groupName));
+            var pos = info.posList[int.Parse(pointName) - 1];
             tempPosDic.Add(pointName, pos);
         }
         colorDics.Add(new StringColorDictionary());
@@ -266,7 +260,7 @@ public class MappingData
                 case DirType.Up_Down:
                     foreach (var pointName in screenPosDic.Keys)
                     {
-                        tempScreenPos = screenPosDic[pointName]; 
+                        tempScreenPos = screenPosDic[pointName];
                         colorDics[index].Add(pointName, colors[index].Evaluate(1 - ((tempScreenPos.y - yMin.Value) / (yMax.Value - yMin.Value))));
                     }
                     break;
@@ -322,23 +316,45 @@ public class MappingData
     }
     Color GetGroupColor()
     {
-        var temp = ProjectManager.Instance.RecordProject.globalPosDic.Count;
-        float c = (float)1f / temp * groupIndex;
+        if (groupName == null || groupName.Equals(""))
+            return Color.red;
+        int index = 0;
+        foreach (var animName in ProjectManager.availableGroups)
+        {
+            if (animName.Equals(groupName))
+                break;
+            else
+                index++;
+        }
+        float c = (float)1f / ProjectManager.availableGroups.Count * index;
         return Color.HSVToRGB(c, 0.4f, 1f);
+    }
+    public int GetOrder()
+    {
+        int index = 0;
+        foreach (var animName in ProjectManager.availableGroups)
+        {
+            if (ProjectManager.availableGroups.Equals(groupName))
+                return index;
+            else
+                index++;
+        }
+        return 0;
     }
     public void CorrectIndex()
     {
-        var newNames=MyTools.FindNamesByPointsInfo(pointsInfo);
-        pointNames=new List<string>(newNames);
-        var newDic=new StringVector3Dictionary();
-        int index=0;
-        foreach(var pair in screenPosDic)
+        var animName=ProjectManager.GetGlobalPosInfo(groupName).animName;
+        var newNames = new List<string>(MyTools.FindNamesByCurrentNames(ObjNames, animName));
+        ObjNames = new List<string>(newNames);
+        var newDic = new StringVector3Dictionary();
+        int index = 0;
+        foreach (var pair in screenPosDic)
         {
-            newDic.Add(newNames[index],pair.Value);
+            newDic.Add(newNames[index], pair.Value);
             index++;
         }
         screenPosDic.Clear();
-        screenPosDic=newDic;
+        screenPosDic = newDic;
         CaulateAll();
     }
 

@@ -15,7 +15,7 @@ public class EfyTools
     public static Vector3 PosInfo;
 
     [MenuItem("工具/EfyTools/Init", priority = 0)]
-    static void Init()
+    public static void Init(GameObject[] objs)
     {
         RotationInfo = new Quaternion();
         PosInfo = new Vector3();
@@ -23,7 +23,7 @@ public class EfyTools
         maxChildCount = 0;
         SetCamera();
         Material mat = AssetDatabase.LoadAssetAtPath<Material>("Assets/Resources/bai.mat");
-        GameObject[] objs = Selection.gameObjects;
+        //GameObject[] objs = Selection.gameObjects;
 
         if (objs.Length == 0)
         {
@@ -43,10 +43,10 @@ public class EfyTools
             {
                 obj.AddComponent<MovementManager>().projectName = projectName;
             }
-            if (obj.GetComponent<Helper>() == null)
-            {
-                obj.AddComponent<Helper>();
-            }
+            // if (obj.GetComponent<Helper>() == null)
+            // {
+            //     obj.AddComponent<Helper>();
+            // }
             // if (!recordProject.RecordDic.ContainsKey(obj.name))
             // {
             //     recordProject.RecordDic.Add(new List<RecordData>());

@@ -113,22 +113,21 @@ public class MyTools
 
         }
     }
-    public static List<GameObject> FindObjs(PointIndexInfo pointsInfo)
-    {
-        List<GameObject> objects = new List<GameObject>();
-        Transform parent = ProjectManager.GetPointsRoot().transform;
-        TxtForAnimation target = ProjectManager.FindAnimByName(pointsInfo.animName);
-        List<string> names = new List<string>(target.FindPointNames(pointsInfo.posList, pointsInfo.frame));
-        foreach (var name in names)
-        {
-            MyTools.FindChild(parent, name);
-            if (tempObj == null)
-                Debug.LogError("没有找到" + name);
-            objects.Add(tempObj.gameObject);
-        }
-        return objects;
+    // public static List<GameObject> FindObjs(PointIndexInfo pointsInfo)
+    // {
+    //     List<GameObject> objects = new List<GameObject>();
+    //     Transform parent = ProjectManager.GetPointsRoot().transform;
+    //     List<string> names = new List<string>(ProjectManager.FindPointsByPos(pointsInfo));
+    //     foreach (var name in names)
+    //     {
+    //         MyTools.FindChild(parent, name);
+    //         if (tempObj == null)
+    //             Debug.LogError("没有找到" + name);
+    //         objects.Add(tempObj.gameObject);
+    //     }
+    //     return objects;
 
-    }
+    // }
     public static List<GameObject> FindObjs(List<string> names)
     {
         List<GameObject> objects = new List<GameObject>();
@@ -143,15 +142,33 @@ public class MyTools
         return objects;
 
     }
-    public static List<string> FindNamesByPointsInfo(PointIndexInfo pointsInfo)
+    public static List<string> FindNamesByCurrentNames(List<string> curNames, string animName)
     {
-        var names = new List<string>();
-        foreach (var point in MyTools.FindObjs(pointsInfo))
+        var newNames = new List<string>();
+        var animation = ProjectManager.FindAnimByName(animName);
+        foreach (var name in curNames)
         {
-            names.Add(point.name);
+            int curIndex = int.Parse(name) - 1;
+            //newNames.Add(animation.indexs[curIndex].ToString());
+            for(int i=0;i<animation.indexs.Count;i++)
+            {
+                if(animation.indexs[i]==curIndex)
+                newNames.Add((i+1).ToString());
+            }
         }
-        return names;
+        return newNames;
     }
+    // public static List<string> FindNamesByCurrentNames(List<string>curNames,int groupIndex)
+    // {
+    //     var newNames = new List<string>();
+    //     var animation=ProjectManager.GetAnimationbyGroupIndex(groupIndex);
+    //     foreach(var name in curNames)
+    //     {
+    //         int curIndex=int.Parse(name)-1;
+    //         newNames.Add(animation.indexs[curIndex].ToString());
+    //     }
+    //     return newNames;
+    // }
     static Transform tempObj;
     static void FindChild(Transform tran, string childName)
     {

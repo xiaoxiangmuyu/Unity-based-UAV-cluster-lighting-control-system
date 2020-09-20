@@ -19,17 +19,15 @@ public class ControlBehavior : PlayableBehaviour
     // Called when the owning graph starts playing
     public override void OnGraphStart(Playable playable)
     {
-        if (record.state != BlockState.Ready)
-            return;
-        if (!GraphParent.activeSelf)
-            return;
-        MyTools.UpdateDuring(GraphParent);
+        //MyTools.UpdateDuring(GraphParent,System.DateTime.Now);
         if (!Application.isPlaying)
             return;
+        // if (record.state != BlockState.Ready)
+        //     return;
         if (hasProcess == null)
         {
             hasProcess = new List<bool>();
-            for (int i = 0; i < record.data.ObjNames.Count; i++)
+            for (int i = 0; i < record.data.objNames.Count; i++)
             {
                 hasProcess.Add(false);
             }
@@ -50,10 +48,10 @@ public class ControlBehavior : PlayableBehaviour
     // Called when the state of the playable is set to Play
     public override void OnBehaviourPlay(Playable playable, FrameData info)
     {
-        if (record.state != BlockState.Ready)
-            return;
         if (!Application.isPlaying)
             return;
+        // if (record.state != BlockState.Ready)
+        //     return;
         if (needResetState)
             ResetState();
         // if(!Application.isPlaying)
@@ -78,8 +76,8 @@ public class ControlBehavior : PlayableBehaviour
     // Called each frame while the state is set to Play
     public override void ProcessFrame(Playable playable, FrameData info, object playerData)
     {
-        if (record.state != BlockState.Ready)
-            return;
+        // if (record.state != BlockState.Ready)
+        //     return;
         if (!Application.isPlaying)
             return;
         //DOTween.ManualUpdate(0.04f, 0.04f);

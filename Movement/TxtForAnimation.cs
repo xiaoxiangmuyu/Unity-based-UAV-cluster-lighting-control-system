@@ -61,7 +61,7 @@ public class TxtForAnimation : MonoBehaviour
     [HideInInspector]
     private List<Transform> childs = new List<Transform>();
     [SerializeField]
-    List<int> indexs;
+    public List<int> indexs;
     [ShowInInspector]
     public bool useMapping;
     public bool mappingSuccess
@@ -277,6 +277,8 @@ public class TxtForAnimation : MonoBehaviour
             for (int i = 0; i < childs.Count; i++)
             {
                 int index = cords.FindIndex((a) => a.GetPos(0) == pos[i]);
+                if(index==-1)
+                Debug.LogError((i+1).ToString()+"接不上上个动画最后一帧数");
                 indexs.Add(index);
             }
         }
@@ -315,6 +317,7 @@ public class TxtForAnimation : MonoBehaviour
         int index = int.Parse(pointName);
         return cords[index - 1].GetPos(frame);
     }
+    //播放最后一帧
     public void SetAnimEnd()
     {
         if (totalFrameCount == 0)
@@ -324,6 +327,7 @@ public class TxtForAnimation : MonoBehaviour
         else
             SetChildPos(totalFrameCount - 1);
     }
+    //播放第一帧
     public void SetAnimBegin()
     {
         if (totalFrameCount == 0)
@@ -369,32 +373,46 @@ public class TxtForAnimation : MonoBehaviour
         }
         return null;
     }
-    public List<string> FindPointNames(List<Vector3> posList, int frame)
-    {
-        List<string> temp = new List<string>();
-        foreach (var pos in posList)
-        {
-            temp.Add(FindPointName(pos, frame));
-        }
-        if (!temp.Contains(null))
-            return temp;
-        //全动画帧遍历
-        temp.Clear();
-        for (int i = 0; i < totalFrameCount; i++)
-        {
-            foreach (var pos in posList)
-            {
-                temp.Add(FindPointName(pos, i));
-            }
-            if (!temp.Contains(null))
-                return temp;
-            else
-                temp.Clear();
-        }
-        Debug.LogError("位置索引失败,已返回残缺的数据");
-        return temp;
+    // public List<string> FindPointNames()
+    // {
+    //     List<string> temp = new List<string>();
+    //     // foreach (var pos in posList)
+    //     // {
+    //     //     temp.Add(FindPointName(pos));
+    //     // }
+    //     // if (!temp.Contains(null))
+    //     //     return temp;
+    //     // temp.Clear();
+    //     //全动画帧遍历
+    //     for (int i = 0; i < totalFrameCount; i++)
+    //     {
+    //         // foreach (var pos in posList)
+    //         // {
+    //         //     temp.Add(FindPointName(pos, i));
+    //         // }
+    //         temp.Add(FindPointName(posList[0], i));
+    //         if (!temp.Contains(null))
+    //         {
+    //             temp.Clear();
+    //             foreach (var pos in posList)
+    //             {
+    //                 temp.Add(FindPointName(pos, i));
+    //             }
+    //             if (!temp.Contains(null))
+    //             {
+    //                 return temp;
+    //             }
+    //             else
+    //             {
+    //                 temp.Clear();
+    //             }
+    //         }
+    //         else
+    //             temp.Clear();
+    //     }
+    //     return temp;
 
-    }
+    // }
     public List<Vector3> GetEndPoitions()
     {
         if (staticPositions.Count != 0)

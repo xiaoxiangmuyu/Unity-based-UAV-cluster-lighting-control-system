@@ -30,9 +30,10 @@ public class CircleProcesser : IDataProcesser
         float? yMax = null;
         float? yMin = null;
         tempPosDic=new StringVector3Dictionary();
-        foreach(var pointName in data.ObjNames)
+        foreach(var pointName in data.objNames)
         {
-            var pos=ProjectManager.Instance.RecordProject.globalPosDic[data.groupIndex-1][pointName];
+            var info=ProjectManager.GetGlobalPosInfo(data.groupName);
+            var pos=info.posList[int.Parse(pointName)-1];
             tempPosDic.Add(pointName,pos);
         }
         foreach (var pos in tempPosDic.Values)
@@ -91,11 +92,11 @@ public class CircleProcesser : IDataProcesser
         }
         timer += 0.04f;
         timer=Mathf.Min(timer,animTime);
-        if (index.Count == data.ObjNames.Count)
+        if (index.Count == data.objNames.Count)
         {
             if (isProcessed)
                 return;
-            data.ObjNames = tempNames;
+            data.objNames = tempNames;
             data.times = tempTimes;
             ProcessComplete();
             isProcessed = true;

@@ -34,11 +34,12 @@ public class RectProcesser : IDataProcesser
         float? xMin = null;
         float? yMax = null;
         float? yMin = null;
-        tempPosDic=new StringVector3Dictionary();
-        foreach(var pointName in data.ObjNames)
+        tempPosDic = new StringVector3Dictionary();
+        foreach (var pointName in data.objNames)
         {
-            var pos=ProjectManager.Instance.RecordProject.globalPosDic[data.groupIndex-1][pointName];
-            tempPosDic.Add(pointName,pos);
+            var info = ProjectManager.GetGlobalPosInfo(data.groupName);
+            var pos = info.posList[int.Parse(pointName) - 1]; 
+            tempPosDic.Add(pointName, pos);
         }
         foreach (var pos in tempPosDic.Values)
         {
@@ -92,19 +93,19 @@ public class RectProcesser : IDataProcesser
         while (processPercent <= 1)
         {
             value = DOVirtual.EasedValue(0, maxDistance, processPercent, easeType);
-            OnValueUpdate(value,animTime);
+            OnValueUpdate(value, animTime);
             processPercent += 0.04f / animTime;
             if (processPercent > 1)
             {
-                OnValueUpdate(maxDistance,animTime);
+                OnValueUpdate(maxDistance, animTime);
                 break;
             }
         }
-        if(MyDebugger.instance.IsDebugMode)
-        DrawLine();
+        if (MyDebugger.instance.IsDebugMode)
+            DrawLine();
         return true;
     }
-    void OnValueUpdate(float value,float animTime)
+    void OnValueUpdate(float value, float animTime)
     {
         //Debug.Log(value);
         foreach (var pointName in tempPosDic.Keys)
@@ -122,12 +123,12 @@ public class RectProcesser : IDataProcesser
             }
         }
         timer += 0.04f;
-        timer=Mathf.Min(timer,animTime);
-        if (index.Count == data.ObjNames.Count)
+        timer = Mathf.Min(timer, animTime);
+        if (index.Count == data.objNames.Count)
         {
             if (isProcessed)
                 return;
-            data.ObjNames = tempNames;
+            data.objNames = tempNames;
             data.times = tempTimes;
             ProcessComplete();
             isProcessed = true;
@@ -150,41 +151,41 @@ public class RectProcesser : IDataProcesser
     }
     void DrawLine()
     {
-        float ymax=1080;
-        float ymin=0;
-        float xmax=1920;
-        float xmin=0;
+        float ymax = 1080;
+        float ymin = 0;
+        float xmax = 1920;
+        float xmin = 0;
         //Debug.Log("width:"+Screen.width+"height:"+Screen.height);
-        List<Vector3>points=new List<Vector3>();
-        float targetX=(ymax-C)/K;
+        List<Vector3> points = new List<Vector3>();
+        float targetX = (ymax - C) / K;
 
-        if(targetX>=xmin&&targetX<=xmax)
-        points.Add(new Vector3(targetX,ymax,0));
-        targetX=(ymin-C/K);
-        if(targetX>=xmin&&targetX<=xmax)
-        points.Add(new Vector3(targetX,ymin,0));
+        if (targetX >= xmin && targetX <= xmax)
+            points.Add(new Vector3(targetX, ymax, 0));
+        targetX = (ymin - C / K);
+        if (targetX >= xmin && targetX <= xmax)
+            points.Add(new Vector3(targetX, ymin, 0));
 
-        float targetY=K*xmax+C;
-        if(targetY<=ymax&&targetY>=ymin)
-        points.Add(new Vector3(xmax,targetY,0));
-        targetY=K*xmin+C;
-        if(targetY<=ymax&&targetY>=ymin)
-        points.Add(new Vector3(xmin,targetY,0));
-        Camera mc=Camera.main;
-        Vector3 start=mc.ScreenToWorldPoint(points[0]);
-        Vector3 end=mc.ScreenToWorldPoint(points[1]);
-        float offset=0;
-        if(mc.transform.rotation.y<0.5f)
+        float targetY = K * xmax + C;
+        if (targetY <= ymax && targetY >= ymin)
+            points.Add(new Vector3(xmax, targetY, 0));
+        targetY = K * xmin + C;
+        if (targetY <= ymax && targetY >= ymin)
+            points.Add(new Vector3(xmin, targetY, 0));
+        Camera mc = Camera.main;
+        Vector3 start = mc.ScreenToWorldPoint(points[0]);
+        Vector3 end = mc.ScreenToWorldPoint(points[1]);
+        float offset = 0;
+        if (mc.transform.rotation.y < 0.5f)
         {
-            offset=10;
+            offset = 10;
         }
         else
         {
-            offset=-10;
+            offset = -10;
         }
-        start.z=mc.transform.position.z+offset;
-        end.z=mc.transform.position.z+offset;
-        MyDebugger.instance.DrawLine(start,end);
+        start.z = mc.transform.position.z + offset;
+        end.z = mc.transform.position.z + offset;
+        MyDebugger.instance.DrawLine(start, end);
         //Debug.Log(points[0]+"  "+points[1]);
 
 
