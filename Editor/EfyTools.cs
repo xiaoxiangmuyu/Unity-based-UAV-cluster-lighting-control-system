@@ -74,6 +74,7 @@ public class EfyTools
                 HandleMovementCheck(children[i]);
                 HandleRenderer(children[i], mat);
                 HandleColorPoint(children[i]);
+                children[i].gameObject.layer=LayerMask.NameToLayer("Point");
                 // if (children[i].gameObject.layer != LayerMask.NameToLayer("TriggerIgnore"))
                 // {
                 //     recordProject.RecordDic[0].ObjNames.Add(children[i].name);

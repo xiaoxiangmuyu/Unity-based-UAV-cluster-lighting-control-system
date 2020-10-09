@@ -37,7 +37,7 @@ public class RectProcesser : IDataProcesser
         tempPosDic = new StringVector3Dictionary();
         foreach (var pointName in data.objNames)
         {
-            var info = ProjectManager.GetGlobalPosInfo(data.groupName);
+            var info = ProjectManager.GetGlobalPosInfoByGroup(data.groupName);
             var pos = info.posList[int.Parse(pointName) - 1]; 
             tempPosDic.Add(pointName, pos);
         }

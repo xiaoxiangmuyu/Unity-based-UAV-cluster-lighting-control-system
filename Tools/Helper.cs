@@ -53,7 +53,7 @@ public class Helper : MonoBehaviour
                 tempClip.displayName=clip.displayName;
                 var from=JsonUtility.ToJson(clip.asset);
                 JsonUtility.FromJsonOverwrite(from,tempClip.asset);
-                tempClip.start+=timelineLength;
+                //tempClip.start+=timelineLength;
             }
         }
         //Selection.activeGameObject = gameObject;
@@ -99,6 +99,10 @@ public class Helper : MonoBehaviour
     void CreatAllAnimForTimeLine()
     {
         var anims=GetComponents<TxtForAnimation>();
+        foreach(var anim in anims)
+        {
+            anim.Init();
+        }
         var asset = GetComponent<PlayableDirector>().playableAsset as TimelineAsset;
         var trackRoot=asset.CreateTrack<PlayableTrack>("Animation");
         float end=0;
@@ -120,6 +124,8 @@ public class Helper : MonoBehaviour
         }
         TimelineEditor.Refresh(RefreshReason.ContentsAddedOrRemoved);
         Debug.Log("创建动画完成");
+        ProjectManager.Instance.RecordProject.MappingAll();
+        ProjectManager.Instance.RecordProject.GenerateGlobalPos();
 
     }
 

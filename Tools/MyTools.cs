@@ -37,7 +37,7 @@ public class MyTools
                 if (!temp.Random)
                     totalTime += temp.during;
                 else
-                    totalTime += temp.range.y;
+                    totalTime += (temp.range.y-temp.range.x)*0.8f;
             }
             else if (order is OrderGroup)
             {
@@ -65,7 +65,7 @@ public class MyTools
         }
         return totalTime;
     }
-    public static void UpdateDuring(GameObject obj)
+    public static void UpdateClipDuring(GameObject obj)
     {
         PlayableDirector playableDirector = obj.GetComponentInParent<PlayableDirector>();
         // if(!playableDirector)
@@ -142,20 +142,10 @@ public class MyTools
         return objects;
 
     }
-    public static List<string> FindNamesByCurrentNames(List<string> curNames, string animName)
+    public static List<string> FindNamesByPosList(List<Vector3> posList, string animName)
     {
-        var newNames = new List<string>();
         var animation = ProjectManager.FindAnimByName(animName);
-        foreach (var name in curNames)
-        {
-            int curIndex = int.Parse(name) - 1;
-            //newNames.Add(animation.indexs[curIndex].ToString());
-            for(int i=0;i<animation.indexs.Count;i++)
-            {
-                if(animation.indexs[i]==curIndex)
-                newNames.Add((i+1).ToString());
-            }
-        }
+        var newNames = new List<string>(animation.FindPointNamesByPos(posList));
         return newNames;
     }
     // public static List<string> FindNamesByCurrentNames(List<string>curNames,int groupIndex)

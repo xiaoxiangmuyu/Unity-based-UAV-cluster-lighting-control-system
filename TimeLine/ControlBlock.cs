@@ -18,9 +18,9 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
         {
             if (data == null)
                 return BlockState.NoData;
-            if (ProjectManager.Instance.RecordProject.RecorDataList.Exists((a) => a.dataName == data.dataName))
+            if (ProjectManager.Instance.RecordProject.RecorDataList.Exists((a) => a.dataName.Equals(data.dataName)&&a.groupName.Equals(data.groupName)))
             {
-                var objNames = ProjectManager.Instance.RecordProject.RecorDataList.Find((a) => a.dataName == data.dataName).objNames;
+                var objNames = ProjectManager.Instance.RecordProject.RecorDataList.Find((a) => a.dataName.Equals(data.dataName)&&a.groupName.Equals(data.groupName)).objNames;
                 if (objNames.Count != data.objNames.Count || objs.Exists(a => a == null) || objs.Exists(a => !a.activeInHierarchy))
                 {
                     return BlockState.NeedRefresh;
@@ -98,6 +98,7 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
     public List<GameObject> objs;
     [ValueDropdown("availableFilter")]
     [BoxGroup("数据读取模块")]
+    [OnValueChanged("SetColor")]
     public string groupFilter;
     [ValueDropdown("availableData")]
     [OnValueChanged("RefreshData")]
@@ -122,9 +123,9 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
                 {
                     if (data.groupName == null || data.groupName == String.Empty)
                         continue;
-                    var animName = ProjectManager.GetGlobalPosInfo(data.groupName).animName;
-                    if (animName != null)
-                        if (animName.Equals(groupFilter))
+                    var groupName = ProjectManager.GetGlobalPosInfoByGroup(data.groupName).groupName;
+                    if (groupName != null)
+                        if (groupName.Equals(groupFilter))
                             dataNames.Add(data.dataName);
                 }
             }
@@ -135,8 +136,13 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
     {
         get
         {
-            return ProjectManager.AllAnimNames;
+            return ProjectManager.availableGroups;
         }
+    }
+    void SetColor()
+    {
+        groupName=groupFilter;
+        SetColorIndex();
     }
 
     int ObjMaxIndex
@@ -221,7 +227,7 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
             {
                 if (groupFilter != null || groupFilter != string.Empty)
                 {
-                    if (ProjectManager.GetGlobalPosInfo(data.groupName).animName.Equals(groupFilter))
+                    if (ProjectManager.GetGlobalPosInfoByGroup(data.groupName).groupName.Equals(groupFilter))
                         result = data;
                 }
             }

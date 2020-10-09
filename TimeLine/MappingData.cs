@@ -334,7 +334,7 @@ public class MappingData
         int index = 0;
         foreach (var animName in ProjectManager.availableGroups)
         {
-            if (ProjectManager.availableGroups.Equals(groupName))
+            if (animName.Equals(groupName))
                 return index;
             else
                 index++;
@@ -343,18 +343,20 @@ public class MappingData
     }
     public void CorrectIndex()
     {
-        var animName=ProjectManager.GetGlobalPosInfo(groupName).animName;
-        var newNames = new List<string>(MyTools.FindNamesByCurrentNames(ObjNames, animName));
+        var animName=ProjectManager.GetGlobalPosInfoByGroup(groupName).animName;
+        var newNames = new List<string>(MyTools.FindNamesByPosList(pointsInfo.posList, animName));
+        if(newNames.Count!=0)
         ObjNames = new List<string>(newNames);
-        var newDic = new StringVector3Dictionary();
-        int index = 0;
-        foreach (var pair in screenPosDic)
-        {
-            newDic.Add(newNames[index], pair.Value);
-            index++;
-        }
-        screenPosDic.Clear();
-        screenPosDic = newDic;
+        // var newDic = new StringVector3Dictionary();
+        // int index = 0;
+        // foreach (var pair in screenPosDic)
+        // {
+        //     newDic.Add(newNames[index], pair.Value);
+        //     index++;
+        // }
+        // screenPosDic.Clear();
+        // screenPosDic = newDic;
+        SavePointScreenPos();
         CaulateAll();
     }
 

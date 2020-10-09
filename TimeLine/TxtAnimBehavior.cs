@@ -11,19 +11,22 @@ public class TxtAnimBehavior : PlayableBehaviour
     public MovementManager movementManager;
     public int startFrame;
     public int curframe = 0;
-    bool isExportMode{get{return movementManager.isWorking;}}
+    bool isExportMode { get { return movementManager.isWorking; } }
     public TxtForAnimation target;
     bool isFirstAnim
     {
         get
         {
-            if(!target)
-            return false;
+            if (!target)
+                return false;
             return ProjectManager.GetPointsRoot().GetComponents<TxtForAnimation>()[0].animName.Equals(target.animName);
         }
     }
+    //int counter;
     public override void ProcessFrame(Playable playable, FrameData info, object playerData)
     {
+        // Debug.Log("Test:" + (counter + 1).ToString());
+        // counter += 1;
         if (!isExportMode)
         {
             UpdatePos();//编辑模式,会跳帧或者不连续播放
@@ -34,22 +37,21 @@ public class TxtAnimBehavior : PlayableBehaviour
     }
     public override void OnBehaviourPlay(Playable playable, FrameData info)
     {
-        // ProjectManager.currentAnim = target;
-        // ProjectManager.currentAnimBehavior = this;
+
     }
     public override void OnGraphStart(Playable playable)
     {
-        if(isFirstAnim)
-        MyTools.UpdateDuring(GraphParent);
-        if (!GraphParent.activeSelf||Application.isPlaying)
+        if (!GraphParent.activeSelf)
             return;
-        if (isFirstAnim&&isExportMode)
-            target.MyUpdatePos(0);
-        //初始化点的位置，防止瞬间读取动画造成超速
-        // if (isExportMode)
-        //     target.MyUpdatePos(0,asset.NeedMappingIndex);
-        // else
-        //     curframe = Mathf.FloorToInt((float)director.time * 25f) - startFrame;
+        if (isFirstAnim)
+        {
+            MyTools.UpdateClipDuring(GraphParent);
+            if (isFirstAnim && isExportMode)
+            {
+                target.MyUpdatePos(0);
+                ConsoleProDebug.LogToFilter(target.animName + "第一帧位置已校正", "Result");
+            }
+        }
 
     }
     //随时间轴进度条更新位置
@@ -63,15 +65,14 @@ public class TxtAnimBehavior : PlayableBehaviour
         if (Application.isPlaying)
             curframe += 1;
         else
-        curframe = Mathf.FloorToInt((float)director.time * 25f) - startFrame;
-        //Debug.LogFormat("startFrame:{0}",startFrame);
+            curframe = Mathf.FloorToInt((float)director.time * 25f) - startFrame;
     }
     //s
     void UpdatePosFrameByFrame()
     {
         if (target == null)
             return;
-        ConsoleProDebug.Watch("curframe:", curframe.ToString());
+        ConsoleProDebug.Watch("curframe:", (curframe + 1).ToString());
         target.MyUpdatePos(curframe);
         curframe += 1;
     }

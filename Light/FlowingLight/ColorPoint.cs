@@ -150,7 +150,7 @@ public class ColorPoint : MonoBehaviour
         }
         else
         {
-            Debug.LogError("碰撞体没有TriggerBase组件");
+            Debug.LogError(other.name+"碰撞体没有TriggerBase组件"+gameObject.name);
             return;
         }
         if (!TriggerBase.recordMode)

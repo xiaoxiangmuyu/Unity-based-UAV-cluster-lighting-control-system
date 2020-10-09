@@ -81,7 +81,7 @@ public class RecordData
         times = new List<float>(data.times.ToArray());
         if (data.animTime != 0)
             animTime = data.animTime;
-        if (!dataName.Equals("All") && !dataName.Equals("all"))
+        //if (!dataName.Equals("All") && !dataName.Equals("all"))
             groupName = data.groupName;
         pointsInfo.posList = new List<Vector3>(data.pointsInfo.posList);
         //posDic=data.posDic;
@@ -112,25 +112,26 @@ public class RecordData
     [HorizontalGroup("添加映射")]
     void AddMappingData()
     {
-        if (!ProjectManager.Instance.RecordProject.mappingDatas.Exists((a) => a.dataName == dataName))
+        MappingData targetData = new MappingData();
+        foreach (var temp in ProjectManager.Instance.RecordProject.mappingDatas)
         {
-            MappingData data = new MappingData();
-            data.pointsInfo.posList = pointsInfo.posList;
-            data.ObjNames = new List<string>(objNames);
-            data.dataName = dataName;
-            data.groupName = groupName;
-            ProjectManager.Instance.RecordProject.AddMappingData(data);
-            Debug.Log("添加映射成功");
+            if (temp.dataName.Equals(dataName) && temp.groupName.Equals(groupName))
+            {
+                targetData = temp;
+                targetData.groupName = groupName;
+                targetData.ObjNames = new List<string>(objNames);
+                targetData.pointsInfo.posList = pointsInfo.posList;
+                Debug.Log("数据更新完毕");
+                return;
+            }
         }
-        else
-        {
-            var targetData = ProjectManager.Instance.RecordProject.mappingDatas.Find((a) => a.dataName == dataName);
-            targetData.ObjNames.Clear();
-            targetData.groupName = groupName;
-            targetData.ObjNames = new List<string>(objNames);
-            targetData.pointsInfo.posList = pointsInfo.posList;
-            Debug.Log("数据更新完毕");
-        }
+        MappingData data = new MappingData();
+        data.pointsInfo.posList = pointsInfo.posList;
+        data.ObjNames = new List<string>(objNames);
+        data.dataName = dataName;
+        data.groupName = groupName;
+        ProjectManager.Instance.RecordProject.AddMappingData(data);
+        Debug.Log("添加映射成功");
     }
     [Button("Show", ButtonSizes.Medium)]
     [HorizontalGroup("View")]
@@ -151,7 +152,7 @@ public class RecordData
     {
         var objects = MyTools.FindObjs(objNames);
         objects.ForEach((a) => a.SetActive(false));
-        UnityEditor.Selection.objects=null;
+        UnityEditor.Selection.objects = null;
     }
     [Button("Update", ButtonSizes.Medium)]
     [HorizontalGroup("View")]
@@ -189,7 +190,6 @@ public class RecordData
     }
     public int GetOrder()
     {
-        List<string> anims = new List<string>();
         int index = 0;
         foreach (var animName in ProjectManager.availableGroups)
         {
@@ -203,8 +203,10 @@ public class RecordData
     //[Button("校正")]
     public void CorrectIndex()
     {
-        var animName=ProjectManager.GetGlobalPosInfo(groupName).animName;
-        objNames = new List<string>(MyTools.FindNamesByCurrentNames(objNames, animName));
+        var animName = ProjectManager.GetGlobalPosInfoByGroup(groupName).animName;
+        var temp = new List<string>(MyTools.FindNamesByPosList(pointsInfo.posList, animName));
+        if(temp.Count!=0)
+        objNames=new List<string>(temp);
     }
     //[Button("校正")]
     //    public void CorrectIndex(string animName)

@@ -4,6 +4,11 @@ using UnityEngine;
 using System.IO;
 using Sirenix.OdinInspector;
 using System;
+public enum AnimType
+{
+    Animation,
+    Static
+}
 public class TxtForAnimation : MonoBehaviour
 {
     [Serializable]
@@ -44,6 +49,28 @@ public class TxtForAnimation : MonoBehaviour
     public bool HasFinish { get { return hasFinish; } }
     [ShowInInspector]
     public int childCount { get { if (childs != null) return childs.Count; else return 0; } }
+    public AnimType animType
+    {
+        get
+        {
+            if (totalFrameCount == 0)
+                return AnimType.Static;
+            else
+                return AnimType.Animation;
+        }
+    }
+    public List<int> indexs;
+    [ShowInInspector]
+    public bool useMapping;
+    public bool mappingSuccess
+    {
+        get
+        {
+            if (!useMapping)
+                return true;
+            return !indexs.Exists((a) => a == -1);
+        }
+    }
     #endregion
 
 
@@ -61,18 +88,6 @@ public class TxtForAnimation : MonoBehaviour
     [HideInInspector]
     private List<Transform> childs = new List<Transform>();
     [SerializeField]
-    public List<int> indexs;
-    [ShowInInspector]
-    public bool useMapping;
-    public bool mappingSuccess
-    {
-        get
-        {
-            if (!useMapping)
-                return true;
-            return !indexs.Exists((a) => a == -1);
-        }
-    }
     float timer;
     bool hasBegin;
     #endregion
@@ -181,25 +196,43 @@ public class TxtForAnimation : MonoBehaviour
                 AddChild(tra.GetChild(i));
         }
     }
-    [Button("读取动画", ButtonSizes.Gigantic)]
-    public void InitForAnim()
+    // [Button("读取动画", ButtonSizes.Gigantic)]
+    // public void InitForAnim()
+    // {
+    //     cords.Clear();
+    //     staticPositions.Clear();
+    //     childs.Clear();
+    //     ReadAnimTxtFile();
+    //     GetChilds();
+    //     Debug.Log("读取动画成功");
+    // }
+    // [Button("读取静态模型", ButtonSizes.Gigantic)]
+    // public void InitForStatic()
+    // {
+    //     cords.Clear();
+    //     staticPositions.Clear();
+    //     childs.Clear();
+    //     ReadStaticTxtFile();
+    //     GetChilds();
+    //     Debug.Log("读取静态模型成功");
+    //}
+    [Button("读取动画模型数据", ButtonSizes.Gigantic)]
+    public void Init()
     {
         cords.Clear();
         staticPositions.Clear();
         childs.Clear();
-        ReadAnimTxtFile();
         GetChilds();
-        Debug.Log("读取动画成功");
-    }
-    [Button("读取静态模型", ButtonSizes.Gigantic)]
-    public void InitForStatic()
-    {
-        cords.Clear();
-        staticPositions.Clear();
-        childs.Clear();
-        ReadStaticTxtFile();
-        GetChilds();
-        Debug.Log("读取静态模型成功");
+        if (Directory.Exists(animFolderPath))
+        {
+            ReadAnimTxtFile();
+            Debug.Log("读取动画成功");
+        }
+        else
+        {
+            ReadStaticTxtFile();
+            Debug.Log("读取静态模型成功");
+        }
     }
 
     // Update is called once per frame
@@ -239,7 +272,7 @@ public class TxtForAnimation : MonoBehaviour
         {
             if (hasFinish)
                 return;
-            ConsoleProDebug.LogToFilter("播放完成,共" + frame + "帧", "Result");
+            ConsoleProDebug.LogToFilter(animName + " 播放完成,共" + frame + "帧", "Result");
             //Debug.Log("播放完成,共" + frame + "帧");
             hasFinish = true;
             return;
@@ -277,8 +310,8 @@ public class TxtForAnimation : MonoBehaviour
             for (int i = 0; i < childs.Count; i++)
             {
                 int index = cords.FindIndex((a) => a.GetPos(0) == pos[i]);
-                if(index==-1)
-                Debug.LogError((i+1).ToString()+"接不上上个动画最后一帧数");
+                if (index == -1)
+                    Debug.LogError((i + 1).ToString() + "接不上上个动画最后一帧数");
                 indexs.Add(index);
             }
         }
@@ -373,46 +406,44 @@ public class TxtForAnimation : MonoBehaviour
         }
         return null;
     }
-    // public List<string> FindPointNames()
-    // {
-    //     List<string> temp = new List<string>();
-    //     // foreach (var pos in posList)
-    //     // {
-    //     //     temp.Add(FindPointName(pos));
-    //     // }
-    //     // if (!temp.Contains(null))
-    //     //     return temp;
-    //     // temp.Clear();
-    //     //全动画帧遍历
-    //     for (int i = 0; i < totalFrameCount; i++)
-    //     {
-    //         // foreach (var pos in posList)
-    //         // {
-    //         //     temp.Add(FindPointName(pos, i));
-    //         // }
-    //         temp.Add(FindPointName(posList[0], i));
-    //         if (!temp.Contains(null))
-    //         {
-    //             temp.Clear();
-    //             foreach (var pos in posList)
-    //             {
-    //                 temp.Add(FindPointName(pos, i));
-    //             }
-    //             if (!temp.Contains(null))
-    //             {
-    //                 return temp;
-    //             }
-    //             else
-    //             {
-    //                 temp.Clear();
-    //             }
-    //         }
-    //         else
-    //             temp.Clear();
-    //     }
-    //     return temp;
-
-    // }
+    public List<string> FindPointNamesByPos(List<Vector3>posList)
+    {
+        List<string> temp = new List<string>();
+        foreach (var pos in posList)
+        {
+            temp.Add(FindPointName(pos,0));
+        }
+        if (!temp.Contains(null))
+        {
+            Debug.Log("校正成功!");
+            return temp;
+        }
+        //全动画帧遍历
+        temp.Clear();
+        for (int i = 0; i < totalFrameCount; i++)
+        {
+            foreach (var pos in posList)
+            {
+                var result=FindPointName(pos, i);
+                if(result!=null)
+                temp.Add(result);
+                else
+                break;
+            }
+            //temp.Add(FindPointName(posList[0], i));
+            if (temp.Count!=posList.Count)
+            {
+                temp.Clear();
+            }
+            else
+            {
+                Debug.Log("校正成功");
+                return temp;
+            }
+        }
+        Debug.LogError(animName+"校正失败");
+        return temp;
+    }
     public List<Vector3> GetEndPoitions()
     {
         if (staticPositions.Count != 0)

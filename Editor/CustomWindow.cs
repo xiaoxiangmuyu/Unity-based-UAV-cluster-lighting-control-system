@@ -6,7 +6,7 @@ public class NodeEditor : EditorWindow
 {
     string number="number";
     string animNumber="animNumber";
-    [MenuItem("Window/Node editor")]
+    [MenuItem("Window/项目初始化")]
     static void ShowEditor()
     {
         NodeEditor editor = EditorWindow.GetWindow<NodeEditor>();
@@ -26,14 +26,14 @@ public class NodeEditor : EditorWindow
         if(GUI.Button(new Rect(10, 80, 100, 100),"初始化项目"))
         {
             var root=new GameObject("Main");
-            root.AddComponent<Helper>().GeneratePoint(int.Parse(number));
             int animCount=int.Parse(animNumber);
-            animCount=animCount*2-1;
+            //animCount=animCount*2-1;
+            EfyTools.Init(new GameObject[1]{root});
             for(int i=0;i<animCount;i++)
             {
                 root.AddComponent<TxtForAnimation>();
             }
-            EfyTools.Init(new GameObject[1]{root});
+            root.AddComponent<Helper>().GeneratePoint(int.Parse(number));
 
         }
     }

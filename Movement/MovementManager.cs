@@ -5,6 +5,7 @@ using UnityEditor;
 using UnityEngine;
 using Sirenix.OdinInspector;
 using UnityEngine.UI;
+using UnityEditor.Timeline;
 public class MovementManager : MonoBehaviour
 {
     public enum ExportType { Time, Frame }
@@ -40,11 +41,6 @@ public class MovementManager : MonoBehaviour
     }
     StringBuilder sb = new StringBuilder(50, 50);
     int r, g, b;
-    // [Button]
-    // void SetCurrent()
-    // {
-    //     ProjectManager.SetOperateTarget(this);
-    // }
     void OnEnable()
     {
 
@@ -110,14 +106,13 @@ public class MovementManager : MonoBehaviour
     {
         if (!isWorking)
             return;
-
-        if (animator && animator.enabled) //测速模式
+        //TimelineEditor.masterDirector.Evaluate
+        if (exportType == ExportType.Time)
         {
-            info = animator.GetCurrentAnimatorStateInfo(0);
+            timer += Time.deltaTime;
 
-            if (info.normalizedTime >= 1.0f) // 动画播放完毕
+            if (timer >= ExportTime)
             {
-                Debug.Log("动画播放完成");
                 isWorking = false;
                 if (ExportCheck())
                     Export();
@@ -127,38 +122,21 @@ public class MovementManager : MonoBehaviour
                 }
             }
         }
-        else // 输出模式
+        else
         {
-            if (exportType == ExportType.Time)
+            if (frame == ExportFrame)
             {
-                timer += Time.deltaTime;
-
-                if (timer >= ExportTime)
+                isWorking = false;
+                if (ExportCheck())
+                    Export();
+                else
                 {
-                    isWorking = false;
-                    if (ExportCheck())
-                        Export();
-                    else
-                    {
-                        ConsoleProDebug.LogToFilter("自检不通过，导出失败", "Result");
-                    }
+                    ConsoleProDebug.LogToFilter("自检不通过，导出失败", "Result");
                 }
             }
-            else
-            {
-                if (frame == ExportFrame)
-                {
-                    isWorking = false;
-                    if (ExportCheck())
-                        Export();
-                    else
-                    {
-                        ConsoleProDebug.LogToFilter("自检不通过，导出失败", "Result");
-                    }
-                }
-                frame += 1;
-            }
+            frame += 1;
         }
+
     }
     #region 检查
 

@@ -29,7 +29,7 @@ public class MyCustomEditor : Editor
             //menu.AddItem(new GUIContent("创建旧映射组"), false, CreatOldMapping, "menu_5");
             menu.AddItem(new GUIContent("刷新时间轴"), false, Resfrsh, "menu_7");
             menu.AddItem(new GUIContent("创建全局位置数据"), false, CreatGlobalPosData, "menu_8");
-            menu.AddItem(new GUIContent("校正所选效果"), false, CorrectIndex, "menu_9");
+            //menu.AddItem(new GUIContent("校正所选效果"), false, CorrectIndex, "menu_9");
             menu.ShowAsContext();
         }
     }

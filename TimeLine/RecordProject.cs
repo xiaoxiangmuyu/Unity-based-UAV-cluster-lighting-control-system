@@ -18,7 +18,7 @@ public class GlobalPosInfo
     {
         get
         {
-            return ProjectManager.AllAnimNames;
+            return ProjectManager.AllMainAnimNames;
         }
     }
 
@@ -56,6 +56,7 @@ public class RecordProject : SerializedScriptableObject
         {
             RecordData tempData = new RecordData();
             tempData.CopyFrom(data);
+            if(RecorDataList.Count!=0)
             tempData.groupName=RecorDataList[RecorDataList.Count-1].groupName;
             RecorDataList.Add(tempData);
         }
@@ -100,7 +101,7 @@ public class RecordProject : SerializedScriptableObject
     [Button("一键指派",ButtonSizes.Gigantic)]
     [FoldoutGroup("buttons")]
     //一键指派
-    void MappingAll()
+    public void MappingAll()
     {
         var anims=ProjectManager.GetPointsRoot().GetComponents<TxtForAnimation>();
         List<Vector3>temp=new List<Vector3>();
@@ -126,6 +127,7 @@ public class RecordProject : SerializedScriptableObject
     void CorrectAll()
     {
         //MappingAll();
+        UpdateGlobalPos();
         foreach(var data in RecorDataList)
         {
             data.CorrectIndex();
@@ -171,8 +173,35 @@ public class RecordProject : SerializedScriptableObject
             reader.Close();
         }
         Debug.Log("读取分组信息成功");
-
-
+    }
+    public void GenerateGlobalPos()
+    {
+        foreach(var anim in ProjectManager.AllMainAnimNames)
+        {
+            var txtForAnimation=ProjectManager.FindAnimByName(anim);
+            GlobalPosInfo info=new GlobalPosInfo();
+            info.animName=anim;
+            info.groupName=anim;
+            foreach(var pos in txtForAnimation.GetEndPoitions())
+            {
+                info.posList.Add(pos);
+            }
+            globalPosDic.Add(info);
+            
+        }
+        Debug.Log("生成全局位置数据完成");
+    }
+    public void UpdateGlobalPos()
+    {
+        for(int i=0;i<globalPosDic.Count;i++)
+        {
+            globalPosDic[i].posList.Clear();
+            var txtForAnimation=ProjectManager.FindAnimByName(globalPosDic[i].animName);
+            foreach(var pos in txtForAnimation.GetEndPoitions())
+            {
+                globalPosDic[i].posList.Add(pos);
+            }
+        }
     }
     
 

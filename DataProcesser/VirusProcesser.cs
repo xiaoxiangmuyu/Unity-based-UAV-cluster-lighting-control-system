@@ -67,7 +67,7 @@ public class VirusProcesser : IDataProcesser
         var allNames = new List<string>();
         for (int j = 0; j < pointNames.Count; j++)
         {
-            var info = ProjectManager.GetGlobalPosInfo(data.groupName);
+            var info = ProjectManager.GetGlobalPosInfoByGroup(data.groupName);
             Vector3 worldPos = info.posList[int.Parse(pointNames[j])-1];
             //Vector2 screenPos=mainCamera.WorldToScreenPoint(worldPos);
             Vector3 tempWorldPos;

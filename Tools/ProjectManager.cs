@@ -46,7 +46,7 @@ public class ProjectManager : MonoBehaviour
             return globalAnimNames;
         }
     }
-    public static List<string> AllAnimNames
+    public static List<string> AllMainAnimNames
     {
         get
         {
@@ -54,6 +54,7 @@ public class ProjectManager : MonoBehaviour
             var allAnimNames = new List<string>();
             foreach (var animation in GetPointsRoot().GetComponents<TxtForAnimation>())
             {
+                if(animation.animName.StartsWith("G"))
                 allAnimNames.Add(animation.animName);
             }
             return allAnimNames;
@@ -142,7 +143,7 @@ public class ProjectManager : MonoBehaviour
         var anims = GetPointsRoot().GetComponents<TxtForAnimation>();
         return anims[groupIndex - 1];
     }
-    public static GlobalPosInfo GetGlobalPosInfo(string groupName)
+    public static GlobalPosInfo GetGlobalPosInfoByGroup(string groupName)
     {
         var info = instance.RecordProject.globalPosDic.Find((a) => a.groupName.Equals(groupName));
         return info;
