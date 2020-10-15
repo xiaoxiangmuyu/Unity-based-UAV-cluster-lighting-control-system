@@ -7,21 +7,16 @@ public class VirusProcesser : IDataProcesser
     public List<string> beginPoints = new List<string>();
     public bool IsSingleDir;
     [HideIf("IsSingleDir")]
+    [ReadOnly]
     public float searchRadius;
     public float findInterval;
-    List<string> tempNames;
-    List<float> tempTimes;
+    // List<string> tempNames;
+    // List<float> tempTimes;
     public override bool Process(ref RecordData data, float animTime)
     {
-        // if (animTime == 0)
-        // {
-        //     Debug.LogError("animTime为0");
-        //     return false;
-        // }
-        //findInterval=(float)animTime/data.ObjNames.Count;
+        searchRadius=0;
         mainCamera = Camera.main;
         isProcessed = false;
-        this.data = data;
         tempNames = new List<string>();
         tempTimes = new List<float>();
         for (int i = 0; i < beginPoints.Count; i++)
@@ -32,7 +27,20 @@ public class VirusProcesser : IDataProcesser
                 return false;
             }
         }
-        FindNext(beginPoints, 0);
+        while (searchRadius <= 20)
+        {
+            tempNames.Clear();
+            tempTimes.Clear();
+            this.data=new RecordData();
+            this.data.CopyFrom(data);
+            FindNext(beginPoints, 0);
+            if (tempNames.Count != data.objNames.Count)
+            {
+                searchRadius += 0.1f;
+            }
+            else
+                break;
+        }
         // while(tempNames.Count!=data.ObjNames.Count)
         // {
         //     searchRadius+=1;
@@ -56,9 +64,9 @@ public class VirusProcesser : IDataProcesser
             //     Debug.LogError(pointNames[i] + "不存在于这个数据组");
             //     return;
             // }
-            data.objNames.Remove(pointNames[i]);
             if (!tempNames.Contains(pointNames[i]))
             {
+                data.objNames.Remove(pointNames[i]);
                 tempNames.Add(pointNames[i]);
                 tempTimes.Add(time);
             }
@@ -68,7 +76,7 @@ public class VirusProcesser : IDataProcesser
         for (int j = 0; j < pointNames.Count; j++)
         {
             var info = ProjectManager.GetGlobalPosInfoByGroup(data.groupName);
-            Vector3 worldPos = info.posList[int.Parse(pointNames[j])-1];
+            Vector3 worldPos = info.posList[int.Parse(pointNames[j]) - 1];
             //Vector2 screenPos=mainCamera.WorldToScreenPoint(worldPos);
             Vector3 tempWorldPos;
             //Vector2 tempScreenPos;
@@ -79,7 +87,7 @@ public class VirusProcesser : IDataProcesser
                 if (pointNames.Contains(data.objNames[i]))
                     continue;
                 //tempScreenPos=mainCamera.WorldToScreenPoint(tempWorldPos);
-                tempWorldPos = info.posList[int.Parse(data.objNames[i])-1];
+                tempWorldPos = info.posList[int.Parse(data.objNames[i]) - 1];
                 dis.Add(data.objNames[i], Vector3.Distance(worldPos, tempWorldPos));
             }
             if (dis.Count == 0)
@@ -108,6 +116,7 @@ public class VirusProcesser : IDataProcesser
                     temp.Add(pair.Key);
                 }
             }
+
         }
         else
         {
@@ -121,17 +130,6 @@ public class VirusProcesser : IDataProcesser
             }
             temp.Add(minName);
         }
-
-        // foreach (var pair in dis)
-        // {
-        //     if (Mathf.Abs(minDistance-pair.Value)<=dif)
-        //     {
-        //         temp.Add(pair.Key);
-        //     }
-        // }
-
-
-
         return temp;
     }
 }

@@ -28,12 +28,12 @@ public class NodeEditor : EditorWindow
             var root=new GameObject("Main");
             int animCount=int.Parse(animNumber);
             //animCount=animCount*2-1;
+            root.AddComponent<Helper>().GeneratePoint(int.Parse(number));
             EfyTools.Init(new GameObject[1]{root});
             for(int i=0;i<animCount;i++)
             {
                 root.AddComponent<TxtForAnimation>();
             }
-            root.AddComponent<Helper>().GeneratePoint(int.Parse(number));
 
         }
     }

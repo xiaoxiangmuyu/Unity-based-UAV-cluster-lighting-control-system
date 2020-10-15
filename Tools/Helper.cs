@@ -38,27 +38,27 @@ public class Helper : MonoBehaviour
         var templete = Resources.Load<TimelineAsset>("Templetes/" + targetTemplete.name);
         //var asset = Resources.Load<TimelineAsset>("Projects/" + ProjectManager.Instance.projectName + "/" + gameObject.name);
         var asset = GetComponent<PlayableDirector>().playableAsset as TimelineAsset;
-        var trackRoot=asset.CreateTrack<GroupTrack>(targetTemplete.name);
-        var timelineLength=asset.duration;
+        var trackRoot = asset.CreateTrack<GroupTrack>(targetTemplete.name);
+        var timelineLength = asset.duration;
         foreach (var track in templete.GetOutputTracks())
         {
-            if(track.name=="Markers")
-            continue;
-            var tempTrack= asset.CreateTrack<PlayableTrack>(trackRoot,track.name);
-            foreach(var clip in track.GetClips())
+            if (track.name == "Markers")
+                continue;
+            var tempTrack = asset.CreateTrack<PlayableTrack>(trackRoot, track.name);
+            foreach (var clip in track.GetClips())
             {
-                var tempClip=tempTrack.CreateClip<ControlBlock>();
-                tempClip.start=clip.start;
-                tempClip.duration=clip.duration;
-                tempClip.displayName=clip.displayName;
-                var from=JsonUtility.ToJson(clip.asset);
-                JsonUtility.FromJsonOverwrite(from,tempClip.asset);
+                var tempClip = tempTrack.CreateClip<ControlBlock>();
+                tempClip.start = clip.start;
+                tempClip.duration = clip.duration;
+                tempClip.displayName = clip.displayName;
+                var from = JsonUtility.ToJson(clip.asset);
+                JsonUtility.FromJsonOverwrite(from, tempClip.asset);
                 //tempClip.start+=timelineLength;
             }
         }
         //Selection.activeGameObject = gameObject;
         TimelineEditor.Refresh(RefreshReason.ContentsAddedOrRemoved);
-        
+
         Debug.Log("应用模版完成");
     }
     void SetCurrentObj()
@@ -78,48 +78,48 @@ public class Helper : MonoBehaviour
             ProjectManager.RefreshCurTarget();
         }
     }
-    [Button("生成点",ButtonSizes.Gigantic)]
+    [Button("生成点", ButtonSizes.Gigantic)]
     public void GeneratePoint(int number)
     {
-        if(transform.childCount!=0)
+        if (transform.childCount != 0)
         {
             Debug.Log("已经有子物体了");
             return;
         }
-        GameObject pointPrefab=Resources.Load<GameObject>("PointPrefab");
+        GameObject pointPrefab = Resources.Load<GameObject>("PointPrefab");
         GameObject temp;
-        for(int i=0;i<number;i++)
+        for (int i = 0; i < number; i++)
         {
-            temp=Instantiate(pointPrefab);
+            temp = Instantiate(pointPrefab);
             temp.transform.SetParent(transform);
-            temp.name=(i+1).ToString();
+            temp.name = (i + 1).ToString();
         }
     }
-    [Button("创建所有动画",ButtonSizes.Gigantic)]
+    [Button("创建所有动画", ButtonSizes.Gigantic)]
     void CreatAllAnimForTimeLine()
     {
-        var anims=GetComponents<TxtForAnimation>();
-        foreach(var anim in anims)
+        var anims = GetComponents<TxtForAnimation>();
+        foreach (var anim in anims)
         {
             anim.Init();
         }
         var asset = GetComponent<PlayableDirector>().playableAsset as TimelineAsset;
-        var trackRoot=asset.CreateTrack<PlayableTrack>("Animation");
-        float end=0;
-        for(int i=0;i<anims.Length;i++)
+        var trackRoot = asset.CreateTrack<PlayableTrack>("Animation");
+        float end = 0;
+        for (int i = 0; i < anims.Length; i++)
         {
-            var clip=trackRoot.CreateClip<TxtAnimAsset>();
-            clip.start=end;
-            var temp=clip.asset as TxtAnimAsset;
-            temp.animName=anims[i].animName;
-            if(anims[i].totalFrameCount==0)
+            var clip = trackRoot.CreateClip<TxtAnimAsset>();
+            clip.start = end;
+            var temp = clip.asset as TxtAnimAsset;
+            temp.animName = anims[i].animName;
+            if (anims[i].totalFrameCount == 0)
             {
-                temp.safeSeconds=20;
-                end+=20;
+                temp.safeSeconds = 20;
+                end += 20;
             }
             else
             {
-                end+=anims[i].totalFrameCount/25f+2;
+                end += anims[i].totalFrameCount / 25f + 2;
             }
         }
         TimelineEditor.Refresh(RefreshReason.ContentsAddedOrRemoved);

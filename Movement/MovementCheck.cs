@@ -95,10 +95,15 @@ public class MovementCheck : MonoBehaviour
     }
     string tmp;
     float result;
+    float temp;
     private float Trunc(float num)
     {
-        tmp = num.ToString("f2");
-        result = float.Parse(tmp);
+        // tmp = num.ToString("f2");
+        // result = float.Parse(tmp);
+        // return result;
+        temp=num*100;
+        int i=(int)temp;
+        result=i/100f;
         return result;
     }
 
