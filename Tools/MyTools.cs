@@ -185,8 +185,12 @@ public class MyTools
     }
     static float Trunc(float num)
     {
-        var temp = num.ToString("f2");
-        return float.Parse(temp);
+        // var temp = num.ToString("f2");
+        // return float.Parse(temp);
+        float temp=num*100;
+        int i=(int)temp;
+        float result=i/100f;
+        return result;
     }
 
     public static Vector3 TruncVector3(Vector3 v)

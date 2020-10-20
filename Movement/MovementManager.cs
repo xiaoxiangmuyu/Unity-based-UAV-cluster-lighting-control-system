@@ -4,13 +4,13 @@ using System.Text;
 using UnityEditor;
 using UnityEngine;
 using Sirenix.OdinInspector;
-using UnityEngine.UI;
 using UnityEditor.Timeline;
 public class MovementManager : MonoBehaviour
 {
     public enum ExportType { Time, Frame }
     [OnValueChanged("RefreshTimeLine")]
     public bool isWorking;
+    public bool usePostProcessing;
     void RefreshTimeLine()
     {
         UnityEditor.Timeline.TimelineEditor.Refresh(UnityEditor.Timeline.RefreshReason.ContentsAddedOrRemoved);
@@ -236,8 +236,8 @@ public class MovementManager : MonoBehaviour
         int temp = movementChecks[0].GetPosInfos().Count;
         if (movementChecks.Exists((a) => a.GetPosInfos().Count != temp))
         {
-            string name = movementChecks.Find((a) => a.GetPosInfos().Count != temp).gameObject.name;
-            Debug.LogError(name + "导出的txt行数有问题,是否中途被关闭?");
+            MovementCheck movementCheck = movementChecks.Find((a) => a.GetPosInfos().Count != temp);
+            Debug.LogError(movementCheck.gameObject.gameObject.name + "导出的txt行数有问题,是否中途被关闭?PosCount:"+movementCheck.GetPosInfos().Count+"  "+temp);
             return false;
         }
         return true;
@@ -422,15 +422,11 @@ public class MovementManager : MonoBehaviour
         sb.Append(b);
         return sb.ToString();
     }
-    public void SetProjectName(string name)
+    public void RecordAllPoint(Texture2D texture)
     {
-        projectName = name;
-    }
-    public void ResetAllColor()
-    {
-        foreach (var point in movementChecks)
+        for(int i=0;i<movementChecks.Count;i++)
         {
-            point.GetComponent<MeshRenderer>().material.color = Color.black;
+            movementChecks[i].Record(texture);
         }
     }
 }

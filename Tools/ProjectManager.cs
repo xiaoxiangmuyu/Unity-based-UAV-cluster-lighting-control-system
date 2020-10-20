@@ -5,6 +5,7 @@ using DG.Tweening;
 using UnityEngine.Playables;
 using Sirenix.OdinInspector;
 using UnityEditor.Timeline;
+using UnityEngine.Rendering;
 public class ProjectManager : MonoBehaviour
 {
     static GameObject currentTarget;
@@ -14,9 +15,19 @@ public class ProjectManager : MonoBehaviour
     {
         get
         {
-            if (instance == null) 
-            instance = Camera.main.GetComponent<ProjectManager>();
+            if (instance == null)
+                instance = Camera.main.GetComponent<ProjectManager>();
             return instance;
+        }
+    }
+    static Camera mainCamera;
+    public static Camera MainCamera
+    {
+        get
+        {
+            if (mainCamera == null)
+                mainCamera = Instance.GetComponent<Camera>();
+            return mainCamera;
         }
     }
     RecordProject recordProject;
@@ -38,7 +49,7 @@ public class ProjectManager : MonoBehaviour
         get
         {
             var globalAnimNames = new List<string>();
-            var temp=Instance.RecordProject.globalPosDic;
+            var temp = Instance.RecordProject.globalPosDic;
             foreach (var info in temp)
             {
                 globalAnimNames.Add(info.groupName);
@@ -54,14 +65,25 @@ public class ProjectManager : MonoBehaviour
             var allAnimNames = new List<string>();
             foreach (var animation in GetPointsRoot().GetComponents<TxtForAnimation>())
             {
-                if(animation.animName.StartsWith("G"))
-                allAnimNames.Add(animation.animName);
+                if (animation.animName.StartsWith("G"))
+                    allAnimNames.Add(animation.animName);
             }
             return allAnimNames;
         }
     }
 
-
+    void OnEnable()
+    {
+        RenderPipelineManager.endCameraRendering += RenderPipelineManager_endCameraRendering;
+    }
+    void OnDisable()
+    {
+        RenderPipelineManager.endCameraRendering -= RenderPipelineManager_endCameraRendering;
+    }
+    private void RenderPipelineManager_endCameraRendering(ScriptableRenderContext context, Camera camera)
+    {
+        RecordScreenColor();
+    }
     private void Awake()
     {
         instance = this;
@@ -147,6 +169,25 @@ public class ProjectManager : MonoBehaviour
     {
         var info = instance.RecordProject.globalPosDic.Find((a) => a.groupName.Equals(groupName));
         return info;
+    }
+    Texture2D texture;
+    int width;
+    int height;
+    MovementManager movementManager;
+    public void RecordScreenColor()
+    {
+        if (texture == null)
+        {
+            width = RenderTexture.active.width;
+            height = RenderTexture.active.height;
+            texture = new Texture2D(width, height, TextureFormat.RGB24, false);
+        }
+        //Read the pixels in the Rect starting at 0,0 and ending at the screen's width and height
+        texture.ReadPixels(new Rect(0, 0, width, height), 0, 0);
+        texture.Apply();
+        if (movementManager == null)
+            movementManager = ProjectManager.GetPointsRoot().GetComponent<MovementManager>();
+        movementManager.RecordAllPoint(texture);
     }
 
 
