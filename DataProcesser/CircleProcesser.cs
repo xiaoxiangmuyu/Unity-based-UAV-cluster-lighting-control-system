@@ -7,10 +7,10 @@ public class CircleProcesser : IDataProcesser
 {
     [OnValueChanged("EventDispatch")]
     [Range(0, 1)]
-    public float center_X;
+    public float center_X=0.5f;
     [OnValueChanged("EventDispatch")]
     [Range(0, 1)]
-    public float center_Y;
+    public float center_Y=0.5f;
 
     Vector2 anchorPoint;
 

@@ -9,7 +9,7 @@ public class VirusProcesser : IDataProcesser
     [HideIf("IsSingleDir")]
     [ReadOnly]
     public float searchRadius;
-    public float findInterval;
+    public float findInterval=0.05f;
     // List<string> tempNames;
     // List<float> tempTimes;
     public override bool Process(ref RecordData data, float animTime)

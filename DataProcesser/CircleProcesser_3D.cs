@@ -7,13 +7,13 @@ public class CircleProcesser_3D : IDataProcesser
 {
     [OnValueChanged("EventDispatch")]
     [Range(0, 1)]
-    public float center_X;
+    public float center_X=0.5f;
     [OnValueChanged("EventDispatch")]
     [Range(0, 1)]
-    public float center_Y;
+    public float center_Y=0.5f;
     [OnValueChanged("EventDispatch")]
     [Range(0, 1)]
-    public float center_Z;
+    public float center_Z=0.5f;
     Vector3 anchorPoint;
     public override bool Process(ref RecordData data, float animTime)
     {

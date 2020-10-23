@@ -48,7 +48,7 @@ public class MappingData
     [ShowIf("ShowXY")]
     [Range(0, 1)]
     [VerticalGroup("Properties")]
-    public float anchorX, anchorY;
+    public float anchorX=0.5f, anchorY=0.5f;
     [ShowIf("ShowZ")]
     [Range(0, 1)]
     [VerticalGroup("Properties")]
