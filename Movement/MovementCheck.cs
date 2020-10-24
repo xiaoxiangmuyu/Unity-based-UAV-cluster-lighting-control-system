@@ -43,9 +43,9 @@ public class MovementCheck : MonoBehaviour
         {
             Vector2 screenPos = ProjectManager.MainCamera.WorldToScreenPoint(transform.position);
             Color temp = texture.GetPixel((int)screenPos.x, (int)screenPos.y);
-            if (temp.Equals(Color.black))
-                return;
-            else
+            // if (temp.Equals(Color.green))
+            //     return;
+            // else
                 colorInfos.Add(temp);
         }
         curPos = MyTools.TruncVector3(transform.position);

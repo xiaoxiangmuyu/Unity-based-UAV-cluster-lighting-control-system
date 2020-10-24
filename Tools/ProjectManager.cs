@@ -176,12 +176,17 @@ public class ProjectManager : MonoBehaviour
     MovementManager movementManager;
     public void RecordScreenColor()
     {
-        if (texture == null)
-        {
-            width = RenderTexture.active.width;
-            height = RenderTexture.active.height;
-            texture = new Texture2D(width, height, TextureFormat.RGB24, false);
-        }
+        // if (texture == null)
+        // {
+        //     width = RenderTexture.active.width;
+        //     height = RenderTexture.active.height;
+        //     texture = new Texture2D(width, height, TextureFormat.RGB24, false);
+        // }
+        if(RenderTexture.active==null)
+        RenderTexture.active=MainCamera.targetTexture;
+        width = RenderTexture.active.width;
+        height = RenderTexture.active.height;
+        texture = new Texture2D(width, height, TextureFormat.RGB24, false);
         //Read the pixels in the Rect starting at 0,0 and ending at the screen's width and height
         texture.ReadPixels(new Rect(0, 0, width, height), 0, 0);
         texture.Apply();
