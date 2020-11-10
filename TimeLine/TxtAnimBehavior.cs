@@ -62,9 +62,9 @@ public class TxtAnimBehavior : PlayableBehaviour
         if (curframe < 0)
             curframe = 0;
         target.MyUpdatePos(curframe);
-        if (Application.isPlaying)
-            curframe += 1;
-        else
+        //if (Application.isPlaying)
+        //    curframe += 1;
+        //else
             curframe = Mathf.FloorToInt((float)director.time * 25f) - startFrame;
     }
     //s

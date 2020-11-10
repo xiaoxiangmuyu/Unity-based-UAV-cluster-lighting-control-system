@@ -91,22 +91,6 @@ public class TxtForAnimation : MonoBehaviour
     float timer;
     bool hasBegin;
     #endregion
-    private void Awake()
-    {
-        AnimatorCheck();
-    }
-    void Start()
-    {
-
-    }
-    void AnimatorCheck()
-    {
-        if (GetComponent<Animator>())
-        {
-            if (GetComponent<Animator>().enabled)
-                Debug.LogError(gameObject.name + "动画组件没关");
-        }
-    }
     void ReadAnimTxtFile()
     {
         if (cords != null && cords.Count != 0)

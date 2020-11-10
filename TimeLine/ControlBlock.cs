@@ -93,6 +93,7 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
     public float possibility = 1;
     [ListDrawerSettings(Expanded = true)]
     [PropertyOrder(3)]
+    [OnValueChanged("SetColorIndex")]
     public List<ColorOrderBase> colorOrders = new List<ColorOrderBase>();
     [HideInInspector]
     public List<GameObject> objs;

@@ -98,7 +98,7 @@ public class MyCustomEditor : Editor
         tempdata.pointsInfo.posList = new List<Vector3>();
         foreach (var point in Selection.gameObjects)
         {
-            if (point.name == "Main Camera")
+            if (!int.TryParse(point.name,out int res))
                 continue;
             if (point.transform.childCount != 0)
             {
@@ -165,13 +165,13 @@ public class MyCustomEditor : Editor
         tempdata.ObjNames = new List<string>();
         foreach (var point in Selection.gameObjects)
         {
-            if (point.name == "Main Camera")
+            if (!int.TryParse(point.name,out int res))
                 continue;
             tempdata.ObjNames.Add(point.name);
             tempdata.pointsInfo.posList.Add(MyTools.TruncVector3(point.transform.position));
         }
         ProjectManager.Instance.RecordProject.AddMappingData(tempdata);
-        Debug.Log("创建映射组成功");
+        Debug.Log("创建颜色组成功");
     }
     // [MenuItem("GameObject/工具/创建全局数据组", priority = 0)]
     // static void CreatGlobalPosData()
