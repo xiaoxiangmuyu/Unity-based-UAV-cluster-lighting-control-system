@@ -29,17 +29,26 @@ public class ProjectInitWindow : EditorWindow
         {
             paths.Sort(Sort);
         }
-        if (GUI.Button(new Rect(10,300, 300, 100), "初始化项目"))
+        if (GUI.Button(new Rect(10, 300, 300, 100), "初始化项目"))
         {
             paths.Sort(Sort);
-            for(int i=0;i<paths.Count;i++)
+            for (int i = 0; i < paths.Count; i++)
             {
-                if(paths[i].StartsWith("f"))
-                continue;
-                if(Directory.Exists(paths[i]))
+                if (Directory.Exists(paths[i]))
                 {
-                    number=Directory.GetFiles(paths[i]).Length;
-                    break;
+                    string name=Path.GetFileNameWithoutExtension(paths[i]);
+                    if (name.StartsWith("f"))
+                    {
+                        string childPath=paths[i] + "/" + name + ".txt";
+                        number = Directory.GetFiles(childPath).Length;
+                        break;
+                    }
+                    else
+                    {
+                        number = Directory.GetFiles(paths[i]).Length;
+                        break;
+                    }
+
                 }
             }
             var root = new GameObject("Main");
@@ -52,12 +61,12 @@ public class ProjectInitWindow : EditorWindow
                     anim.staticFilePath = paths[i];
                 else if (Directory.Exists(paths[i]))
                 {
-                    string dirName=Path.GetFileNameWithoutExtension(paths[i]);
-                    string childDir=paths[i]+"/"+dirName+".txt";
-                    if(Directory.Exists(childDir))
-                    anim.animFolderPath=childDir;
+                    string dirName = Path.GetFileNameWithoutExtension(paths[i]);
+                    string childDir = paths[i] + "/" + dirName + ".txt";
+                    if (Directory.Exists(childDir))
+                        anim.animFolderPath = childDir;
                     else
-                    anim.animFolderPath = paths[i];
+                        anim.animFolderPath = paths[i];
                 }
                 else
                     Debug.LogError("路径有问题，不是文件也不是文件夹");

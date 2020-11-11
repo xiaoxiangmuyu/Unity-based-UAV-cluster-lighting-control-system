@@ -13,7 +13,7 @@ public class TxtAnimAsset : SerializedScriptableObject, IPlayableAsset
     #endregion
     [InfoBox("安全时间建议2秒，不然播放不完", InfoMessageType.Warning)]
     [LabelText("安全时间")]
-    public float safeSeconds = 2;
+    public float safeSeconds = 0;
     [ReadOnly]
     [LabelText("总帧数")]
     public int totalFrameCount;

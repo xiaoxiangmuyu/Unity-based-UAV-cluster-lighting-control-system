@@ -71,7 +71,10 @@ public class TxtAnimBehavior : PlayableBehaviour
     void UpdatePosFrameByFrame()
     {
         if (target == null)
+        {
+            Debug.LogError("anim is null");
             return;
+        }
         ConsoleProDebug.Watch("curframe:", (curframe + 1).ToString());
         target.MyUpdatePos(curframe);
         curframe += 1;

@@ -6,6 +6,7 @@ using UnityEngine;
 using Sirenix.OdinInspector;
 using UnityEngine.UI;
 using UnityEditor.Timeline;
+using UnityEngine.Playables;
 public class MovementManager : MonoBehaviour
 {
     public enum ExportType { Time, Frame }
@@ -41,6 +42,7 @@ public class MovementManager : MonoBehaviour
     }
     StringBuilder sb = new StringBuilder(50, 50);
     int r, g, b;
+    PlayableDirector playableDirector;
     void OnEnable()
     {
 
@@ -48,11 +50,16 @@ public class MovementManager : MonoBehaviour
     void Start()
     {
         frame = -1;
-        // if (!isWorking)
-        //     return;
-
+        playableDirector=GetComponent<PlayableDirector>();
         animator = GetComponent<Animator>();
-
+        if (isWorking)
+        {
+            playableDirector.timeUpdateMode=DirectorUpdateMode.Manual;
+        }
+        else
+        {
+            playableDirector.timeUpdateMode=DirectorUpdateMode.UnscaledGameTime;
+        }
         if (transform.childCount > 0)
         {
             movementChecks = new List<MovementCheck>();
@@ -106,6 +113,8 @@ public class MovementManager : MonoBehaviour
     {
         if (!isWorking)
             return;
+        playableDirector.Evaluate();
+        playableDirector.time+=0.04f;
         //TimelineEditor.masterDirector.Evaluate
         if (exportType == ExportType.Time)
         {
@@ -150,7 +159,7 @@ public class MovementManager : MonoBehaviour
             return result;
         }
 
-        exportPath = string.Format("E:/ProjectDocs/Export/{0}/{1}", projectName, name);
+        exportPath = string.Format("D:/Export/{0}/{1}", projectName, name);
 
         if (!Directory.Exists(exportPath))
         {

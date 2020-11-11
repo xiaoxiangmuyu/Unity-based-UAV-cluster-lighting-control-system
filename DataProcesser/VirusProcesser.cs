@@ -80,7 +80,6 @@ public class VirusProcesser : IDataProcesser
             //Vector2 screenPos=mainCamera.WorldToScreenPoint(worldPos);
             Vector3 tempWorldPos;
             //Vector2 tempScreenPos;
-            float tempDis;
             Dictionary<string, float> dis = new Dictionary<string, float>();
             for (int i = 0; i < data.objNames.Count; i++)
             {
