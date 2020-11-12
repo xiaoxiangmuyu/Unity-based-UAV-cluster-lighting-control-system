@@ -118,7 +118,7 @@ public class MovementManager : MonoBehaviour
         //TimelineEditor.masterDirector.Evaluate
         if (exportType == ExportType.Time)
         {
-            timer += Time.deltaTime;
+            timer +=0.04f;
 
             if (timer >= ExportTime)
             {

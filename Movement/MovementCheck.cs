@@ -27,7 +27,7 @@ public class MovementCheck : MonoBehaviour
         {
             mat = curRenderer.material;
         }
-        lastPos = TruncVector3(transform.position);
+        lastPos = MyTools.TruncVector3(transform.position);
         posInfos = new List<Vector3>();
         colorInfos = new List<Color>();
         maxDistance = 0f;
@@ -41,7 +41,7 @@ public class MovementCheck : MonoBehaviour
         if (!movementManager.isWorking)
             return;
 
-        curPos = TruncVector3(transform.position);
+        curPos = MyTools.TruncVector3(transform.position);
         if (!firstFrameIgnore)
         {
             distance = 0;
@@ -88,34 +88,10 @@ public class MovementCheck : MonoBehaviour
     {
         return posInfos;
     }
-
     public List<Color> GetColorInfos()
     {
         return colorInfos;
     }
-    string tmp;
-    float result;
-    float temp;
-    private float Trunc(float num)
-    {
-        // tmp = num.ToString("f2");
-        // result = float.Parse(tmp);
-        // return result;
-        temp=num*100;
-        int i=(int)temp;
-        result=i/100f;
-        return result;
-    }
-
-    private Vector3 TruncVector3(Vector3 v)
-    {
-        float x = Trunc(v.x);
-        float y = Trunc(v.y);
-        float z = Trunc(v.z);
-
-        return new Vector3(x, y, z);
-    }
-
     public string GetDroneName()
     {
         return droneName;
