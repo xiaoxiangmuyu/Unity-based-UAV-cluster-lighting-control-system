@@ -40,16 +40,16 @@ public class Out_RandomFade:OrderGroup
         this.colorOrders.Add(new DoColor(ColorType.Black,0.5f));
     }
 }
-[LabelText("路径灯光")]
-public class PathLight:OrderGroup
-{
-    public PathLight()
-    {
-        this.colorOrders.Add(new DoColor(ColorType.SingleColor,0.2f));
-        this.colorOrders.Add(new DoColor(ColorType.MappingData,0.3f));
-        this.colorOrders.Add(new DoColor(ColorType.Black,0.2f));
-    }
-}
+// [LabelText("路径灯光")]
+// public class PathLight:OrderGroup
+// {
+//     public PathLight()
+//     {
+//         this.colorOrders.Add(new DoColor(ColorType.SingleColor,0.2f));
+//         this.colorOrders.Add(new DoColor(ColorType.MappingData,0.3f));
+//         this.colorOrders.Add(new DoColor(ColorType.Black,0.2f));
+//     }
+// }
 [LabelText("普通流光")]
 public class FlowLight:OrderGroup
 {
@@ -61,17 +61,17 @@ public class FlowLight:OrderGroup
 
     }
 }
-[LabelText("呼吸灯")]
+//[LabelText("呼吸灯")]
 
-public class BreathLight:OrderGroup
-{
-    public BreathLight()
-    {
-        this.colorOrders.Add(new DoColor(ColorType.MappingData,0.5f));
-        this.colorOrders.Add(new DoColor(ColorType.Black,0.5f));
-    }
+// public class BreathLight:OrderGroup
+// {
+//     public BreathLight()
+//     {
+//         this.colorOrders.Add(new DoColor(ColorType.MappingData,0.5f));
+//         this.colorOrders.Add(new DoColor(ColorType.Black,0.5f));
+//     }
 
-}
+// }
 [LabelText("星星闪")]
 public class StarLight:OrderGroup
 {

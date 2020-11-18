@@ -119,7 +119,8 @@ public class Helper : MonoBehaviour
             }
             else
             {
-                end += anims[i].totalFrameCount / 25f + 2;
+                //end += anims[i].totalFrameCount / 25f + 2;
+                end += anims[i].totalFrameCount / 25f;
             }
         }
         TimelineEditor.Refresh(RefreshReason.ContentsAddedOrRemoved);

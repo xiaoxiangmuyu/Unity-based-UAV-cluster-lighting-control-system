@@ -9,7 +9,7 @@ public class VirusProcesser : IDataProcesser
     [HideIf("IsSingleDir")]
     [ReadOnly]
     public float searchRadius;
-    public float findInterval;
+    public float findInterval=0.05f;
     // List<string> tempNames;
     // List<float> tempTimes;
     public override bool Process(ref RecordData data, float animTime)
@@ -80,7 +80,6 @@ public class VirusProcesser : IDataProcesser
             //Vector2 screenPos=mainCamera.WorldToScreenPoint(worldPos);
             Vector3 tempWorldPos;
             //Vector2 tempScreenPos;
-            float tempDis;
             Dictionary<string, float> dis = new Dictionary<string, float>();
             for (int i = 0; i < data.objNames.Count; i++)
             {

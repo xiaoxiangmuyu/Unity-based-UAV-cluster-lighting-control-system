@@ -127,7 +127,11 @@ public class EfyTools
         {
             movementCheck = Undo.AddComponent<MovementCheck>(obj.gameObject);
         }
-        obj.GetComponent<CircleCollider2D>().isTrigger=true;
+        var col = obj.GetComponent<CircleCollider2D>();
+        if(col==null)
+        {
+            col = obj.gameObject.AddComponent<CircleCollider2D>();
+        }
     }
     static void HandleRenderer(Transform obj, Material mat)
     {

@@ -192,7 +192,6 @@ public class MyTools
         float result=i/100f;
         return result;
     }
-
     public static Vector3 TruncVector3(Vector3 v)
     {
         float x = Trunc(v.x);

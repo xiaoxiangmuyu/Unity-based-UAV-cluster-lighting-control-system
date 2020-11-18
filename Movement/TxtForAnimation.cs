@@ -91,22 +91,6 @@ public class TxtForAnimation : MonoBehaviour
     float timer;
     bool hasBegin;
     #endregion
-    private void Awake()
-    {
-        AnimatorCheck();
-    }
-    void Start()
-    {
-
-    }
-    void AnimatorCheck()
-    {
-        if (GetComponent<Animator>())
-        {
-            if (GetComponent<Animator>().enabled)
-                Debug.LogError(gameObject.name + "动画组件没关");
-        }
-    }
     void ReadAnimTxtFile()
     {
         if (cords != null && cords.Count != 0)
@@ -267,12 +251,12 @@ public class TxtForAnimation : MonoBehaviour
         hasFinish = true;
     }
     void AnimUpdate(int frame)
-    {
-        if (frame >= totalFrameCount)
+    {//frame是索引，范围是0-totalFrameCount-1
+        if (frame >= totalFrameCount-1)
         {
             if (hasFinish)
                 return;
-            ConsoleProDebug.LogToFilter(animName + " 播放完成,共" + frame + "帧", "Result");
+            ConsoleProDebug.LogToFilter(animName + " 播放完成,共" + (frame+1) + "帧", "Result");
             //Debug.Log("播放完成,共" + frame + "帧");
             hasFinish = true;
             return;

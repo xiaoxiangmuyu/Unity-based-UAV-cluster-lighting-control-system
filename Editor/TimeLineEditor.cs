@@ -10,8 +10,22 @@ public class TransformTweenClipEditor : ClipEditor
 {
     public override ClipDrawOptions GetClipOptions(TimelineClip clip)
     {
-        var cb = clip.asset as ControlBlock;
         ClipDrawOptions clipOptions = base.GetClipOptions(clip);
+        var cb = clip.asset as ControlBlock;
+        if(cb!=null)
+        clipOptions.highlightColor=cb.blockColor;
+        //var anim=clip.asset as TxtAnimAsset;
+        //if(anim!=null)
+        //{
+        //    if (anim.totalFrameCount == 0)
+        //        clipOptions.highlightColor = Color.green;
+        //    else
+        //        clipOptions.highlightColor = Color.yellow;
+        //}
+        //else
+        //{
+        //    Debug.Log("is null");
+        //}
         // if (cb.state==BlockState.Ready)
         // {
         //     clipOptions.highlightColor = Color.green;
@@ -24,7 +38,6 @@ public class TransformTweenClipEditor : ClipEditor
         // {
         //     clipOptions.highlightColor = Color.yellow;
         // }
-        clipOptions.highlightColor=cb.blockColor;
         return clipOptions;
     }
 }

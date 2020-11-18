@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using Sirenix.OdinInspector;
 using DG.Tweening;
-[RequireComponent(typeof(CircleCollider2D))]
 public class ColorPoint : MonoBehaviour
 {
     Renderer curRenderer;
