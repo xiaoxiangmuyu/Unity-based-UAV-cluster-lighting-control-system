@@ -74,13 +74,13 @@ public class ProjectManager : MonoBehaviour
 
     void OnEnable()
     {
-        RenderPipelineManager.endCameraRendering += RenderPipelineManager_endCameraRendering;
+        RenderPipelineManager.endFrameRendering += RenderPipelineManager_endCameraRendering;
     }
     void OnDisable()
     {
-        RenderPipelineManager.endCameraRendering -= RenderPipelineManager_endCameraRendering;
+        RenderPipelineManager.endFrameRendering -= RenderPipelineManager_endCameraRendering;
     }
-    private void RenderPipelineManager_endCameraRendering(ScriptableRenderContext context, Camera camera)
+    private void RenderPipelineManager_endCameraRendering(ScriptableRenderContext context, Camera[] camera)
     {
         RecordScreenColor();
     }
@@ -170,7 +170,7 @@ public class ProjectManager : MonoBehaviour
         var info = instance.RecordProject.globalPosDic.Find((a) => a.groupName.Equals(groupName));
         return info;
     }
-    Texture2D texture;
+    public Texture2D texture;
     int width;
     int height;
     MovementManager movementManager;
@@ -186,13 +186,14 @@ public class ProjectManager : MonoBehaviour
         RenderTexture.active=MainCamera.targetTexture;
         width = RenderTexture.active.width;
         height = RenderTexture.active.height;
+        if(texture==null)
         texture = new Texture2D(width, height, TextureFormat.RGB24, false);
         //Read the pixels in the Rect starting at 0,0 and ending at the screen's width and height
         texture.ReadPixels(new Rect(0, 0, width, height), 0, 0);
         texture.Apply();
-        if (movementManager == null)
-            movementManager = ProjectManager.GetPointsRoot().GetComponent<MovementManager>();
-        movementManager.RecordAllPoint(texture);
+        // if (movementManager == null)
+        //     movementManager = ProjectManager.GetPointsRoot().GetComponent<MovementManager>();
+        // movementManager.RecordAllPoint(texture);
     }
 
 

@@ -33,7 +33,10 @@ public class MovementCheck : MonoBehaviour
         maxDistance = 0f;
         droneName = name;
     }
-
+    private void LateUpdate() {
+        if(ProjectManager.Instance.texture!=null)
+        Record(ProjectManager.Instance.texture);
+    }
     // Update is called once per frame
     public void Record(Texture2D texture)
     {
@@ -79,26 +82,6 @@ public class MovementCheck : MonoBehaviour
                 Debug.LogError(gameObject.name + "竖直方向超速！ " + "最大距离:" + maxVecticalDis);
         }
     }
-
-    // private void RecordInfo(Vector3 pos, Color color)//记录位置
-    // {
-    //     posInfos.Add(pos);
-    //     if (movementManager.usePostProcessing)
-    //     {
-    //         colorInfos.Add(ProjectManager.GetScreenColor(pos));
-    //     }
-    //     else
-    //     {
-    //         colorInfos.Add(color);
-    //     }
-    // }
-    // WaitForEndOfFrame frameEnd = new WaitForEndOfFrame();
-    // public IEnumerator WaitColor(Vector3 pos)
-    // {
-    //     yield return frameEnd;
-    //     colorInfos.Add(ProjectManager.GetScreenColor(pos));
-    // }
-
     public float GetMaxDistance()
     {
         return maxDistance;
@@ -108,33 +91,10 @@ public class MovementCheck : MonoBehaviour
     {
         return posInfos;
     }
-
     public List<Color> GetColorInfos()
     {
         return colorInfos;
     }
-    // float result;
-    // float temp;
-    // private float Trunc(float num)
-    // {
-    //     // tmp = num.ToString("f2");
-    //     // result = float.Parse(tmp);
-    //     // return result;
-    //     temp=num*100;
-    //     int i=(int)temp;
-    //     result=i/100f;
-    //     return result;
-    // }
-
-    // private Vector3 TruncVector3(Vector3 v)
-    // {
-    //     float x = Trunc(v.x);
-    //     float y = Trunc(v.y);
-    //     float z = Trunc(v.z);
-
-    //     return new Vector3(x, y, z);
-    // }
-
     public string GetDroneName()
     {
         return droneName;
