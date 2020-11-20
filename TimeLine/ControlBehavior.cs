@@ -103,7 +103,7 @@ public class ControlBehavior : PlayableBehaviour
                     timeIndex = i;
                 if (timer >= times[timeIndex] && hasProcess[i] == false)
                 {
-                    record.objs[i].GetComponent<ColorPoint>().SetProcessType(record.colorOrders, record.forceMode, record.possibility);
+                    record.objs[i].GetComponent<ColorPoint>().SetProcessType(record.colorOrders, record.forceMode, record.possibility,record.isDynamicBehavior);
                     hasProcess[i] = true;
                 }
                 counter += 1;
@@ -123,14 +123,14 @@ public class ControlBehavior : PlayableBehaviour
                     timeIndex = i;
                 if (timer >= times[timeIndex] && hasProcess[i] == false)
                 {
-                    record.objs[i].GetComponent<ColorPoint>().SetProcessType(record.colorOrders, record.forceMode, record.possibility);
+                    record.objs[i].GetComponent<ColorPoint>().SetProcessType(record.colorOrders, record.forceMode, record.possibility,record.isDynamicBehavior);
                     hasProcess[i] = true;
                 }
                 counter += 1;
             }
         }
         if (!hasProcess.Exists((x) => x == false)&&!trigger)
-            if (record.isDynamic)
+            if (record.isDynamicProcess)
             {
                 trigger=true;
                 float time = MyTools.GetTotalTime(record.colorOrders);

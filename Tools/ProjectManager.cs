@@ -174,7 +174,7 @@ public class ProjectManager : MonoBehaviour
     int width;
     int height;
     MovementManager movementManager;
-    public void RecordScreenColor()
+    void RecordScreenColor()
     {
         // if (texture == null)
         // {
@@ -182,12 +182,12 @@ public class ProjectManager : MonoBehaviour
         //     height = RenderTexture.active.height;
         //     texture = new Texture2D(width, height, TextureFormat.RGB24, false);
         // }
-        if(RenderTexture.active==null)
-        RenderTexture.active=MainCamera.targetTexture;
+        if (RenderTexture.active == null)
+            RenderTexture.active = MainCamera.targetTexture;
         width = RenderTexture.active.width;
         height = RenderTexture.active.height;
-        if(texture==null)
-        texture = new Texture2D(width, height, TextureFormat.RGB24, false);
+        if (texture == null)
+            texture = new Texture2D(width, height, TextureFormat.RGB24, false);
         //Read the pixels in the Rect starting at 0,0 and ending at the screen's width and height
         texture.ReadPixels(new Rect(0, 0, width, height), 0, 0);
         texture.Apply();
@@ -195,6 +195,11 @@ public class ProjectManager : MonoBehaviour
         //     movementManager = ProjectManager.GetPointsRoot().GetComponent<MovementManager>();
         // movementManager.RecordAllPoint(texture);
     }
-
-
+    public static Color GetRenderColor(Vector3 worldPos)
+    {
+        //instance.RecordScreenColor();
+        Vector2 screenPos = MainCamera.WorldToScreenPoint(worldPos);
+        Color temp = instance.texture.GetPixel((int)screenPos.x, (int)screenPos.y);
+        return temp;
+    }
 }

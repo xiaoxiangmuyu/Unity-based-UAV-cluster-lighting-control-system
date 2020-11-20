@@ -70,11 +70,14 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
     #region Record
     bool needProcess;
     [BoxGroup("数据处理模块")]
-    [LabelText("是否动态处理")]
-    public bool isDynamic;
+    [LabelText("是否动态计算位置")]
+    public bool isDynamicProcess;
+    [BoxGroup("数据处理模块")]
+    [LabelText("是否动态执行命令")]
+    public bool isDynamicBehavior;
     [LabelText("处理次数")]
     [BoxGroup("数据处理模块")]
-    [ShowIf("isDynamic")]
+    [ShowIf("isDynamicProcess")]
     public int processTimes;
     [BoxGroup("数据处理模块")]
     [OnValueChanged("Register")]

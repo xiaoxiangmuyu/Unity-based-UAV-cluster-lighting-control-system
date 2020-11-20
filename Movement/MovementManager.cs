@@ -11,7 +11,6 @@ public class MovementManager : MonoBehaviour
     public enum ExportType { Time, Frame }
     [OnValueChanged("RefreshTimeLine")]
     public bool isWorking;
-    public bool usePostProcessing;
     void RefreshTimeLine()
     {
         UnityEditor.Timeline.TimelineEditor.Refresh(UnityEditor.Timeline.RefreshReason.ContentsAddedOrRemoved);

@@ -54,6 +54,13 @@ public class ColorPoint : MonoBehaviour
             return Color.white;
         }
     }
+    public Color RenderColor
+    {
+        get
+        {
+            return ProjectManager.GetRenderColor(transform.position);
+        }
+    }
     #endregion
 
 
@@ -149,7 +156,7 @@ public class ColorPoint : MonoBehaviour
         }
         else
         {
-            Debug.LogError(other.name+"碰撞体没有TriggerBase组件"+gameObject.name);
+            Debug.LogError(other.name + "碰撞体没有TriggerBase组件" + gameObject.name);
             return;
         }
         if (!TriggerBase.recordMode)
@@ -378,7 +385,7 @@ public class ColorPoint : MonoBehaviour
     }
 
 
-    public void SetProcessType(List<ColorOrderBase> colorOrders, bool forceMode = false, float possible = 1)
+    public void SetProcessType(List<ColorOrderBase> colorOrders, bool forceMode = false, float possible = 1, bool isDynamicBehavior = false)
     {
         if (state == PointState.Busy && !forceMode)
         {
@@ -388,10 +395,56 @@ public class ColorPoint : MonoBehaviour
         {
             return;
         }
-        WorkBegin();
-        Sequence sequence = DOTween.Sequence();
-        sequence.Append(ProcessOrder(colorOrders));
-        sequence.AppendCallback(delegate { WorkComplete(); });
+        if (isDynamicBehavior)
+        {
+            StartCoroutine(Test(colorOrders));
+        }
+        else
+        {
+            WorkBegin();
+            Sequence sequence = DOTween.Sequence();
+            sequence.Append(ProcessOrder(colorOrders));
+            sequence.AppendCallback(delegate { WorkComplete(); });
+        }
+        //TestProcessOrder(colorOrders);
+    }
+    // void TestProcessOrder(List<ColorOrderBase>colorOrders)
+    // {
+    //     for(int i=0;i<5;i++)
+    //     {
+    //         mat.DOColor(RenderColor,1);
+    //     }
+    // }
+    IEnumerator Test(List<ColorOrderBase> colorOrders)
+    {
+        //WorkBegin();
+        for (int i = 0; i < colorOrders.Count; i++)
+        {
+            if (colorOrders[i] is OrderGroup)
+            {
+                var temp = colorOrders[i] as OrderGroup;
+                for (int j = 0; j < temp.playCount; j++)
+                {
+                    yield return StartCoroutine(Test(temp.colorOrders));
+                }
+            }
+            else if (colorOrders[i] is GradualOrder)
+            {
+                var temp = colorOrders[i] as GradualOrder;
+                Tween order = colorOrders[i].GetOrder(this).SetLoops(temp.playCount);
+                yield return order.WaitForCompletion();
+            }
+            else if (colorOrders[i] is Interval)
+            {
+                var temp = colorOrders[i] as Interval;
+                yield return new WaitForSeconds(temp.during);
+            }
+            else
+            {
+                Debug.LogError("命令类型错误");
+            }
+        }
+        //WorkComplete();
     }
 
 

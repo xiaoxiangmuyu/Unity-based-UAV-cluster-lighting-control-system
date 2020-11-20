@@ -15,7 +15,7 @@ public abstract class GradualOrder : ColorOrderBase
 [LabelText("颜色变化")]
 public class DoColor : GradualOrder
 {
-    public DoColor(ColorType colorType = ColorType.ColorMapping, float during = 0f)
+    public DoColor(ColorType colorType = ColorType.SingleColor, float during = 0f)
     {
         this.colorType = colorType;
         this.during = during;
@@ -111,7 +111,7 @@ public class DoColor : GradualOrder
         {
             List<string> dataNames = new List<string>();
             dataNames.Add("UnSelect");
-            if (groupName==null||groupName.Equals(""))
+            if (groupName == null || groupName.Equals(""))
             {
                 var datalist = ProjectManager.Instance.RecordProject.mappingDatas;
                 foreach (var data in datalist)
@@ -176,9 +176,8 @@ public class DoColor : GradualOrder
     bool hideGradient { get { return colorType != ColorType.Gradient && colorType != ColorType.ColorByMapper; } }
     bool showHSVInfo { get { return colorType == ColorType.HSV; } }
     //bool showDarkInfo { get { return colorType == ColorType.Dark; } }
-    bool showColorMappingInfo { get { return colorType == ColorType.ColorMapping; } }
     //bool showTextureMappingInfo { get { return colorType == ColorType.TextureMapping; } }
-    bool isMapping { get { return colorType == ColorType.ColorMapping || colorType == ColorType.MappingData; } }
+    bool isMapping { get { return colorType == ColorType.MappingData; } }
     bool isMappingData { get { return colorType == ColorType.MappingData; } }
     bool isColorByMapper { get { return colorType == ColorType.ColorByMapper; } }
     public override Tween GetOrder(ColorPoint point)
@@ -211,25 +210,19 @@ public class DoColor : GradualOrder
                         GetMapper();
                     point.gradient = gradient;
                     point.colorMapper = colorMapper;
-                    return point.mat.DOColor(point.MapperColor,during);
+                    return point.mat.DOColor(point.MapperColor, during);
                 }
-            case ColorType.ColorMapping:
+            case ColorType.ShaderMode:
                 {
-                    if (isWithIndex)
-                    {
-                        targetColor = point.GetMappingColor(colorIndex); break;
-                    }
-                    else
-                    {
-                        targetColor = point.GetMappingColor(); break;
-                    }
+                    targetColor = point.RenderColor;
+                    break;
                 }
             case ColorType.MappingData:
                 {
                     mappingData = GetMappingData(point);
                     if (mappingData == null)
                     {
-                        targetColor=Color.white;
+                        targetColor = Color.white;
                         Debug.LogError(point.name + "找不到映射颜色");
                         break;
                     }
@@ -247,27 +240,10 @@ public class DoColor : GradualOrder
 
                     break;
                 }
-            // case ColorType.Random:
-            //     {
-            //         targetColor = point.randomColor; break;
-            //     }
-            // case ColorType.FlowMapping:
-            //     {
-            //         targetColor = point.flowTextureColor; break;
-            //     }
             case ColorType.HSV:
                 {
                     targetColor = point.GetColorByHSV(hsvValue); break;
                 }
-                // case ColorType.Origin:
-                //     {
-                //         targetColor = point.originalColor; break;
-                //     }
-                // case ColorType.Dark:
-                //     {
-                //         targetColor = point.GetDarkColor(darkValue); break;
-                //     }
-
         }
         if (!hideGradient)
         {

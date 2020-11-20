@@ -5,14 +5,14 @@ using Sirenix.OdinInspector;
 using System;
 public static class ColorManager
 {
-    public static readonly List<string>ColorTypes=new List<string>{"SingleColor","Gradient","ColorMapping","MappingData","HSV","ColorByMapper","Black"};
+    public static readonly List<string>ColorTypes=new List<string>{"SingleColor","Gradient","ShaderMode","MappingData","HSV","ColorByMapper","Black"};
 }
 public enum ColorType
 {
     SingleColor,//指定显示单一颜色
     //TextureMapping,//静态贴图映射
     //FlowMapping,//流动贴图，每次取的时候才会偏移贴图，不会随着时间自动偏移
-    ColorMapping,
+    ShaderMode,
     MappingData,
     //Random,//随机取色，每次取颜色不一样，每个点不一样
     HSV,//沿色环取色，每次取的时候才会变化，与时间无关，每个点取到的颜色一致
