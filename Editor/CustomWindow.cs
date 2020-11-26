@@ -36,10 +36,11 @@ public class ProjectInitWindow : EditorWindow
             {
                 if (Directory.Exists(paths[i]))
                 {
-                    string name=Path.GetFileNameWithoutExtension(paths[i]);
+                    string[]split=paths[i].Split('/');
+                    string name=split[split.Length-1];
                     if (name.StartsWith("f"))
                     {
-                        string childPath=paths[i] + "/" + name + ".txt";
+                        string childPath=paths[i] + "/" + name;
                         number = Directory.GetFiles(childPath).Length;
                         break;
                     }
@@ -61,8 +62,9 @@ public class ProjectInitWindow : EditorWindow
                     anim.staticFilePath = paths[i];
                 else if (Directory.Exists(paths[i]))
                 {
-                    string dirName = Path.GetFileNameWithoutExtension(paths[i]);
-                    string childDir = paths[i] + "/" + dirName + ".txt";
+                    string[]split=paths[i].Split('/');
+                    string name=split[split.Length-1];
+                    string childDir=paths[i]+"/"+name;
                     if (Directory.Exists(childDir))
                         anim.animFolderPath = childDir;
                     else
@@ -136,7 +138,10 @@ public class ProjectInitWindow : EditorWindow
         else
         {
             string[] chars = name.Split('_');
+            if(chars.Length==3)
             return int.Parse(chars[2]) - 0.5f;
+            else
+            return int.Parse(chars[1]) + 0.5f;
         }
     }
 
