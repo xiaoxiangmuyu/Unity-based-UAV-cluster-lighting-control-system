@@ -16,13 +16,20 @@ public class TxtForAnimation : MonoBehaviour
     {
         [SerializeField]
         List<Vector3> posList;
+        [SerializeField]
+        List<Color> colorList;
         public PointInfo()
         {
             posList = new List<Vector3>();
+            colorList = new List<Color>();
         }
         public void AddPos(Vector3 pos)
         {
             posList.Add(pos);
+        }
+        public void AddColor(Color color)
+        {
+            colorList.Add(color);
         }
         public Vector3 GetPos(int frameIndex)
         {
@@ -32,6 +39,15 @@ public class TxtForAnimation : MonoBehaviour
                 return Vector3.zero;
             }
             return posList[frameIndex];
+        }
+        public Color GetColor(int frameIndex)
+        {
+            if (frameIndex < 0 || frameIndex > colorList.Count - 1)
+            {
+                Debug.LogError("frameIndex error!" + frameIndex.ToString());
+                return Color.white;
+            }
+            return colorList[frameIndex];
         }
     }
 
@@ -46,6 +62,7 @@ public class TxtForAnimation : MonoBehaviour
     public string staticFilePath;
     [ReadOnly]
     public int totalFrameCount;
+    public bool useColor;
     public bool HasFinish { get { return hasFinish; } }
     [ShowInInspector]
     public int childCount { get { if (childs != null) return childs.Count; else return 0; } }
@@ -86,7 +103,7 @@ public class TxtForAnimation : MonoBehaviour
     private List<Vector3> staticPositions = new List<Vector3>();
     [SerializeField]
     [HideInInspector]
-    private List<Transform> childs = new List<Transform>();
+    private List<ColorPoint> childs = new List<ColorPoint>();
     [SerializeField]
     float timer;
     bool hasBegin;
@@ -122,6 +139,8 @@ public class TxtForAnimation : MonoBehaviour
                         var Pos = line.Split('\t');
                         Vector3 tempPos = new Vector3(float.Parse(Pos[1]), float.Parse(Pos[3]), -float.Parse(Pos[2]));
                         tempList.AddPos(tempPos);
+                        Color tempColor = new Color(float.Parse(Pos[4])/255, float.Parse(Pos[5])/255, float.Parse(Pos[6])/255);
+                        tempList.AddColor(tempColor);
                         lineIndex++;
                         if (!hasCount)
                             totalFrameCount++;
@@ -174,7 +193,7 @@ public class TxtForAnimation : MonoBehaviour
                 if (!int.TryParse(tra.GetChild(i).name, out temp))
                     continue;
                 Transform child = tra.GetChild(i);
-                childs.Add(child);
+                childs.Add(child.GetComponent<ColorPoint>());
             }
             else
                 AddChild(tra.GetChild(i));
@@ -319,6 +338,14 @@ public class TxtForAnimation : MonoBehaviour
                 Vector3 pos = cords[indexs[i]].GetPos(frame);
                 childs[i].transform.position = pos;
             }
+            if (useColor&&Application.isPlaying)
+            {
+                for (int i = 0; i < childs.Count; i++)
+                {
+                    Color color = cords[indexs[i]].GetColor(frame);
+                    childs[i].mat.color = color;
+                }
+            }
         }
         else
         {
@@ -326,6 +353,14 @@ public class TxtForAnimation : MonoBehaviour
             {
                 Vector3 pos = cords[i].GetPos(frame);
                 childs[i].transform.position = pos;
+            }
+            if (useColor&&Application.isPlaying)
+            {
+                for (int i = 0; i < childs.Count; i++)
+                {
+                    Color color = cords[i].GetColor(frame);
+                    childs[i].mat.color = color;
+                }
             }
         }
     }

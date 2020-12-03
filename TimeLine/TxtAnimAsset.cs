@@ -23,6 +23,21 @@ public class TxtAnimAsset : SerializedScriptableObject, IPlayableAsset
     [LabelText("总时长")]
     [ShowInInspector]
     public double seconds { get { return totalFrameCount / 25f; } }
+    [LabelText("是否更新颜色")]
+    [ShowInInspector]
+    public bool useColor{
+        get{
+            if(!target)
+            return false;
+            return target.useColor;
+        }
+        set
+        {
+            if(!target)
+            return;
+            target.useColor=value;
+        }
+    }
     TxtForAnimation[] scripts;
     ScriptPlayable<TxtAnimBehavior> scriptPlayable;
     TxtForAnimation target;
