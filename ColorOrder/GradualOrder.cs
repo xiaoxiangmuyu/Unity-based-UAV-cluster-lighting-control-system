@@ -15,7 +15,7 @@ public abstract class GradualOrder : ColorOrderBase
 [LabelText("颜色变化")]
 public class DoColor : GradualOrder
 {
-    public DoColor(ColorType colorType = ColorType.ColorMapping, float during = 0f)
+    public DoColor(ColorType colorType = ColorType.SingleColor, float during = 0f)
     {
         this.colorType = colorType;
         this.during = during;
@@ -176,9 +176,8 @@ public class DoColor : GradualOrder
     bool hideGradient { get { return colorType != ColorType.Gradient && colorType != ColorType.ColorByMapper; } }
     bool showHSVInfo { get { return colorType == ColorType.HSV; } }
     //bool showDarkInfo { get { return colorType == ColorType.Dark; } }
-    bool showColorMappingInfo { get { return colorType == ColorType.ColorMapping; } }
     //bool showTextureMappingInfo { get { return colorType == ColorType.TextureMapping; } }
-    bool isMapping { get { return colorType == ColorType.ColorMapping || colorType == ColorType.MappingData; } }
+    bool isMapping { get { return colorType == ColorType.MappingData; } }
     bool isMappingData { get { return colorType == ColorType.MappingData; } }
     bool isColorByMapper { get { return colorType == ColorType.ColorByMapper; } }
     public override Tween GetOrder(ColorPoint point)
@@ -213,17 +212,17 @@ public class DoColor : GradualOrder
                     point.colorMapper = colorMapper;
                     return point.mat.DOColor(point.MapperColor,during);
                 }
-            case ColorType.ColorMapping:
-                {
-                    if (isWithIndex)
-                    {
-                        targetColor = point.GetMappingColor(colorIndex); break;
-                    }
-                    else
-                    {
-                        targetColor = point.GetMappingColor(); break;
-                    }
-                }
+            // case ColorType.ColorMapping:
+            //     {
+            //         if (isWithIndex)
+            //         {
+            //             targetColor = point.GetMappingColor(colorIndex); break;
+            //         }
+            //         else
+            //         {
+            //             targetColor = point.GetMappingColor(); break;
+            //         }
+            //     }
             case ColorType.MappingData:
                 {
                     mappingData = GetMappingData(point);

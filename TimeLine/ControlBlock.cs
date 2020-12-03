@@ -229,7 +229,10 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
                 if (groupFilter != null || groupFilter != string.Empty)
                 {
                     if (ProjectManager.GetGlobalPosInfoByGroup(data.groupName).groupName.Equals(groupFilter))
+                    {
                         result = data;
+                        break;
+                    }
                 }
             }
         }

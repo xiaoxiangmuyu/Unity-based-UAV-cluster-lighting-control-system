@@ -188,7 +188,8 @@ public class MyTools
         // var temp = num.ToString("f2");
         //return float.Parse(temp);
         float temp=num*100;
-        int i=(int)temp;
+        //int i=(int)temp;
+        int i=Mathf.RoundToInt(temp);//根据泽鹏的建议改成四舍五入
         float result=i/100f;
         return result;
     }

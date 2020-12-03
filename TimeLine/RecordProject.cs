@@ -126,7 +126,6 @@ public class RecordProject : SerializedScriptableObject
     [FoldoutGroup("buttons")]
     void CorrectAll()
     {
-        //MappingAll();
         UpdateGlobalPos();
         foreach(var data in RecorDataList)
         {

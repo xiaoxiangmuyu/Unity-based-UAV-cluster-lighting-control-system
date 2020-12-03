@@ -252,11 +252,11 @@ public class TxtForAnimation : MonoBehaviour
     }
     void AnimUpdate(int frame)
     {//frame是索引，范围是0-totalFrameCount-1
-        if (frame >= totalFrameCount-1)
+        if (frame >= totalFrameCount - 1)
         {
             if (hasFinish)
                 return;
-            ConsoleProDebug.LogToFilter(animName + " 播放完成,共" + (frame+1) + "帧", "Result");
+            ConsoleProDebug.LogToFilter(animName + " 播放完成,共" + (frame + 1) + "帧", "Result");
             //Debug.Log("播放完成,共" + frame + "帧");
             hasFinish = true;
             return;
@@ -390,32 +390,32 @@ public class TxtForAnimation : MonoBehaviour
         }
         return null;
     }
-    public List<string> FindPointNamesByPos(List<Vector3>posList)
+    public List<string> FindPointNamesByPos(List<Vector3> posList)
     {
         List<string> temp = new List<string>();
         foreach (var pos in posList)
         {
-            temp.Add(FindPointName(pos,0));
+            temp.Add(FindPointName(pos, 0));
         }
         if (!temp.Contains(null))
         {
             Debug.Log("校正成功!");
             return temp;
         }
-        //全动画帧遍历
+        //全动画帧遍历寻找对应位置
         temp.Clear();
         for (int i = 0; i < totalFrameCount; i++)
         {
             foreach (var pos in posList)
             {
-                var result=FindPointName(pos, i);
-                if(result!=null)
-                temp.Add(result);
+                var result = FindPointName(pos, i);
+                if (result != null)
+                    temp.Add(result);
                 else
-                break;
+                    break;
             }
             //temp.Add(FindPointName(posList[0], i));
-            if (temp.Count!=posList.Count)
+            if (temp.Count != posList.Count)
             {
                 temp.Clear();
             }
@@ -425,7 +425,7 @@ public class TxtForAnimation : MonoBehaviour
                 return temp;
             }
         }
-        Debug.LogError(animName+"校正失败");
+        Debug.LogError(animName + "校正失败");
         return temp;
     }
     public List<Vector3> GetEndPoitions()
