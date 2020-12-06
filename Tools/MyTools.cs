@@ -37,7 +37,7 @@ public class MyTools
                 if (!temp.Random)
                     totalTime += temp.during;
                 else
-                    totalTime += (temp.range.y-temp.range.x)*0.8f;
+                    totalTime += (temp.range.y - temp.range.x) * 0.8f;
             }
             else if (order is OrderGroup)
             {
@@ -187,10 +187,10 @@ public class MyTools
     {
         // var temp = num.ToString("f2");
         //return float.Parse(temp);
-        float temp=num*100;
+        float temp = num * 100;
         //int i=(int)temp;
-        int i=Mathf.RoundToInt(temp);//根据泽鹏的建议改成四舍五入
-        float result=i/100f;
+        int i = Mathf.RoundToInt(temp);//根据泽鹏的建议改成四舍五入
+        float result = i / 100f;
         return result;
     }
     public static Vector3 TruncVector3(Vector3 v)
@@ -200,6 +200,15 @@ public class MyTools
         float z = Trunc(v.z);
 
         return new Vector3(x, y, z);
+    }
+    public static bool VectorSimilar(Vector3 a, Vector3 b,float dis=1.85f)
+    {
+        //if(Mathf.Abs(a.x-b.x)<1&&Mathf.Abs(a.y-b.y)<1&&Mathf.Abs(a.z-b.z)<1)
+        if(Vector3.Distance(a,b)<=dis)
+        return true;
+        else
+        return false;
+
     }
     public static void ResfrshTimeLine()
     {

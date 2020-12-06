@@ -139,7 +139,7 @@ public class TxtForAnimation : MonoBehaviour
                         var Pos = line.Split('\t');
                         Vector3 tempPos = new Vector3(float.Parse(Pos[1]), float.Parse(Pos[3]), -float.Parse(Pos[2]));
                         tempList.AddPos(tempPos);
-                        Color tempColor = new Color(float.Parse(Pos[4])/255, float.Parse(Pos[5])/255, float.Parse(Pos[6])/255);
+                        Color tempColor = new Color(float.Parse(Pos[4]) / 255, float.Parse(Pos[5]) / 255, float.Parse(Pos[6]) / 255);
                         tempList.AddColor(tempColor);
                         lineIndex++;
                         if (!hasCount)
@@ -338,7 +338,7 @@ public class TxtForAnimation : MonoBehaviour
                 Vector3 pos = cords[indexs[i]].GetPos(frame);
                 childs[i].transform.position = pos;
             }
-            if (useColor&&Application.isPlaying)
+            if (useColor && Application.isPlaying)
             {
                 for (int i = 0; i < childs.Count; i++)
                 {
@@ -354,7 +354,7 @@ public class TxtForAnimation : MonoBehaviour
                 Vector3 pos = cords[i].GetPos(frame);
                 childs[i].transform.position = pos;
             }
-            if (useColor&&Application.isPlaying)
+            if (useColor && Application.isPlaying)
             {
                 for (int i = 0; i < childs.Count; i++)
                 {
@@ -389,7 +389,7 @@ public class TxtForAnimation : MonoBehaviour
         else
             SetChildPos(0);
     }
-    string FindPointName(Vector3 pos, int frame)
+    string FindPointName(Vector3 pos, int frame, bool similar = false)
     {
         if (totalFrameCount == 0)
         {
@@ -399,11 +399,21 @@ public class TxtForAnimation : MonoBehaviour
                 {
                     if (staticPositions[indexs[i]] == pos)
                         return (i + 1).ToString();
+                    if (similar)
+                    {
+                        if (MyTools.VectorSimilar(staticPositions[indexs[i]], pos))
+                            return (i + 1).ToString();
+                    }
                 }
                 else
                 {
                     if (staticPositions[i] == pos)
                         return (i + 1).ToString();
+                    if (similar)
+                    {
+                        if (MyTools.VectorSimilar(staticPositions[i], pos))
+                            return (i + 1).ToString();
+                    }
                 }
             }
         }
@@ -415,11 +425,21 @@ public class TxtForAnimation : MonoBehaviour
                 {
                     if (cords[indexs[i]].GetPos(frame) == pos)
                         return (i + 1).ToString();
+                    if (similar)
+                    {
+                        if (MyTools.VectorSimilar(cords[indexs[i]].GetPos(frame), pos))
+                            return (i + 1).ToString();
+                    }
                 }
                 else
                 {
                     if (cords[i].GetPos(frame) == pos)
                         return (i + 1).ToString();
+                    if (similar)
+                    {
+                        if (MyTools.VectorSimilar(cords[i].GetPos(frame), pos))
+                            return (i + 1).ToString();
+                    }
                 }
             }
         }
@@ -427,41 +447,129 @@ public class TxtForAnimation : MonoBehaviour
     }
     public List<string> FindPointNamesByPos(List<Vector3> posList)
     {
+        //Debug.Log(posList.Count);
         List<string> temp = new List<string>();
-        foreach (var pos in posList)
+        //先试一下第一帧能不能找到
+        // foreach (var pos in posList)
+        // {
+        //     temp.Add(FindPointName(pos, 0));
+        // }
+        // if (!temp.Contains(null))
+        // {
+        //     Debug.Log("校正成功!");
+        //     return temp;
+        // }
+        //temp.Clear();
+
+        // //全动画帧遍历寻找精确对应位置
+        // for (int i = 0; i < totalFrameCount; i++)
+        // {
+        //     foreach (var pos in posList)
+        //     {
+        //         var result = FindPointName(pos, i);
+        //         if (result != null)
+        //             temp.Add(result);
+        //         else
+        //             break;
+        //     }
+        //     //temp.Add(FindPointName(posList[0], i));
+        //     if (temp.Count != posList.Count)
+        //     {
+        //         temp.Clear();
+        //     }
+        //     else
+        //     {
+        //         Debug.Log("校正成功");
+        //         return temp;
+        //     }
+        // }
+
+        // //在所有帧错帧寻找对应位置
+        // int totalFrame = 0;
+        // bool flag = false;
+        // int failCount=0;
+        // for (int i = 0; i < posList.Count; i++)
+        // {
+        //     flag=false;
+        //     for (int j = 0; j < totalFrameCount; j++)
+        //     {
+        //         string findResult = FindPointName(posList[i], j);
+        //         if (findResult != null&&!temp.Contains(findResult))
+        //         {
+        //             temp.Add(findResult);
+        //             totalFrame += j;
+        //             flag = true;
+        //             break;
+        //         }
+        //     }
+        //     if (!flag)
+        //     {
+        //         temp.Add(null);
+        //         failCount++;
+        //     }
+        // }
+
+
+        //在所有帧错帧寻找对应位置
+        int totalFrame = 0;
+        bool flag = false;
+        for (int i = 0; i < posList.Count; i++)
         {
-            temp.Add(FindPointName(pos, 0));
-        }
-        if (!temp.Contains(null))
-        {
-            Debug.Log("校正成功!");
-            return temp;
-        }
-        //全动画帧遍历寻找对应位置
-        temp.Clear();
-        for (int i = 0; i < totalFrameCount; i++)
-        {
-            foreach (var pos in posList)
+            if(flag)
             {
-                var result = FindPointName(pos, i);
-                if (result != null)
-                    temp.Add(result);
-                else
+                temp.Add(null);
+                continue;
+            }
+            for (int j = 0; j < totalFrameCount; j++)
+            {
+                string findResult = FindPointName(posList[i], j);
+                if (findResult != null)
+                {
+                    temp.Add(findResult);
+                    totalFrame = j;
+                    flag = true;
                     break;
+                }
             }
-            //temp.Add(FindPointName(posList[0], i));
-            if (temp.Count != posList.Count)
+            if (!flag)
             {
-                temp.Clear();
-            }
-            else
-            {
-                Debug.Log("校正成功");
-                return temp;
+                temp.Add(null);
             }
         }
-        Debug.LogError(animName + "校正失败");
-        return temp;
+        Debug.Log("判断在 "+totalFrame+" 附近");
+        //int avargeFrame = Mathf.RoundToInt(totalFrame / temp.Count);
+        int avargeFrame = totalFrame;
+        int beginSearchFrame = avargeFrame - 1500 < 0 ? 0 : avargeFrame - 1500;
+        int endSearchFrame = avargeFrame + 1500 > totalFrameCount - 1 ? totalFrameCount - 1 : avargeFrame + 1500;
+        List<string> resultList = new List<string>();
+        totalFrame=0;
+        //没有完全匹配的在可能帧数附近模糊查找
+        for (int i = 0; i < temp.Count; i++)
+        {
+            if (temp[i] != null)
+            {
+                resultList.Add(temp[i]);
+                continue;
+            }
+            for (int j = beginSearchFrame; j < endSearchFrame; j++)
+            {
+                //Debug.Log(i+""+(posList.Count-1));
+                string findResult = FindPointName(posList[i], j);
+                if (findResult != null)
+                {
+                    if (temp.Contains(findResult))
+                        continue;
+                    if (resultList.Contains(findResult))
+                        continue;
+                    totalFrame+=j;
+                    resultList.Add(findResult);
+                    break;
+                }
+            }
+        }
+        Debug.Log(animName + "校正结果: " + (posList.Count - resultList.Count) + " 个点没有找到位置");
+        Debug.Log("平均帧数: "+(totalFrame+avargeFrame)/posList.Count);
+        return resultList;
     }
     public List<Vector3> GetEndPoitions()
     {

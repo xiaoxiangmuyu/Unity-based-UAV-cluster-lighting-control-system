@@ -126,10 +126,10 @@ public class RecordProject : SerializedScriptableObject
     [FoldoutGroup("buttons")]
     void CorrectAll()
     {
-        UpdateGlobalPos();
-        foreach(var data in RecorDataList)
+        //UpdateGlobalPos();
+        for(int i=0;i<RecorDataList.Count;i++)
         {
-            data.CorrectIndex();
+            RecorDataList[i].CorrectIndex();
         }
         foreach(var data in mappingDatas)
         {
