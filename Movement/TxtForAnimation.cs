@@ -539,8 +539,8 @@ public class TxtForAnimation : MonoBehaviour
         Debug.Log("判断在 "+totalFrame+" 附近");
         //int avargeFrame = Mathf.RoundToInt(totalFrame / temp.Count);
         int avargeFrame = totalFrame;
-        int beginSearchFrame = avargeFrame - 1500 < 0 ? 0 : avargeFrame - 1500;
-        int endSearchFrame = avargeFrame + 1500 > totalFrameCount - 1 ? totalFrameCount - 1 : avargeFrame + 1500;
+        int beginSearchFrame = avargeFrame - 1000 < 0 ? 0 : avargeFrame - 1000;
+        int endSearchFrame = avargeFrame + 1000 > totalFrameCount - 1 ? totalFrameCount - 1 : avargeFrame + 1000;
         List<string> resultList = new List<string>();
         totalFrame=0;
         //没有完全匹配的在可能帧数附近模糊查找
@@ -568,7 +568,6 @@ public class TxtForAnimation : MonoBehaviour
             }
         }
         Debug.Log(animName + "校正结果: " + (posList.Count - resultList.Count) + " 个点没有找到位置");
-        Debug.Log("平均帧数: "+(totalFrame+avargeFrame)/posList.Count);
         return resultList;
     }
     public List<Vector3> GetEndPoitions()

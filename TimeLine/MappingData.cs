@@ -139,7 +139,7 @@ public class MappingData
         SetStateDirty();
     }
     CameraPosSetting temp;
-    [Button("切换显示映射角度", ButtonSizes.Medium)]
+    //[Button("切换显示映射角度", ButtonSizes.Medium)]
     [VerticalGroup("Buttons")]
     void ShowScreenPos()
     {
@@ -341,7 +341,7 @@ public class MappingData
         }
         return 0;
     }
-    [Button("校正")]
+    //[Button("校正")]
     public void CorrectIndex()
     {
         var animName=ProjectManager.GetGlobalPosInfoByGroup(groupName).animName;

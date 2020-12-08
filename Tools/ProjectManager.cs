@@ -29,9 +29,6 @@ public class ProjectManager : MonoBehaviour
             return recordProject;
         }
     }
-    public Quaternion RotationInfo;
-    public Vector3 PosInfo;
-    public int ChildCount;
     public string projectName;
     public static List<string> availableGroups
     {
@@ -54,7 +51,7 @@ public class ProjectManager : MonoBehaviour
             var allAnimNames = new List<string>();
             foreach (var animation in GetPointsRoot().GetComponents<TxtForAnimation>())
             {
-                if(animation.animName.StartsWith("G"))
+                if(animation.animName!=null&&animation.animName.StartsWith("G"))
                 allAnimNames.Add(animation.animName);
             }
             return allAnimNames;

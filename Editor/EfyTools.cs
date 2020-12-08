@@ -10,17 +10,10 @@ public class EfyTools
     const string projectPath = "Assets/Resources/Projects/";
     static MeshRenderer _renderer;
     static MovementCheck movementCheck;
-    static int maxChildCount;
-    public static Quaternion RotationInfo;
-    public static Vector3 PosInfo;
-
     [MenuItem("工具/EfyTools/Init", priority = 0)]
     public static void Init(GameObject[] objs)
     {
-        RotationInfo = new Quaternion();
-        PosInfo = new Vector3();
         bool isCountFinish = false;
-        maxChildCount = 0;
         SetCamera();
         Material mat = AssetDatabase.LoadAssetAtPath<Material>("Assets/Resources/bai.mat");
         //GameObject[] objs = Selection.gameObjects;
@@ -43,17 +36,6 @@ public class EfyTools
             {
                 obj.AddComponent<MovementManager>().projectName = projectName;
             }
-            // if (obj.GetComponent<Helper>() == null)
-            // {
-            //     obj.AddComponent<Helper>();
-            // }
-            // if (!recordProject.RecordDic.ContainsKey(obj.name))
-            // {
-            //     recordProject.RecordDic.Add(new List<RecordData>());
-            //     RecordData temp = new RecordData("all");
-            //     recordProject.RecordDic.Add(temp);
-            // }
-
             CreateTimeLine(obj, projectName);
 
             Transform[] children = obj.GetComponentsInChildren<Transform>();
@@ -74,7 +56,7 @@ public class EfyTools
                 HandleMovementCheck(children[i]);
                 HandleRenderer(children[i], mat);
                 HandleColorPoint(children[i]);
-                children[i].gameObject.layer=LayerMask.NameToLayer("Point");
+                children[i].gameObject.layer = LayerMask.NameToLayer("Point");
                 // if (children[i].gameObject.layer != LayerMask.NameToLayer("TriggerIgnore"))
                 // {
                 //     recordProject.RecordDic[0].ObjNames.Add(children[i].name);
@@ -84,24 +66,8 @@ public class EfyTools
             if (!isCountFinish)
             {
                 isCountFinish = true;
-                RotationInfo = obj.transform.rotation;
-                PosInfo = obj.transform.position;
-                maxChildCount = childCount;
-                ProjectManager.Instance.RotationInfo = RotationInfo;
-                ProjectManager.Instance.PosInfo = PosInfo;
-                ProjectManager.Instance.ChildCount = maxChildCount;
-                Debug.Log("本项目共" + maxChildCount + "架飞机");
+                Debug.Log("本项目共" + childCount + "架飞机");
             }
-            else
-            {
-                if (childCount != maxChildCount)
-                    Debug.LogError(obj.name + "图案飞机数量与其他图案不一致" + childCount + "  " + maxChildCount);
-                // if (obj.transform.position != PosInfo)
-                //     Debug.LogError(obj.name + "图案位置信息与其他图案不一致");
-                // if (obj.transform.rotation != RotationInfo)
-                //     Debug.LogError(obj.name + "图案旋转信息与其他图案不一致");
-            }
-
         }
         EditorUtility.SetDirty(recordProject);
         AssetDatabase.SaveAssets();
@@ -113,12 +79,12 @@ public class EfyTools
         {
             Undo.AddComponent<ColorPoint>(obj.gameObject);
         }
-        if(obj.GetComponent<Rigidbody2D>()==null)
+        if (obj.GetComponent<Rigidbody2D>() == null)
         {
             Undo.AddComponent<Rigidbody2D>(obj.gameObject);
         }
-        var col=obj.GetComponent<Rigidbody2D>();
-        col.bodyType=RigidbodyType2D.Kinematic;
+        var col = obj.GetComponent<Rigidbody2D>();
+        col.bodyType = RigidbodyType2D.Kinematic;
     }
     static void HandleMovementCheck(Transform obj)
     {
@@ -128,7 +94,7 @@ public class EfyTools
             movementCheck = Undo.AddComponent<MovementCheck>(obj.gameObject);
         }
         var col = obj.GetComponent<CircleCollider2D>();
-        if(col==null)
+        if (col == null)
         {
             col = obj.gameObject.AddComponent<CircleCollider2D>();
         }
@@ -218,7 +184,7 @@ public class EfyTools
             }
             else
                 obj.GetComponent<PlayableDirector>().playableAsset = asset;
-                obj.GetComponent<PlayableDirector>().extrapolationMode = DirectorWrapMode.Hold;
+            obj.GetComponent<PlayableDirector>().extrapolationMode = DirectorWrapMode.Hold;
 
         }
     }

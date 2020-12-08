@@ -200,7 +200,7 @@ public class RecordData
         }
         return 0;
     }
-    [Button("校正")]
+    //[Button("校正")]
     public void CorrectIndex()
     {
         var animName = ProjectManager.GetGlobalPosInfoByGroup(groupName).animName;

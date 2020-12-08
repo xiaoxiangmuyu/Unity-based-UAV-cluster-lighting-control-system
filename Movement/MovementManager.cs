@@ -50,15 +50,15 @@ public class MovementManager : MonoBehaviour
     void Start()
     {
         frame = -1;
-        playableDirector=GetComponent<PlayableDirector>();
+        playableDirector = GetComponent<PlayableDirector>();
         animator = GetComponent<Animator>();
         if (isWorking)
         {
-            playableDirector.timeUpdateMode=DirectorUpdateMode.Manual;
+            playableDirector.timeUpdateMode = DirectorUpdateMode.Manual;
         }
         else
         {
-            playableDirector.timeUpdateMode=DirectorUpdateMode.UnscaledGameTime;
+            playableDirector.timeUpdateMode = DirectorUpdateMode.UnscaledGameTime;
         }
         if (transform.childCount > 0)
         {
@@ -114,11 +114,11 @@ public class MovementManager : MonoBehaviour
         if (!isWorking)
             return;
         playableDirector.Evaluate();
-        playableDirector.time+=0.04f;
+        playableDirector.time += 0.04f;
         //TimelineEditor.masterDirector.Evaluate
         if (exportType == ExportType.Time)
         {
-            timer +=0.04f;
+            timer += 0.04f;
 
             if (timer >= ExportTime)
             {
@@ -175,23 +175,10 @@ public class MovementManager : MonoBehaviour
         {
             Debug.LogError("导出路径不合法");
         }
-        // if (transform.position != ProjectManager.Instance.PosInfo)
-        // {
-        //     Debug.LogError(gameObject.name + "位置与其他图案不一致");
-        // }
-        // if (transform.rotation != ProjectManager.Instance.RotationInfo)
-        // {
-        //     Debug.LogError(gameObject.name + "旋转信息与其他图案不一致");
-        // }
-        if (movementChecks.Count != ProjectManager.Instance.ChildCount)
-        {
-            Debug.LogError(gameObject.name + "子物体数量与其他图案不一致" + movementChecks.Count);
-        }
         if (movementChecks.Count % 10 != 0)
         {
             Debug.LogError("飞机数量有问题：" + movementChecks.Count);
         }
-
     }
     private bool ExportCheck()
     {
@@ -214,21 +201,6 @@ public class MovementManager : MonoBehaviour
                 return false;
             }
         }
-        // if (transform.position != ProjectManager.Instance.PosInfo)
-        // {
-        //     Debug.LogError(gameObject.name + "位置与其他图案不一致");
-        //     return false;
-        // }
-        // if (transform.rotation != ProjectManager.Instance.RotationInfo)
-        // {
-        //     Debug.LogError(gameObject.name + "旋转信息与其他图案不一致");
-        //     return false;
-        // }
-        if (movementChecks.Count != ProjectManager.Instance.ChildCount)
-        {
-            ConsoleProDebug.LogToFilter(gameObject.name + "子物体数量与其他图案不一致" + movementChecks.Count, "Result");
-        }
-
         return true;
     }
     /// <summary>
@@ -325,12 +297,9 @@ public class MovementManager : MonoBehaviour
                     }
                 }
             }
-            // if (GetComponent<TxtForAnimation>())
-            // {
-            //     FrameExport("/StartFrame.txt", FrameType.start);
-            //     FrameExport("/EndFrame.txt", FrameType.end);
-            // }
             ConsoleProDebug.LogToFilter("<<<<<    导出完成    >>>>>", "Result");
+            ConsoleProDebug.LogToFilter("共 "+movementChecks.Count+" 架", "Result");
+            ConsoleProDebug.LogToFilter("导出时长: "+(float)posInfos.Count/25f+" 秒", "Result");
             AssetDatabase.Refresh();
         }
     }
