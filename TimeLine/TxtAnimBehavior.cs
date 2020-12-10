@@ -19,7 +19,7 @@ public class TxtAnimBehavior : PlayableBehaviour
         {
             if (!target)
                 return false;
-            return ProjectManager.GetPointsRoot().GetComponents<TxtForAnimation>()[0].animName.Equals(target.animName);
+            return ProjectManager.GetPointsRoot().GetComponents<TxtForAnimation>()[0].danceDB.animName.Equals(target.danceDB.animName);
         }
     }
     //int counter;
@@ -49,7 +49,7 @@ public class TxtAnimBehavior : PlayableBehaviour
             if (isFirstAnim && isExportMode)
             {
                 target.MyUpdatePos(0);
-                ConsoleProDebug.LogToFilter(target.animName + "第一帧位置已校正", "Result");
+                ConsoleProDebug.LogToFilter(target.danceDB.animName + "第一帧位置已校正", "Result");
             }
         }
 

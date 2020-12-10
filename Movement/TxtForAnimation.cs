@@ -4,81 +4,19 @@ using UnityEngine;
 using System.IO;
 using Sirenix.OdinInspector;
 using System;
-public enum AnimType
-{
-    Animation,
-    Static
-}
+using UnityEditor;
 public class TxtForAnimation : MonoBehaviour
 {
-    [Serializable]
-    class PointInfo
-    {
-        [SerializeField]
-        List<Vector3> posList;
-        [SerializeField]
-        List<Color> colorList;
-        public PointInfo()
-        {
-            posList = new List<Vector3>();
-            colorList = new List<Color>();
-        }
-        public void AddPos(Vector3 pos)
-        {
-            posList.Add(pos);
-        }
-        public void AddColor(Color color)
-        {
-            colorList.Add(color);
-        }
-        public Vector3 GetPos(int frameIndex)
-        {
-            if (frameIndex < 0 || frameIndex > posList.Count - 1)
-            {
-                Debug.LogError("frameIndex error!" + frameIndex.ToString());
-                return Vector3.zero;
-            }
-            return posList[frameIndex];
-        }
-        public Color GetColor(int frameIndex)
-        {
-            if (frameIndex < 0 || frameIndex > colorList.Count - 1)
-            {
-                Debug.LogError("frameIndex error!" + frameIndex.ToString());
-                return Color.white;
-            }
-            return colorList[frameIndex];
-        }
-    }
-
-
     #region {Public field}
-    public string animName;
-    [ShowInInspector]
-    public float time { get { return (float)totalFrameCount / 25; } }
-    [FolderPath(AbsolutePath = false)]
-    public string animFolderPath;
-    [FilePath(AbsolutePath = false)]
-    public string staticFilePath;
-    [ReadOnly]
-    public int totalFrameCount;
+    public DanceDB danceDB;
+    [HideInInspector]
     public bool useColor;
     public bool HasFinish { get { return hasFinish; } }
     [ShowInInspector]
     public int childCount { get { if (childs != null) return childs.Count; else return 0; } }
-    public AnimType animType
-    {
-        get
-        {
-            if (totalFrameCount == 0)
-                return AnimType.Static;
-            else
-                return AnimType.Animation;
-        }
-    }
-    public List<int> indexs;
-    [ShowInInspector]
+    [ReadOnly]
     public bool useMapping;
+    [ShowInInspector]
     public bool mappingSuccess
     {
         get
@@ -88,94 +26,20 @@ public class TxtForAnimation : MonoBehaviour
             return !indexs.Exists((a) => a == -1);
         }
     }
+    [SerializeField]
+    [HideInInspector]
+    public List<int> indexs;
     #endregion
 
 
     #region {Private field}
-    private int curFrameindex;
-    private bool hasCount;
-    private bool hasFinish;
+    bool hasFinish;
     [SerializeField]
     [HideInInspector]
-    private List<PointInfo> cords = new List<PointInfo>();
-    [SerializeField]
-    [HideInInspector]
-    private List<Vector3> staticPositions = new List<Vector3>();
-    [SerializeField]
-    [HideInInspector]
-    private List<ColorPoint> childs = new List<ColorPoint>();
-    [SerializeField]
-    float timer;
-    bool hasBegin;
+    List<ColorPoint> childs = new List<ColorPoint>();
     #endregion
-    void ReadAnimTxtFile()
-    {
-        if (cords != null && cords.Count != 0)
-            cords.Clear();
-        hasCount = false;
-        totalFrameCount = 0;
-        animName = Path.GetFileNameWithoutExtension(animFolderPath);
-        if (Directory.Exists(animFolderPath))
-        {
-            int fileIndex = 0;
-            cords = new List<PointInfo>();
-            String[] fileArray = Directory.GetFiles(animFolderPath, "*.txt");
-            List<String> files = new List<string>(fileArray);
-            files.Sort((a, b) => int.Parse(Path.GetFileNameWithoutExtension(a)) - int.Parse(Path.GetFileNameWithoutExtension(b)));
-            foreach (string file in files)
-            {
-                PointInfo tempList = new PointInfo();
-                using (var reader = new StreamReader(file))
-                {
-                    string line = null;
-                    int lineIndex = 0;
-                    while ((line = reader.ReadLine()) != null)
-                    {
-                        if (line == string.Empty)
-                        {
-                            Debug.Log("line is null");
-                            continue;
-                        }
-                        var Pos = line.Split('\t');
-                        Vector3 tempPos = new Vector3(float.Parse(Pos[1]), float.Parse(Pos[3]), -float.Parse(Pos[2]));
-                        tempList.AddPos(tempPos);
-                        Color tempColor = new Color(float.Parse(Pos[4]) / 255, float.Parse(Pos[5]) / 255, float.Parse(Pos[6]) / 255);
-                        tempList.AddColor(tempColor);
-                        lineIndex++;
-                        if (!hasCount)
-                            totalFrameCount++;
-                    }
-                    if (!hasCount)
-                        hasCount = true;
-
-                    reader.Close();
-                }
-                cords.Add(tempList);
-                fileIndex++;
-            }
-        }
-        else
-        {
-            Debug.LogError("Path not exist");
-        }
-
-    }
-    void ReadStaticTxtFile()
-    {
-        animName = Path.GetFileNameWithoutExtension(staticFilePath);
-        using (var reader = new StreamReader(staticFilePath))
-        {
-            string line = null;
-            while ((line = reader.ReadLine()) != null)
-            {
-                var Pos = line.Split('\t');
-                Vector3 tempPos = new Vector3(float.Parse(Pos[1]), float.Parse(Pos[3]), -float.Parse(Pos[2]));
-                staticPositions.Add(tempPos);
-            }
-
-            reader.Close();
-        }
-    }
+    
+    
     void GetChilds()
     {
         if (childs != null && childs.Count != 0)
@@ -199,41 +63,22 @@ public class TxtForAnimation : MonoBehaviour
                 AddChild(tra.GetChild(i));
         }
     }
-    // [Button("读取动画", ButtonSizes.Gigantic)]
-    // public void InitForAnim()
-    // {
-    //     cords.Clear();
-    //     staticPositions.Clear();
-    //     childs.Clear();
-    //     ReadAnimTxtFile();
-    //     GetChilds();
-    //     Debug.Log("读取动画成功");
-    // }
-    // [Button("读取静态模型", ButtonSizes.Gigantic)]
-    // public void InitForStatic()
-    // {
-    //     cords.Clear();
-    //     staticPositions.Clear();
-    //     childs.Clear();
-    //     ReadStaticTxtFile();
-    //     GetChilds();
-    //     Debug.Log("读取静态模型成功");
-    //}
     [Button("读取动画模型数据", ButtonSizes.Gigantic)]
+    [PropertyOrder(5)]
     public void Init()
     {
-        cords.Clear();
-        staticPositions.Clear();
+        danceDB.cords.Clear();
+        danceDB.staticPositions.Clear();
         childs.Clear();
         GetChilds();
-        if (Directory.Exists(animFolderPath))
+        if (Directory.Exists(danceDB.animFolderPath))
         {
-            ReadAnimTxtFile();
+            danceDB.ReadAnimTxtFile();
             Debug.Log("读取动画成功");
         }
         else
         {
-            ReadStaticTxtFile();
+            danceDB.ReadStaticTxtFile();
             Debug.Log("读取静态模型成功");
         }
     }
@@ -241,7 +86,7 @@ public class TxtForAnimation : MonoBehaviour
     // Update is called once per frame
     public void MyUpdatePos(int frame)
     {
-        if (staticPositions.Count != 0)
+        if (danceDB.staticPositions.Count != 0)
         {
             StaticUpdate();
         }
@@ -257,25 +102,25 @@ public class TxtForAnimation : MonoBehaviour
         {
             for (int i = 0; i < childs.Count; i++)
             {
-                childs[i].transform.position = staticPositions[indexs[i]];
+                childs[i].transform.position = danceDB.staticPositions[indexs[i]];
             }
         }
         else
         {
             for (int i = 0; i < childs.Count; i++)
             {
-                childs[i].transform.position = staticPositions[i];
+                childs[i].transform.position = danceDB.staticPositions[i];
             }
         }
         hasFinish = true;
     }
     void AnimUpdate(int frame)
     {//frame是索引，范围是0-totalFrameCount-1
-        if (frame >= totalFrameCount - 1)
+        if (frame >= danceDB.totalFrameCount - 1)
         {
             if (hasFinish)
                 return;
-            ConsoleProDebug.LogToFilter(animName + " 播放完成,共" + (frame + 1) + "帧", "Result");
+            ConsoleProDebug.LogToFilter(danceDB.animName + " 播放完成,共" + (frame + 1) + "帧", "Result");
             //Debug.Log("播放完成,共" + frame + "帧");
             hasFinish = true;
             return;
@@ -308,11 +153,11 @@ public class TxtForAnimation : MonoBehaviour
     public void CorrectPointIndex(List<Vector3> pos)
     {
         indexs = new List<int>();
-        if (totalFrameCount != 0)
+        if (danceDB.totalFrameCount != 0)
         {
             for (int i = 0; i < childs.Count; i++)
             {
-                int index = cords.FindIndex((a) => a.GetPos(0) == pos[i]);
+                int index = danceDB.cords.FindIndex((a) => a.GetPos(0) == pos[i]);
                 if (index == -1)
                     Debug.LogError((i + 1).ToString() + "接不上上个动画最后一帧数");
                 indexs.Add(index);
@@ -322,12 +167,12 @@ public class TxtForAnimation : MonoBehaviour
         {
             for (int i = 0; i < childs.Count; i++)
             {
-                int index = staticPositions.FindIndex((a) => a == pos[i]);
+                int index = danceDB.staticPositions.FindIndex((a) => a == pos[i]);
                 indexs.Add(index);
             }
         }
         if (!mappingSuccess)
-            Debug.LogError(animName + "指派失败");
+            Debug.LogError(danceDB.animName + "指派失败");
     }
     void SetChildPos(int frame)
     {
@@ -335,14 +180,14 @@ public class TxtForAnimation : MonoBehaviour
         {
             for (int i = 0; i < childs.Count; i++)
             {
-                Vector3 pos = cords[indexs[i]].GetPos(frame);
+                Vector3 pos = danceDB.cords[indexs[i]].GetPos(frame);
                 childs[i].transform.position = pos;
             }
             if (useColor && Application.isPlaying)
             {
                 for (int i = 0; i < childs.Count; i++)
                 {
-                    Color color = cords[indexs[i]].GetColor(frame);
+                    Color color = danceDB.cords[indexs[i]].GetColor(frame);
                     childs[i].mat.color = color;
                 }
             }
@@ -351,14 +196,14 @@ public class TxtForAnimation : MonoBehaviour
         {
             for (int i = 0; i < childs.Count; i++)
             {
-                Vector3 pos = cords[i].GetPos(frame);
+                Vector3 pos = danceDB.cords[i].GetPos(frame);
                 childs[i].transform.position = pos;
             }
             if (useColor && Application.isPlaying)
             {
                 for (int i = 0; i < childs.Count; i++)
                 {
-                    Color color = cords[i].GetColor(frame);
+                    Color color = danceDB.cords[i].GetColor(frame);
                     childs[i].mat.color = color;
                 }
             }
@@ -367,22 +212,22 @@ public class TxtForAnimation : MonoBehaviour
     public Vector3 GetPointPosByFrame(string pointName, int frame)
     {
         int index = int.Parse(pointName);
-        return cords[index - 1].GetPos(frame);
+        return danceDB.cords[index - 1].GetPos(frame);
     }
     //播放最后一帧
     public void SetAnimEnd()
     {
-        if (totalFrameCount == 0)
+        if (danceDB.totalFrameCount == 0)
         {
             StaticUpdate();
         }
         else
-            SetChildPos(totalFrameCount - 1);
+            SetChildPos(danceDB.totalFrameCount - 1);
     }
     //播放第一帧
     public void SetAnimBegin()
     {
-        if (totalFrameCount == 0)
+        if (danceDB.totalFrameCount == 0)
         {
             StaticUpdate();
         }
@@ -391,27 +236,27 @@ public class TxtForAnimation : MonoBehaviour
     }
     string FindPointName(Vector3 pos, int frame, bool similar = false)
     {
-        if (totalFrameCount == 0)
+        if (danceDB.totalFrameCount == 0)
         {
             for (int i = 0; i < childs.Count; i++)
             {
                 if (useMapping)
                 {
-                    if (staticPositions[indexs[i]] == pos)
+                    if (danceDB.staticPositions[indexs[i]] == pos)
                         return (i + 1).ToString();
                     if (similar)
                     {
-                        if (MyTools.VectorSimilar(staticPositions[indexs[i]], pos))
+                        if (MyTools.VectorSimilar(danceDB.staticPositions[indexs[i]], pos))
                             return (i + 1).ToString();
                     }
                 }
                 else
                 {
-                    if (staticPositions[i] == pos)
+                    if (danceDB.staticPositions[i] == pos)
                         return (i + 1).ToString();
                     if (similar)
                     {
-                        if (MyTools.VectorSimilar(staticPositions[i], pos))
+                        if (MyTools.VectorSimilar(danceDB.staticPositions[i], pos))
                             return (i + 1).ToString();
                     }
                 }
@@ -423,21 +268,21 @@ public class TxtForAnimation : MonoBehaviour
             {
                 if (useMapping)
                 {
-                    if (cords[indexs[i]].GetPos(frame) == pos)
+                    if (danceDB.cords[indexs[i]].GetPos(frame) == pos)
                         return (i + 1).ToString();
                     if (similar)
                     {
-                        if (MyTools.VectorSimilar(cords[indexs[i]].GetPos(frame), pos))
+                        if (MyTools.VectorSimilar(danceDB.cords[indexs[i]].GetPos(frame), pos))
                             return (i + 1).ToString();
                     }
                 }
                 else
                 {
-                    if (cords[i].GetPos(frame) == pos)
+                    if (danceDB.cords[i].GetPos(frame) == pos)
                         return (i + 1).ToString();
                     if (similar)
                     {
-                        if (MyTools.VectorSimilar(cords[i].GetPos(frame), pos))
+                        if (MyTools.VectorSimilar(danceDB.cords[i].GetPos(frame), pos))
                             return (i + 1).ToString();
                     }
                 }
@@ -515,12 +360,12 @@ public class TxtForAnimation : MonoBehaviour
         bool flag = false;
         for (int i = 0; i < posList.Count; i++)
         {
-            if(flag)
+            if (flag)
             {
                 temp.Add(null);
                 continue;
             }
-            for (int j = 0; j < totalFrameCount; j++)
+            for (int j = 0; j < danceDB.totalFrameCount; j++)
             {
                 string findResult = FindPointName(posList[i], j);
                 if (findResult != null)
@@ -536,13 +381,13 @@ public class TxtForAnimation : MonoBehaviour
                 temp.Add(null);
             }
         }
-        Debug.Log("判断在 "+totalFrame+" 附近");
+        Debug.Log("判断在 " + totalFrame + " 附近");
         //int avargeFrame = Mathf.RoundToInt(totalFrame / temp.Count);
         int avargeFrame = totalFrame;
         int beginSearchFrame = avargeFrame - 1000 < 0 ? 0 : avargeFrame - 1000;
-        int endSearchFrame = avargeFrame + 1000 > totalFrameCount - 1 ? totalFrameCount - 1 : avargeFrame + 1000;
+        int endSearchFrame = avargeFrame + 1000 > danceDB.totalFrameCount - 1 ? danceDB.totalFrameCount - 1 : avargeFrame + 1000;
         List<string> resultList = new List<string>();
-        totalFrame=0;
+        totalFrame = 0;
         //没有完全匹配的在可能帧数附近模糊查找
         for (int i = 0; i < temp.Count; i++)
         {
@@ -561,27 +406,27 @@ public class TxtForAnimation : MonoBehaviour
                         continue;
                     if (resultList.Contains(findResult))
                         continue;
-                    totalFrame+=j;
+                    totalFrame += j;
                     resultList.Add(findResult);
                     break;
                 }
             }
         }
-        Debug.Log(animName + "校正结果: " + (posList.Count - resultList.Count) + " 个点没有找到位置");
+        Debug.Log(danceDB.animName + "校正结果: " + (posList.Count - resultList.Count) + " 个点没有找到位置");
         return resultList;
     }
     public List<Vector3> GetEndPoitions()
     {
-        if (staticPositions.Count != 0)
+        if (danceDB.staticPositions.Count != 0)
         {
             if (!useMapping)
-                return staticPositions;
+                return danceDB.staticPositions;
             else
             {
                 List<Vector3> temp = new List<Vector3>();
                 for (int i = 0; i < indexs.Count; i++)
                 {
-                    temp.Add(staticPositions[indexs[i]]);
+                    temp.Add(danceDB.staticPositions[indexs[i]]);
                 }
                 return temp;
             }
@@ -591,16 +436,16 @@ public class TxtForAnimation : MonoBehaviour
             var temp = new List<Vector3>();
             if (!useMapping)
             {
-                for (int i = 0; i < cords.Count; i++)
+                for (int i = 0; i < danceDB.cords.Count; i++)
                 {
-                    temp.Add(cords[i].GetPos(totalFrameCount - 1));
+                    temp.Add(danceDB.cords[i].GetPos(danceDB.totalFrameCount - 1));
                 }
             }
             else
             {
                 for (int i = 0; i < indexs.Count; i++)
                 {
-                    temp.Add(cords[indexs[i]].GetPos(totalFrameCount - 1));
+                    temp.Add(danceDB.cords[indexs[i]].GetPos(danceDB.totalFrameCount - 1));
                 }
             }
             return temp;

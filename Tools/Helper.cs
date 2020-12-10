@@ -111,8 +111,8 @@ public class Helper : MonoBehaviour
             var clip = trackRoot.CreateClip<TxtAnimAsset>();
             clip.start = end;
             var temp = clip.asset as TxtAnimAsset;
-            temp.animName = anims[i].animName;
-            if (anims[i].totalFrameCount == 0)
+            temp.animName = anims[i].danceDB.animName;
+            if (anims[i].danceDB.totalFrameCount == 0)
             {
                 temp.safeSeconds = 20;
                 end += 20;
@@ -120,7 +120,7 @@ public class Helper : MonoBehaviour
             else
             {
                 //end += anims[i].totalFrameCount / 25f + 2;
-                end += anims[i].totalFrameCount / 25f;
+                end += anims[i].danceDB.totalFrameCount / 25f;
             }
         }
         TimelineEditor.Refresh(RefreshReason.ContentsAddedOrRemoved);

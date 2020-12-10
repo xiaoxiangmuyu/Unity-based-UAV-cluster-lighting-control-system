@@ -34,7 +34,6 @@ public class MovementManager : MonoBehaviour
     string exportPath;
     List<MovementCheck> movementChecks;
     float timer = 0f; // 静态表演计时器
-    int frame = 0;
     enum FrameType
     {
         start = 1,
@@ -43,13 +42,14 @@ public class MovementManager : MonoBehaviour
     StringBuilder sb = new StringBuilder(50, 50);
     int r, g, b;
     PlayableDirector playableDirector;
+    int frame;
     void OnEnable()
     {
 
     }
     void Start()
     {
-        frame = -1;
+        frame=-1;
         playableDirector = GetComponent<PlayableDirector>();
         animator = GetComponent<Animator>();
         if (isWorking)
@@ -145,7 +145,6 @@ public class MovementManager : MonoBehaviour
             }
             frame += 1;
         }
-
     }
     #region 检查
 
@@ -197,7 +196,7 @@ public class MovementManager : MonoBehaviour
         {
             if (!anims[i].HasFinish)
             {
-                ConsoleProDebug.LogToFilter("动画片段:" + anims[i].animName + " 导出时间过短，TxT没播放完", "Result");
+                ConsoleProDebug.LogToFilter("动画片段:" + anims[i].danceDB.animName + " 导出时间过短，TxT没播放完", "Result");
                 return false;
             }
         }
@@ -298,8 +297,8 @@ public class MovementManager : MonoBehaviour
                 }
             }
             ConsoleProDebug.LogToFilter("<<<<<    导出完成    >>>>>", "Result");
-            ConsoleProDebug.LogToFilter("共 "+movementChecks.Count+" 架", "Result");
-            ConsoleProDebug.LogToFilter("导出时长: "+(float)posInfos.Count/25f+" 秒", "Result");
+            ConsoleProDebug.LogToFilter("共 " + movementChecks.Count + " 架", "Result");
+            ConsoleProDebug.LogToFilter("导出时长: " + (float)posInfos.Count / 25f + " 秒", "Result");
             AssetDatabase.Refresh();
         }
     }

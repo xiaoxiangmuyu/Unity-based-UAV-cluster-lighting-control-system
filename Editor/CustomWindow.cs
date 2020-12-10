@@ -36,11 +36,11 @@ public class ProjectInitWindow : EditorWindow
             {
                 if (Directory.Exists(paths[i]))
                 {
-                    string[]split=paths[i].Split('/');
-                    string name=split[split.Length-1];
+                    string[] split = paths[i].Split('/');
+                    string name = split[split.Length - 1];
                     if (name.StartsWith("f"))
                     {
-                        string childPath=paths[i] + "/" + name;
+                        string childPath = paths[i] + "/" + name;
                         number = Directory.GetFiles(childPath).Length;
                         break;
                     }
@@ -58,17 +58,20 @@ public class ProjectInitWindow : EditorWindow
             for (int i = 0; i < paths.Count; i++)
             {
                 var anim = root.AddComponent<TxtForAnimation>();
+                DanceDB danceDb = ScriptableObject.CreateInstance<DanceDB>();
+                AssetDatabase.CreateAsset(danceDb, "Assets/Resources/Projects/" + ProjectManager.Instance.projectName + "/"+(i+1).ToString()+".asset");
+                anim.danceDB=danceDb;
                 if (File.Exists(paths[i]))
-                    anim.staticFilePath = paths[i];
+                    anim.danceDB.staticFilePath = paths[i];
                 else if (Directory.Exists(paths[i]))
                 {
-                    string[]split=paths[i].Split('/');
-                    string name=split[split.Length-1];
-                    string childDir=paths[i]+"/"+name;
+                    string[] split = paths[i].Split('/');
+                    string name = split[split.Length - 1];
+                    string childDir = paths[i] + "/" + name;
                     if (Directory.Exists(childDir))
-                        anim.animFolderPath = childDir;
+                        anim.danceDB.animFolderPath = childDir;
                     else
-                        anim.animFolderPath = paths[i];
+                        anim.danceDB.animFolderPath = paths[i];
                 }
                 else
                     Debug.LogError("路径有问题，不是文件也不是文件夹");
@@ -138,10 +141,10 @@ public class ProjectInitWindow : EditorWindow
         else
         {
             string[] chars = name.Split('_');
-            if(chars.Length==3)
-            return int.Parse(chars[2]) - 0.5f;
+            if (chars.Length == 3)
+                return int.Parse(chars[2]) - 0.5f;
             else
-            return int.Parse(chars[1]) + 0.5f;
+                return int.Parse(chars[1]) + 0.5f;
         }
     }
 

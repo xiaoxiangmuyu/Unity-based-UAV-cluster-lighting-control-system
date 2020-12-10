@@ -51,8 +51,8 @@ public class ProjectManager : MonoBehaviour
             var allAnimNames = new List<string>();
             foreach (var animation in GetPointsRoot().GetComponents<TxtForAnimation>())
             {
-                if(animation.animName!=null&&animation.animName.StartsWith("G"))
-                allAnimNames.Add(animation.animName);
+                if(animation.danceDB.animName!=null&&animation.danceDB.animName.StartsWith("G"))
+                allAnimNames.Add(animation.danceDB.animName);
             }
             return allAnimNames;
         }
@@ -106,7 +106,7 @@ public class ProjectManager : MonoBehaviour
         var anims = GetPointsRoot().GetComponents<TxtForAnimation>();
         for (int i = 0; i < anims.Length; i++)
         {
-            if (anims[i].animName == name)
+            if (anims[i].danceDB.animName == name)
                 return anims[i];
         }
         Debug.LogError(name + "   动画没有找到");
@@ -129,7 +129,7 @@ public class ProjectManager : MonoBehaviour
         var anims = GetPointsRoot().GetComponents<TxtForAnimation>();
         foreach (var anim in anims)
         {
-            if (anim.animName.Equals(animName))
+            if (anim.danceDB.animName.Equals(animName))
                 return anim;
         }
         Debug.LogError("没有名为" + animName + "的动画");
