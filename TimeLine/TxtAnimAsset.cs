@@ -4,7 +4,6 @@ using UnityEngine;
 using UnityEngine.Playables;
 using Sirenix.OdinInspector;
 using DG.Tweening;
-[CreateAssetMenu(menuName = "创建动画序列", fileName = "新动画序列")]
 public class TxtAnimAsset : SerializedScriptableObject, IPlayableAsset
 {
     #region  IPlayableAsset
@@ -58,16 +57,16 @@ public class TxtAnimAsset : SerializedScriptableObject, IPlayableAsset
             return temp;
         }
     }
-    [ShowInInspector]
-    bool available
-    {
-        get
-        {
-            if (target == null)
-                return false;
-            return target.mappingSuccess;
-        }
-    }
+    // [ShowInInspector]
+    // bool available
+    // {
+    //     get
+    //     {
+    //         if (target == null)
+    //             return false;
+    //         return target.mappingSuccess;
+    //     }
+    // }
     public Playable CreatePlayable(PlayableGraph graph, GameObject owner)
     {
         scriptPlayable = ScriptPlayable<TxtAnimBehavior>.Create(graph);

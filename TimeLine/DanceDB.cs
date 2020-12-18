@@ -144,5 +144,21 @@ public class DanceDB : ScriptableObject
             reader.Close();
         }
     }
+    [Button("读取数据",ButtonSizes.Gigantic)]
+    public void Init()
+    {
+        cords.Clear();
+        staticPositions.Clear();
+        if (Directory.Exists(animFolderPath))
+        {
+            ReadAnimTxtFile();
+            Debug.Log("读取动画成功");
+        }
+        else
+        {
+            ReadStaticTxtFile();
+            Debug.Log("读取静态模型成功");
+        }
+    }
 
 }

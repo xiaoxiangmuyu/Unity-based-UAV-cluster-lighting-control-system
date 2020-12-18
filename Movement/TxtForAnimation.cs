@@ -14,18 +14,6 @@ public class TxtForAnimation : MonoBehaviour
     public bool HasFinish { get { return hasFinish; } }
     [ShowInInspector]
     public int childCount { get { if (childs != null) return childs.Count; else return 0; } }
-    [ReadOnly]
-    public bool useMapping;
-    [ShowInInspector]
-    public bool mappingSuccess
-    {
-        get
-        {
-            if (!useMapping)
-                return true;
-            return !indexs.Exists((a) => a == -1);
-        }
-    }
     [SerializeField]
     [HideInInspector]
     public List<int> indexs;
@@ -38,8 +26,8 @@ public class TxtForAnimation : MonoBehaviour
     [HideInInspector]
     List<ColorPoint> childs = new List<ColorPoint>();
     #endregion
-    
-    
+
+
     void GetChilds()
     {
         if (childs != null && childs.Count != 0)
@@ -81,6 +69,7 @@ public class TxtForAnimation : MonoBehaviour
             danceDB.ReadStaticTxtFile();
             Debug.Log("读取静态模型成功");
         }
+        EditorUtility.SetDirty(danceDB);
     }
 
     // Update is called once per frame
@@ -98,19 +87,9 @@ public class TxtForAnimation : MonoBehaviour
     }
     void StaticUpdate()
     {
-        if (useMapping)
+        for (int i = 0; i < childs.Count; i++)
         {
-            for (int i = 0; i < childs.Count; i++)
-            {
-                childs[i].transform.position = danceDB.staticPositions[indexs[i]];
-            }
-        }
-        else
-        {
-            for (int i = 0; i < childs.Count; i++)
-            {
-                childs[i].transform.position = danceDB.staticPositions[i];
-            }
+            childs[i].transform.position = danceDB.staticPositions[indexs[i]];
         }
         hasFinish = true;
     }
@@ -153,13 +132,17 @@ public class TxtForAnimation : MonoBehaviour
     public void CorrectPointIndex(List<Vector3> pos)
     {
         indexs = new List<int>();
+        bool failed = false;
         if (danceDB.totalFrameCount != 0)
         {
             for (int i = 0; i < childs.Count; i++)
             {
                 int index = danceDB.cords.FindIndex((a) => a.GetPos(0) == pos[i]);
                 if (index == -1)
+                {
+                    failed = true;
                     Debug.LogError((i + 1).ToString() + "接不上上个动画最后一帧数");
+                }
                 indexs.Add(index);
             }
         }
@@ -171,41 +154,22 @@ public class TxtForAnimation : MonoBehaviour
                 indexs.Add(index);
             }
         }
-        if (!mappingSuccess)
+        if (failed)
             Debug.LogError(danceDB.animName + "指派失败");
     }
     void SetChildPos(int frame)
     {
-        if (useMapping)
+        for (int i = 0; i < childs.Count; i++)
         {
-            for (int i = 0; i < childs.Count; i++)
-            {
-                Vector3 pos = danceDB.cords[indexs[i]].GetPos(frame);
-                childs[i].transform.position = pos;
-            }
-            if (useColor && Application.isPlaying)
-            {
-                for (int i = 0; i < childs.Count; i++)
-                {
-                    Color color = danceDB.cords[indexs[i]].GetColor(frame);
-                    childs[i].mat.color = color;
-                }
-            }
+            Vector3 pos = danceDB.cords[indexs[i]].GetPos(frame);
+            childs[i].transform.position = pos;
         }
-        else
+        if (useColor && Application.isPlaying)
         {
             for (int i = 0; i < childs.Count; i++)
             {
-                Vector3 pos = danceDB.cords[i].GetPos(frame);
-                childs[i].transform.position = pos;
-            }
-            if (useColor && Application.isPlaying)
-            {
-                for (int i = 0; i < childs.Count; i++)
-                {
-                    Color color = danceDB.cords[i].GetColor(frame);
-                    childs[i].mat.color = color;
-                }
+                Color color = danceDB.cords[indexs[i]].GetColor(frame);
+                childs[i].mat.color = color;
             }
         }
     }
@@ -240,25 +204,12 @@ public class TxtForAnimation : MonoBehaviour
         {
             for (int i = 0; i < childs.Count; i++)
             {
-                if (useMapping)
+                if (danceDB.staticPositions[indexs[i]] == pos)
+                    return (i + 1).ToString();
+                if (similar)
                 {
-                    if (danceDB.staticPositions[indexs[i]] == pos)
+                    if (MyTools.VectorSimilar(danceDB.staticPositions[indexs[i]], pos))
                         return (i + 1).ToString();
-                    if (similar)
-                    {
-                        if (MyTools.VectorSimilar(danceDB.staticPositions[indexs[i]], pos))
-                            return (i + 1).ToString();
-                    }
-                }
-                else
-                {
-                    if (danceDB.staticPositions[i] == pos)
-                        return (i + 1).ToString();
-                    if (similar)
-                    {
-                        if (MyTools.VectorSimilar(danceDB.staticPositions[i], pos))
-                            return (i + 1).ToString();
-                    }
                 }
             }
         }
@@ -266,25 +217,12 @@ public class TxtForAnimation : MonoBehaviour
         {
             for (int i = 0; i < childs.Count; i++)
             {
-                if (useMapping)
+                if (danceDB.cords[indexs[i]].GetPos(frame) == pos)
+                    return (i + 1).ToString();
+                if (similar)
                 {
-                    if (danceDB.cords[indexs[i]].GetPos(frame) == pos)
+                    if (MyTools.VectorSimilar(danceDB.cords[indexs[i]].GetPos(frame), pos))
                         return (i + 1).ToString();
-                    if (similar)
-                    {
-                        if (MyTools.VectorSimilar(danceDB.cords[indexs[i]].GetPos(frame), pos))
-                            return (i + 1).ToString();
-                    }
-                }
-                else
-                {
-                    if (danceDB.cords[i].GetPos(frame) == pos)
-                        return (i + 1).ToString();
-                    if (similar)
-                    {
-                        if (MyTools.VectorSimilar(danceDB.cords[i].GetPos(frame), pos))
-                            return (i + 1).ToString();
-                    }
                 }
             }
         }
@@ -417,39 +355,23 @@ public class TxtForAnimation : MonoBehaviour
     }
     public List<Vector3> GetEndPoitions()
     {
-        if (danceDB.staticPositions.Count != 0)
+        if (danceDB.animType == AnimType.Static)
         {
-            if (!useMapping)
-                return danceDB.staticPositions;
-            else
+            List<Vector3> temp = new List<Vector3>();
+            for (int i = 0; i < indexs.Count; i++)
             {
-                List<Vector3> temp = new List<Vector3>();
-                for (int i = 0; i < indexs.Count; i++)
-                {
-                    temp.Add(danceDB.staticPositions[indexs[i]]);
-                }
-                return temp;
+                temp.Add(danceDB.staticPositions[indexs[i]]);
             }
+            return temp;
         }
         else
         {
             var temp = new List<Vector3>();
-            if (!useMapping)
+            for (int i = 0; i < indexs.Count; i++)
             {
-                for (int i = 0; i < danceDB.cords.Count; i++)
-                {
-                    temp.Add(danceDB.cords[i].GetPos(danceDB.totalFrameCount - 1));
-                }
-            }
-            else
-            {
-                for (int i = 0; i < indexs.Count; i++)
-                {
-                    temp.Add(danceDB.cords[indexs[i]].GetPos(danceDB.totalFrameCount - 1));
-                }
+                temp.Add(danceDB.cords[indexs[i]].GetPos(danceDB.totalFrameCount - 1));
             }
             return temp;
-
         }
     }
 }

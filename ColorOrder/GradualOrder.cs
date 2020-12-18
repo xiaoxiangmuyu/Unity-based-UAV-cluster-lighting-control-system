@@ -110,24 +110,15 @@ public class DoColor : GradualOrder
         get
         {
             List<string> dataNames = new List<string>();
+            if (groupName == null)
+                return dataNames;
             dataNames.Add("UnSelect");
-            if (groupName==null||groupName.Equals(""))
+            var datalist = ProjectManager.GetDataGroupByGroupName(groupName);
+            for (int i = 0; i < datalist.mappingDatas.Count; i++)
             {
-                var datalist = ProjectManager.Instance.RecordProject.mappingDatas;
-                foreach (var data in datalist)
-                    dataNames.Add(data.dataName);
-                return dataNames;
+                dataNames.Add(datalist.mappingDatas[i].dataName);
             }
-            else
-            {
-                var datalist = ProjectManager.Instance.RecordProject.mappingDatas;
-                datalist.ForEach((a) =>
-                {
-                    if (a.groupName.Equals(groupName))
-                        dataNames.Add(a.dataName);
-                });
-                return dataNames;
-            }
+            return dataNames;
         }
     }
     IEnumerable availableColorTypes
@@ -147,31 +138,30 @@ public class DoColor : GradualOrder
     MappingData GetMappingData(ColorPoint point)
     {
         if (mappingDataName != "UnSelect" && mappingDataName != null && mappingDataName != String.Empty)
-            return ProjectManager.Instance.RecordProject.mappingDatas.Find((a) => a.dataName == mappingDataName);
+            return ProjectManager.GetDataGroupByGroupName(groupName).mappingDatas.Find((a) => a.dataName == mappingDataName);
         else
         {
-            var data = ProjectManager.Instance.RecordProject.mappingDatas;
-            List<MappingData> temp = new List<MappingData>(data.FindAll((a) => a.groupName == groupName));
-            return temp.Find((a) => a.ObjNames.Contains(point.name));
+            var data = ProjectManager.GetDataGroupByGroupName(groupName);
+            return data.mappingDatas.Find((a) => a.objNames.Contains(point.name));
         }
     }
-    #region ColorMapper
-    [ValueDropdown("availableMappingSource")]
-    [ShowIf("isColorByMapper")]
-    public string mapperName;
-    void GetMapper()
-    {
-        colorMapper = ProjectManager.Instance.RecordProject.GetColorMapper(mapperName);
-    }
-    IEnumerable availableMappingSource
-    {
-        get
-        {
-            return ProjectManager.Instance.RecordProject.ColorMapperNames;
-        }
-    }
-    ColorMapper colorMapper;
-    #endregion
+    //#region ColorMapper
+    //[ValueDropdown("availableMappingSource")]
+    //[ShowIf("isColorByMapper")]
+    //public string mapperName;
+    //void GetMapper()
+    //{
+    //    colorMapper = ProjectManager.Instance.RecordProject.GetColorMapper(mapperName);
+    //}
+    //IEnumerable availableMappingSource
+    //{
+    //    get
+    //    {
+    //        return ProjectManager.Instance.RecordProject.ColorMapperNames;
+    //    }
+    //}
+    //ColorMapper colorMapper;
+    //#endregion
     bool hideColor { get { return colorType != ColorType.SingleColor; } }
     bool hideGradient { get { return colorType != ColorType.Gradient && colorType != ColorType.ColorByMapper; } }
     bool showHSVInfo { get { return colorType == ColorType.HSV; } }
@@ -204,31 +194,20 @@ public class DoColor : GradualOrder
                 {
                     targetColor = Color.black; break;
                 }
-            case ColorType.ColorByMapper:
-                {
-                    if (colorMapper == null)
-                        GetMapper();
-                    point.gradient = gradient;
-                    point.colorMapper = colorMapper;
-                    return point.mat.DOColor(point.MapperColor,during);
-                }
-            // case ColorType.ColorMapping:
-            //     {
-            //         if (isWithIndex)
-            //         {
-            //             targetColor = point.GetMappingColor(colorIndex); break;
-            //         }
-            //         else
-            //         {
-            //             targetColor = point.GetMappingColor(); break;
-            //         }
-            //     }
+            //case ColorType.ColorByMapper:
+            //    {
+            //        if (colorMapper == null)
+            //            GetMapper();
+            //        point.gradient = gradient;
+            //        point.colorMapper = colorMapper;
+            //        return point.mat.DOColor(point.MapperColor, during);
+            //    }
             case ColorType.MappingData:
                 {
                     mappingData = GetMappingData(point);
                     if (mappingData == null)
                     {
-                        targetColor=Color.white;
+                        targetColor = Color.white;
                         Debug.LogError(point.name + "找不到映射颜色");
                         break;
                     }
@@ -246,26 +225,10 @@ public class DoColor : GradualOrder
 
                     break;
                 }
-            // case ColorType.Random:
-            //     {
-            //         targetColor = point.randomColor; break;
-            //     }
-            // case ColorType.FlowMapping:
-            //     {
-            //         targetColor = point.flowTextureColor; break;
-            //     }
             case ColorType.HSV:
                 {
                     targetColor = point.GetColorByHSV(hsvValue); break;
                 }
-                // case ColorType.Origin:
-                //     {
-                //         targetColor = point.originalColor; break;
-                //     }
-                // case ColorType.Dark:
-                //     {
-                //         targetColor = point.GetDarkColor(darkValue); break;
-                //     }
 
         }
         if (!hideGradient)

@@ -5,7 +5,7 @@ using Sirenix.OdinInspector;
 [System.Serializable]
 public struct PointIndexInfo
 {
-    [SerializeField]
+    [SerializeField]//所有点的坐标信息
     public List<Vector3> posList;
 }
 [System.Serializable]
@@ -40,7 +40,6 @@ public class RecordData
             return ProjectManager.availableGroups;
         }
     }
-
     List<System.Action> Actions;
 
     public RecordData(string name = "")
@@ -81,8 +80,8 @@ public class RecordData
         times = new List<float>(data.times.ToArray());
         if (data.animTime != 0)
             animTime = data.animTime;
-        //if (!dataName.Equals("All") && !dataName.Equals("all"))
-            groupName = data.groupName;
+        //if (data.groupName!=null||!data.groupName.Equals(""))
+        groupName = data.groupName;
         pointsInfo.posList = new List<Vector3>(data.pointsInfo.posList);
         //posDic=data.posDic;
     }
@@ -109,17 +108,18 @@ public class RecordData
         }
     }
     [Button("Add", ButtonSizes.Medium)]
-    [HorizontalGroup("添加映射")]
+    [HorizontalGroup("添加颜色")]
     void AddMappingData()
     {
+        var mappingDatas = ProjectManager.GetDataGroupByGroupName(groupName).mappingDatas;
         MappingData targetData = new MappingData();
-        foreach (var temp in ProjectManager.Instance.RecordProject.mappingDatas)
+        foreach (var temp in mappingDatas)
         {
             if (temp.dataName.Equals(dataName) && temp.groupName.Equals(groupName))
             {
                 targetData = temp;
                 targetData.groupName = groupName;
-                targetData.ObjNames = new List<string>(objNames);
+                targetData.objNames = new List<string>(objNames);
                 targetData.pointsInfo.posList = pointsInfo.posList;
                 Debug.Log("数据更新完毕");
                 return;
@@ -127,11 +127,11 @@ public class RecordData
         }
         MappingData data = new MappingData();
         data.pointsInfo.posList = pointsInfo.posList;
-        data.ObjNames = new List<string>(objNames);
+        data.objNames = new List<string>(objNames);
         data.dataName = dataName;
         data.groupName = groupName;
         ProjectManager.Instance.RecordProject.AddMappingData(data);
-        Debug.Log("添加映射成功");
+        Debug.Log("添加颜色成功");
     }
     [Button("Show", ButtonSizes.Medium)]
     [HorizontalGroup("View")]
@@ -203,10 +203,42 @@ public class RecordData
     //[Button("校正")]
     public void CorrectIndex()
     {
-        var animName = ProjectManager.GetGlobalPosInfoByGroup(groupName).animName;
-        var temp = new List<string>(MyTools.FindNamesByPosList(pointsInfo.posList, animName));
-        if(temp.Count!=0)
-        objNames=new List<string>(temp);
+        // var animName = ProjectManager.GetGlobalPosInfoByGroup(groupName).animName;
+        // var temp = new List<string>(MyTools.FindNamesByPosList(pointsInfo.posList, animName));
+        // if (temp.Count != 0)
+        //     objNames = new List<string>(temp);
+        CorrectByMappingIndex();
+    }
+    //动画数据不变(坐标和序号都不能变)，仅顺序调整时使用
+    public void CorrectByMappingIndex()
+    {
+        string animName = ProjectManager.GetGlobalPosInfoByGroup(groupName).animName;
+        TxtForAnimation animation = ProjectManager.GetAnimationByName(animName);
+        List<int> mappingList = animation.indexs;
+        List<string> result = new List<string>();
+        foreach (var name in objNames)
+        {
+            for (int i = 0; i < mappingList.Count; i++)
+            {
+                if (mappingList[i] == int.Parse(name))
+                {
+                    result.Add((i + 1).ToString());
+                    break;
+                }
+            }
+        }
+        if (result.Count != objNames.Count)
+        {
+            Debug.LogError("校正失败，少了" + (objNames.Count - result.Count) + "个点");
+            return;
+        }
+        else
+        {
+            Debug.Log("校正成功");
+            objNames = new List<string>(result);
+        }
+
+
     }
     //[Button("校正")]
     //    public void CorrectIndex(string animName)

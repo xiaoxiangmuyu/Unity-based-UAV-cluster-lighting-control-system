@@ -7,7 +7,6 @@ using UnityEngine.Playables;
 using UnityEditor;
 using UnityEditor.Timeline;
 
-[ExecuteInEditMode]
 public class Helper : MonoBehaviour
 {
     const string templetePath = "Templetes/";
@@ -21,22 +20,18 @@ public class Helper : MonoBehaviour
             return Resources.LoadAll<PlayableAsset>(templetePath);
         }
     }
+
+
     [Button(ButtonSizes.Gigantic)]
     [LabelText("添加模版")]
     public void UseTemplete()
     {
-        // if (!Application.isPlaying)
-        // {
-        //     Debug.Log("请在运行时调用该命令");
-        //     return;
-        // }
         if (targetTemplete == null)
         {
             Debug.LogError("没有选择模版");
             return;
         }
         var templete = Resources.Load<TimelineAsset>("Templetes/" + targetTemplete.name);
-        //var asset = Resources.Load<TimelineAsset>("Projects/" + ProjectManager.Instance.projectName + "/" + gameObject.name);
         var asset = GetComponent<PlayableDirector>().playableAsset as TimelineAsset;
         var trackRoot = asset.CreateTrack<GroupTrack>(targetTemplete.name);
         var timelineLength = asset.duration;
@@ -53,31 +48,13 @@ public class Helper : MonoBehaviour
                 tempClip.displayName = clip.displayName;
                 var from = JsonUtility.ToJson(clip.asset);
                 JsonUtility.FromJsonOverwrite(from, tempClip.asset);
-                //tempClip.start+=timelineLength;
             }
         }
-        //Selection.activeGameObject = gameObject;
         TimelineEditor.Refresh(RefreshReason.ContentsAddedOrRemoved);
-
         Debug.Log("应用模版完成");
     }
-    void SetCurrentObj()
-    {
-        Selection.activeGameObject = gameObject;
-        Debug.Log("应用模版完成");
 
-    }
-    private void OnEnable()
-    {
-        ProjectManager.SetOperateTarget(gameObject);
-    }
-    private void OnDisable()
-    {
-        if (ProjectManager.GetPointsRoot() == GetComponent<MovementManager>())
-        {
-            ProjectManager.RefreshCurTarget();
-        }
-    }
+
     [Button("生成点", ButtonSizes.Gigantic)]
     public void GeneratePoint(int number)
     {
@@ -93,8 +70,13 @@ public class Helper : MonoBehaviour
             temp = Instantiate(pointPrefab);
             temp.transform.SetParent(transform);
             temp.name = (i + 1).ToString();
+            temp.AddComponent<ColorPoint>();
+            temp.AddComponent<MovementCheck>();
+            temp.layer = LayerMask.NameToLayer("Point");
         }
     }
+
+
     [Button("创建所有动画", ButtonSizes.Gigantic)]
     void CreatAllAnimForTimeLine()
     {
