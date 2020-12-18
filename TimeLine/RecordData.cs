@@ -203,13 +203,13 @@ public class RecordData
     //[Button("校正")]
     public void CorrectIndex()
     {
-        // var animName = ProjectManager.GetGlobalPosInfoByGroup(groupName).animName;
-        // var temp = new List<string>(MyTools.FindNamesByPosList(pointsInfo.posList, animName));
-        // if (temp.Count != 0)
-        //     objNames = new List<string>(temp);
-        CorrectByMappingIndex();
+        var animName = ProjectManager.GetGlobalPosInfoByGroup(groupName).animName;
+        var temp = new List<string>(MyTools.FindNamesByPosList(pointsInfo.posList, animName));
+        if (temp.Count != 0)
+            objNames = new List<string>(temp);
+        //CorrectByMappingIndex();
     }
-    //动画数据不变(坐标和序号都不能变)，仅顺序调整时使用
+    //动画数据不变(坐标和文件序号都不能变)，仅顺序调整时使用,开发中，待完善
     public void CorrectByMappingIndex()
     {
         string animName = ProjectManager.GetGlobalPosInfoByGroup(groupName).animName;

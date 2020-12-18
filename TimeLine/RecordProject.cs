@@ -34,9 +34,6 @@ public class RecordProject : SerializedScriptableObject
     [InlineEditor]
     public DataGroup current;
 
-    [HideInInspector]
-    public List<DataGroup> datas;
-
     [TabGroup("全局位置")]
     public List<GlobalPosInfo> globalPosDic = new List<GlobalPosInfo>();
 
@@ -131,23 +128,23 @@ public class RecordProject : SerializedScriptableObject
     [FoldoutGroup("指派与校准")]
     void CorrectAll()
     {
-        foreach (var data in datas)
-        {
-            for (int i = 0; i < data.recordDatas.Count; i++)
-            {
-                data.recordDatas[i].CorrectIndex();
-            }
-            for (int i = 0; i < data.mappingDatas.Count; i++)
-            {
-                data.mappingDatas[i].CorrectIndex();
-            }
-        }
+        //foreach (var data in datas)
+        //{
+        //    for (int i = 0; i < data.recordDatas.Count; i++)
+        //    {
+        //        data.recordDatas[i].CorrectIndex();
+        //    }
+        //    for (int i = 0; i < data.mappingDatas.Count; i++)
+        //    {
+        //        data.mappingDatas[i].CorrectIndex();
+        //    }
+        //}
         // foreach(var data in mappingDatas)
         // {
         //     data.CorrectIndex();
         // }
         // MyTools.ResfrshTimeLine();
-        Debug.Log("全局数据校准完成");
+        //Debug.Log("全局数据校准完成");
     }
     [FilePath]
     [ShowInInspector]
@@ -194,7 +191,7 @@ public class RecordProject : SerializedScriptableObject
             GlobalPosInfo info = new GlobalPosInfo();
             info.animName = anim;
             info.groupName = anim;
-            foreach (var pos in txtForAnimation.GetEndPoitions())
+            foreach (var pos in txtForAnimation.GetBeginPosition())
             {
                 info.posList.Add(pos);
             }
@@ -206,7 +203,6 @@ public class RecordProject : SerializedScriptableObject
             var instance = ScriptableObject.CreateInstance<DataGroup>();
             AssetDatabase.CreateAsset(instance, "Assets/Resources/Projects/" + ProjectManager.Instance.projectName + "/" + globalPosDic[i].groupName + ".asset");
             instance.groupName = globalPosDic[i].groupName;
-            datas.Add(instance);
         }
         Debug.Log("生成全局位置数据和组数据完成");
     }

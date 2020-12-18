@@ -19,15 +19,16 @@ public class DoColor : GradualOrder
     {
         this.colorType = colorType;
         this.during = during;
+        colors.Add(Color.white);
     }
     public DoColor()
     {
-
+        colors.Add(Color.white);
     }
     [HideIf("hideColor")]
     [BoxGroup("Color")]
     [PropertyOrder(10)]
-    public Color color = Color.white;
+    public List<Color> colors = new List<Color>();
 
     [HideIf("hideGradient"), BoxGroup("Color")]
     public Gradient gradient = new Gradient();
@@ -86,9 +87,9 @@ public class DoColor : GradualOrder
     [BoxGroup("Color")]
     //[HorizontalGroup("Color/ColorPro")]
     public bool isWithIndex;
-    [ShowIf("isMapping")]
+    [ShowIf("showRandom")]
     [BoxGroup("Color")]
-    [HorizontalGroup("Color/ColorPro")]
+    //[HorizontalGroup("Color/ColorPro")]
     public bool isRandom;
     [ShowIf("isMapping")]
     [BoxGroup("Color")]
@@ -168,6 +169,7 @@ public class DoColor : GradualOrder
     //bool showDarkInfo { get { return colorType == ColorType.Dark; } }
     //bool showTextureMappingInfo { get { return colorType == ColorType.TextureMapping; } }
     bool isMapping { get { return colorType == ColorType.MappingData; } }
+    bool showRandom { get { return colorType == ColorType.MappingData || colorType == ColorType.SingleColor; } }
     bool isMappingData { get { return colorType == ColorType.MappingData; } }
     bool isColorByMapper { get { return colorType == ColorType.ColorByMapper; } }
     public override Tween GetOrder(ColorPoint point)
@@ -188,7 +190,18 @@ public class DoColor : GradualOrder
         {
             case ColorType.SingleColor:
                 {
-                    targetColor = color; break;
+                    if (isRandom)
+                        targetColor = colors[UnityEngine.Random.Range(0, colors.Count)];
+                    else
+                    {
+                        if (colors == null || colors.Count == 0)
+                        {
+                            colors = new List<Color>();
+                            colors.Add(Color.white);
+                        }
+                        targetColor = colors[0];
+                    }
+                    break;
                 }
             case ColorType.Black:
                 {

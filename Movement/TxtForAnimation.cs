@@ -233,16 +233,16 @@ public class TxtForAnimation : MonoBehaviour
         //Debug.Log(posList.Count);
         List<string> temp = new List<string>();
         //先试一下第一帧能不能找到
-        // foreach (var pos in posList)
-        // {
-        //     temp.Add(FindPointName(pos, 0));
-        // }
-        // if (!temp.Contains(null))
-        // {
-        //     Debug.Log("校正成功!");
-        //     return temp;
-        // }
-        //temp.Clear();
+        foreach (var pos in posList)
+        {
+            temp.Add(FindPointName(pos, 0));
+        }
+        if (!temp.Contains(null))
+        {
+            Debug.Log("校正成功!");
+            return temp;
+        }
+        temp.Clear();
 
         // //全动画帧遍历寻找精确对应位置
         // for (int i = 0; i < totalFrameCount; i++)
@@ -267,49 +267,20 @@ public class TxtForAnimation : MonoBehaviour
         //     }
         // }
 
-        // //在所有帧错帧寻找对应位置
-        // int totalFrame = 0;
-        // bool flag = false;
-        // int failCount=0;
-        // for (int i = 0; i < posList.Count; i++)
-        // {
-        //     flag=false;
-        //     for (int j = 0; j < totalFrameCount; j++)
-        //     {
-        //         string findResult = FindPointName(posList[i], j);
-        //         if (findResult != null&&!temp.Contains(findResult))
-        //         {
-        //             temp.Add(findResult);
-        //             totalFrame += j;
-        //             flag = true;
-        //             break;
-        //         }
-        //     }
-        //     if (!flag)
-        //     {
-        //         temp.Add(null);
-        //         failCount++;
-        //     }
-        // }
-
-
         //在所有帧错帧寻找对应位置
         int totalFrame = 0;
         bool flag = false;
+        int failCount = 0;
         for (int i = 0; i < posList.Count; i++)
         {
-            if (flag)
-            {
-                temp.Add(null);
-                continue;
-            }
+            flag = false;
             for (int j = 0; j < danceDB.totalFrameCount; j++)
             {
                 string findResult = FindPointName(posList[i], j);
-                if (findResult != null)
+                if (findResult != null && !temp.Contains(findResult))
                 {
                     temp.Add(findResult);
-                    totalFrame = j;
+                    totalFrame += j;
                     flag = true;
                     break;
                 }
@@ -317,41 +288,70 @@ public class TxtForAnimation : MonoBehaviour
             if (!flag)
             {
                 temp.Add(null);
+                failCount++;
             }
         }
-        Debug.Log("判断在 " + totalFrame + " 附近");
-        //int avargeFrame = Mathf.RoundToInt(totalFrame / temp.Count);
-        int avargeFrame = totalFrame;
-        int beginSearchFrame = avargeFrame - 1000 < 0 ? 0 : avargeFrame - 1000;
-        int endSearchFrame = avargeFrame + 1000 > danceDB.totalFrameCount - 1 ? danceDB.totalFrameCount - 1 : avargeFrame + 1000;
-        List<string> resultList = new List<string>();
-        totalFrame = 0;
-        //没有完全匹配的在可能帧数附近模糊查找
-        for (int i = 0; i < temp.Count; i++)
-        {
-            if (temp[i] != null)
-            {
-                resultList.Add(temp[i]);
-                continue;
-            }
-            for (int j = beginSearchFrame; j < endSearchFrame; j++)
-            {
-                //Debug.Log(i+""+(posList.Count-1));
-                string findResult = FindPointName(posList[i], j);
-                if (findResult != null)
-                {
-                    if (temp.Contains(findResult))
-                        continue;
-                    if (resultList.Contains(findResult))
-                        continue;
-                    totalFrame += j;
-                    resultList.Add(findResult);
-                    break;
-                }
-            }
-        }
-        Debug.Log(danceDB.animName + "校正结果: " + (posList.Count - resultList.Count) + " 个点没有找到位置");
-        return resultList;
+
+
+        ////在所有帧错帧寻找对应位置
+        //int totalFrame = 0;
+        //bool flag = false;
+        //for (int i = 0; i < posList.Count; i++)
+        //{
+        //    if (flag)
+        //    {
+        //        temp.Add(null);
+        //        continue;
+        //    }
+        //    for (int j = 0; j < danceDB.totalFrameCount; j++)
+        //    {
+        //        string findResult = FindPointName(posList[i], j);
+        //        if (findResult != null)
+        //        {
+        //            temp.Add(findResult);
+        //            totalFrame = j;
+        //            flag = true;
+        //            break;
+        //        }
+        //    }
+        //    if (!flag)
+        //    {
+        //        temp.Add(null);
+        //    }
+        //}
+        //Debug.Log("判断在 " + totalFrame + " 附近");
+        ////int avargeFrame = Mathf.RoundToInt(totalFrame / temp.Count);
+        //int avargeFrame = totalFrame;
+        //int beginSearchFrame = avargeFrame - 1000 < 0 ? 0 : avargeFrame - 1000;
+        //int endSearchFrame = avargeFrame + 1000 > danceDB.totalFrameCount - 1 ? danceDB.totalFrameCount - 1 : avargeFrame + 1000;
+        //List<string> resultList = new List<string>();
+        //totalFrame = 0;
+        ////没有完全匹配的在可能帧数附近模糊查找
+        //for (int i = 0; i < temp.Count; i++)
+        //{
+        //    if (temp[i] != null)
+        //    {
+        //        resultList.Add(temp[i]);
+        //        continue;
+        //    }
+        //    for (int j = beginSearchFrame; j < endSearchFrame; j++)
+        //    {
+        //        //Debug.Log(i+""+(posList.Count-1));
+        //        string findResult = FindPointName(posList[i], j);
+        //        if (findResult != null)
+        //        {
+        //            if (temp.Contains(findResult))
+        //                continue;
+        //            if (resultList.Contains(findResult))
+        //                continue;
+        //            totalFrame += j;
+        //            resultList.Add(findResult);
+        //            break;
+        //        }
+        //    }
+        //}
+        Debug.Log(danceDB.animName + "校正结果: " + (posList.Count - temp.Count) + " 个点没有找到位置");
+        return temp;
     }
     public List<Vector3> GetEndPoitions()
     {
@@ -370,6 +370,27 @@ public class TxtForAnimation : MonoBehaviour
             for (int i = 0; i < indexs.Count; i++)
             {
                 temp.Add(danceDB.cords[indexs[i]].GetPos(danceDB.totalFrameCount - 1));
+            }
+            return temp;
+        }
+    }
+    public List<Vector3> GetBeginPosition()
+    {
+        if (danceDB.animType == AnimType.Static)
+        {
+            List<Vector3> temp = new List<Vector3>();
+            for (int i = 0; i < indexs.Count; i++)
+            {
+                temp.Add(danceDB.staticPositions[indexs[i]]);
+            }
+            return temp;
+        }
+        else
+        {
+            var temp = new List<Vector3>();
+            for (int i = 0; i < indexs.Count; i++)
+            {
+                temp.Add(danceDB.cords[indexs[i]].GetPos(0));
             }
             return temp;
         }

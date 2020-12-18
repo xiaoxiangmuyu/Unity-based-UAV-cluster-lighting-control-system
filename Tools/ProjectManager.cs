@@ -132,14 +132,16 @@ public class ProjectManager : MonoBehaviour
 
     public static DataGroup GetDataGroupByGroupName(string groupName)
     {
-        DataGroup result = instance.RecordProject.datas.Find((a) => a.groupName.Equals(groupName));
+        string path = "Projects/" + Instance.projectName + "/" + groupName;
+        DataGroup result = Resources.Load<DataGroup>(path);
+        //DataGroup result = instance.RecordProject.datas.Find((a) => a.groupName.Equals(groupName));
         if (result == null)
         {
             Debug.Log("没有找到名为" + groupName + "的数据,返回新数据组");
             result = ScriptableObject.CreateInstance<DataGroup>();
-            AssetDatabase.CreateAsset(result, "Assets/Resources/Projects/" + Instance.projectName + "/" + groupName + ".asset");
             result.groupName = groupName;
-            instance.recordProject.datas.Add(result);
+            AssetDatabase.CreateAsset(result, "Assets/Resources/Projects/" + Instance.projectName + "/" + groupName + ".asset");
+            //instance.recordProject.datas.Add(result);
             return result;
         }
         return result;
