@@ -153,15 +153,18 @@ public class MappingData
     void AddRecordData()
     {
         var recordData = ProjectManager.GetDataGroupByGroupName(groupName).recordDatas;
-        RecordData targetData = new RecordData();
         foreach (var temp in recordData)
         {
             if (temp.dataName.Equals(dataName))
             {
-                targetData = temp;
-                targetData.groupName = groupName;
-                targetData.objNames = new List<string>(objNames);
-                targetData.pointsInfo.posList = pointsInfo.posList;
+                temp.groupName = groupName;
+                temp.objNames = new List<string>(objNames);
+                temp.times = new List<float>();
+                foreach (var name in objNames)
+                {
+                    temp.times.Add(0);
+                }
+                temp.pointsInfo.posList = pointsInfo.posList;
                 Debug.Log("数据更新完毕");
                 return;
             }
@@ -169,6 +172,11 @@ public class MappingData
         RecordData data = new RecordData();
         data.pointsInfo.posList = pointsInfo.posList;
         data.objNames = new List<string>(objNames);
+        data.times = new List<float>();
+        foreach (var name in data.objNames)
+        {
+            data.times.Add(0);
+        }
         data.dataName = dataName;
         data.groupName = groupName;
         ProjectManager.Instance.RecordProject.AddData(data);

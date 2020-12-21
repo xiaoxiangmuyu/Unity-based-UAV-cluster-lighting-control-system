@@ -64,7 +64,8 @@ public class RecordProject : SerializedScriptableObject
         {
             // RecordData tempData = new RecordData();
             // tempData.CopyFrom(data);
-            data.dataName = (current.recordDatas.Count + 1).ToString();
+            if (data.dataName.Equals(""))
+                data.dataName = (current.recordDatas.Count + 1).ToString();
             data.groupName = current.groupName;
             current.recordDatas.Add(data);
         }
@@ -75,7 +76,8 @@ public class RecordProject : SerializedScriptableObject
     public void AddMappingData(MappingData data)
     {
         data.groupName = current.groupName;
-        data.dataName = (current.mappingDatas.Count + 1).ToString();
+        if (data.dataName.Equals(""))
+            data.dataName = (current.mappingDatas.Count + 1).ToString();
         current.mappingDatas.Add(data);
         EditorUtility.SetDirty(this);
         AssetDatabase.SaveAssets();
@@ -201,8 +203,8 @@ public class RecordProject : SerializedScriptableObject
         for (int i = 0; i < globalPosDic.Count; i++)
         {
             var instance = ScriptableObject.CreateInstance<DataGroup>();
-            AssetDatabase.CreateAsset(instance, "Assets/Resources/Projects/" + ProjectManager.Instance.projectName + "/" + globalPosDic[i].groupName + ".asset");
             instance.groupName = globalPosDic[i].groupName;
+            AssetDatabase.CreateAsset(instance, "Assets/Resources/Projects/" + ProjectManager.Instance.projectName + "/" + globalPosDic[i].groupName + ".asset");
         }
         Debug.Log("生成全局位置数据和组数据完成");
     }
@@ -223,7 +225,6 @@ public class RecordProject : SerializedScriptableObject
     [Button("颜色预览", ButtonSizes.Gigantic)]
     public void ColorPreview()
     {
-        //if (Application.isPlaying)
         foreach (var data in current.mappingDatas)
         {
             data.ShowColor();
