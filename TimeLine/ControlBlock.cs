@@ -72,7 +72,7 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
         get
         {
             List<string> dataNames = new List<string>();
-            if (groupFilter == null)
+            if (groupFilter == null || groupFilter.Equals(""))
                 return dataNames;
             var datalist = ProjectManager.GetDataGroupByGroupName(groupFilter);
             foreach (var data in datalist.recordDatas)
@@ -196,6 +196,11 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
     {
         if (processer == null)
             return;
+        if (processer is VirusProcesser)
+        {
+            RefreshData();
+            //return;
+        }
         if (processer.Process(ref data, data.animTime))
         {
 
@@ -215,6 +220,11 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
     {
         RecordData result = new RecordData();
         var dataList = ProjectManager.GetDataGroupByGroupName(groupFilter);
+        if (dataList == null)
+        {
+            Debug.LogError("Group Filter不合法");
+            return;
+        }
         foreach (var data in dataList.recordDatas)
         {
             if (data.dataName.Equals(targetDataName))
@@ -235,7 +245,9 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
             objs = new List<GameObject>();
             Register();
             SetWorkRangeMax();
-            ProcessData();
+            bool temp = processer is VirusProcesser;
+            if (!temp)
+                ProcessData();
         }
         else
         {
@@ -332,7 +344,7 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
                 var temp = order as DoColor;
                 if (temp.colorType == ColorType.MappingData)
                 {
-                    temp.groupName = colorGroupName;
+                    temp.colorGroupName = colorGroupName;
                 }
             }
             else if (order is OrderGroup)

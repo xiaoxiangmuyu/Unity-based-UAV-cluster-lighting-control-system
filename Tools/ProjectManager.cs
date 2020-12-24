@@ -132,6 +132,8 @@ public class ProjectManager : MonoBehaviour
 
     public static DataGroup GetDataGroupByGroupName(string groupName)
     {
+        if (groupName == null || groupName.Equals(""))
+            return null;
         string path = "Projects/" + Instance.projectName + "/" + groupName;
         DataGroup result = Resources.Load<DataGroup>(path);
         //DataGroup result = instance.RecordProject.datas.Find((a) => a.groupName.Equals(groupName));

@@ -178,12 +178,16 @@ public class EfyTools
             if (!obj.GetComponent<PlayableDirector>())
             {
                 obj.AddComponent<PlayableDirector>().playableAsset = asset;
+                obj.GetComponent<PlayableDirector>().playOnAwake = false;
                 obj.GetComponent<PlayableDirector>().extrapolationMode = DirectorWrapMode.Hold;
 
             }
             else
+            {
                 obj.GetComponent<PlayableDirector>().playableAsset = asset;
-            obj.GetComponent<PlayableDirector>().extrapolationMode = DirectorWrapMode.Hold;
+                obj.GetComponent<PlayableDirector>().playOnAwake = false;
+                obj.GetComponent<PlayableDirector>().extrapolationMode = DirectorWrapMode.Hold;
+            }
 
         }
     }

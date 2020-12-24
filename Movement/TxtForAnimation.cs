@@ -267,29 +267,20 @@ public class TxtForAnimation : MonoBehaviour
         //     }
         // }
 
+
         //在所有帧错帧寻找对应位置
-        int totalFrame = 0;
-        bool flag = false;
-        int failCount = 0;
         for (int i = 0; i < posList.Count; i++)
         {
-            flag = false;
             for (int j = 0; j < danceDB.totalFrameCount; j++)
             {
                 string findResult = FindPointName(posList[i], j);
                 if (findResult != null && !temp.Contains(findResult))
                 {
                     temp.Add(findResult);
-                    totalFrame += j;
-                    flag = true;
                     break;
                 }
             }
-            if (!flag)
-            {
-                temp.Add(null);
-                failCount++;
-            }
+
         }
 
 

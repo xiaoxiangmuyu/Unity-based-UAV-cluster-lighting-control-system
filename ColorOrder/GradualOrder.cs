@@ -96,7 +96,7 @@ public class DoColor : GradualOrder
     [HorizontalGroup("Color/ColorPro")]
     [ValueDropdown("availableIndex")]
     [PropertyOrder(-10)]
-    public string groupName;
+    public string colorGroupName;
     [ShowIf("isWithIndex")]
     [BoxGroup("Color")]
     public int colorIndex;
@@ -111,10 +111,10 @@ public class DoColor : GradualOrder
         get
         {
             List<string> dataNames = new List<string>();
-            if (groupName == null)
+            if (colorType != ColorType.MappingData || ProjectManager.GetDataGroupByGroupName(colorGroupName) == null)
                 return dataNames;
             dataNames.Add("UnSelect");
-            var datalist = ProjectManager.GetDataGroupByGroupName(groupName);
+            var datalist = ProjectManager.GetDataGroupByGroupName(colorGroupName);
             for (int i = 0; i < datalist.mappingDatas.Count; i++)
             {
                 dataNames.Add(datalist.mappingDatas[i].dataName);
@@ -139,10 +139,10 @@ public class DoColor : GradualOrder
     MappingData GetMappingData(ColorPoint point)
     {
         if (mappingDataName != "UnSelect" && mappingDataName != null && mappingDataName != String.Empty)
-            return ProjectManager.GetDataGroupByGroupName(groupName).mappingDatas.Find((a) => a.dataName == mappingDataName);
+            return ProjectManager.GetDataGroupByGroupName(colorGroupName).mappingDatas.Find((a) => a.dataName == mappingDataName);
         else
         {
-            var data = ProjectManager.GetDataGroupByGroupName(groupName);
+            var data = ProjectManager.GetDataGroupByGroupName(colorGroupName);
             return data.mappingDatas.Find((a) => a.objNames.Contains(point.name));
         }
     }

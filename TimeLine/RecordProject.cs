@@ -56,18 +56,23 @@ public class RecordProject : SerializedScriptableObject
 
     public void AddData(RecordData data)
     {
+        if (current == null)
+        {
+            Debug.LogError("Current为空");
+            return;
+        }
         if (current.recordDatas.Exists((a) => a.dataName == data.dataName))
         {
             current.recordDatas.Find((a) => a.dataName == data.dataName).CopyFrom(data);
         }
         else
         {
-            // RecordData tempData = new RecordData();
-            // tempData.CopyFrom(data);
-            if (data.dataName.Equals(""))
-                data.dataName = (current.recordDatas.Count + 1).ToString();
-            data.groupName = current.groupName;
-            current.recordDatas.Add(data);
+            RecordData tempData = new RecordData();
+            tempData.CopyFrom(data);
+            if (tempData.dataName == null || tempData.dataName.Equals(""))
+                tempData.dataName = (current.recordDatas.Count + 1).ToString();
+            tempData.groupName = current.groupName;
+            current.recordDatas.Add(tempData);
         }
         EditorUtility.SetDirty(this);
         AssetDatabase.SaveAssets();
@@ -76,7 +81,7 @@ public class RecordProject : SerializedScriptableObject
     public void AddMappingData(MappingData data)
     {
         data.groupName = current.groupName;
-        if (data.dataName.Equals(""))
+        if (data.dataName == null || data.dataName.Equals(""))
             data.dataName = (current.mappingDatas.Count + 1).ToString();
         current.mappingDatas.Add(data);
         EditorUtility.SetDirty(this);
@@ -130,23 +135,25 @@ public class RecordProject : SerializedScriptableObject
     [FoldoutGroup("指派与校准")]
     void CorrectAll()
     {
-        //foreach (var data in datas)
-        //{
-        //    for (int i = 0; i < data.recordDatas.Count; i++)
-        //    {
-        //        data.recordDatas[i].CorrectIndex();
-        //    }
-        //    for (int i = 0; i < data.mappingDatas.Count; i++)
-        //    {
-        //        data.mappingDatas[i].CorrectIndex();
-        //    }
-        //}
-        // foreach(var data in mappingDatas)
-        // {
-        //     data.CorrectIndex();
-        // }
-        // MyTools.ResfrshTimeLine();
-        //Debug.Log("全局数据校准完成");
+        UpdateGlobalPos();
+        var dataList = new List<DataGroup>();
+        foreach (var info in globalPosDic)
+        {
+            dataList.Add(Resources.Load<DataGroup>("Projects/" + ProjectManager.Instance.projectName + "/" + info.animName));
+        }
+        foreach (var data in dataList)
+        {
+            for (int i = 0; i < data.recordDatas.Count; i++)
+            {
+                data.recordDatas[i].CorrectIndex();
+            }
+            for (int i = 0; i < data.mappingDatas.Count; i++)
+            {
+                data.mappingDatas[i].CorrectIndex();
+            }
+        }
+        //MyTools.ResfrshTimeLine();
+        Debug.Log("全局数据校准完成");
     }
     [FilePath]
     [ShowInInspector]
@@ -202,9 +209,14 @@ public class RecordProject : SerializedScriptableObject
         }
         for (int i = 0; i < globalPosDic.Count; i++)
         {
-            var instance = ScriptableObject.CreateInstance<DataGroup>();
-            instance.groupName = globalPosDic[i].groupName;
-            AssetDatabase.CreateAsset(instance, "Assets/Resources/Projects/" + ProjectManager.Instance.projectName + "/" + globalPosDic[i].groupName + ".asset");
+            if (AssetDatabase.FindAssets("Assets/Resources/Projects/" + ProjectManager.Instance.projectName + "/" + globalPosDic[i].groupName + ".asset") == null)
+            {
+                var instance = ScriptableObject.CreateInstance<DataGroup>();
+                instance.groupName = globalPosDic[i].groupName;
+                AssetDatabase.CreateAsset(instance, "Assets/Resources/Projects/" + ProjectManager.Instance.projectName + "/" + globalPosDic[i].groupName + ".asset");
+            }
+            else
+                Debug.Log("DataGroup已存在");
         }
         Debug.Log("生成全局位置数据和组数据完成");
     }
@@ -216,7 +228,7 @@ public class RecordProject : SerializedScriptableObject
         {
             globalPosDic[i].posList.Clear();
             var txtForAnimation = ProjectManager.FindAnimByName(globalPosDic[i].animName);
-            foreach (var pos in txtForAnimation.GetEndPoitions())
+            foreach (var pos in txtForAnimation.GetBeginPosition())
             {
                 globalPosDic[i].posList.Add(pos);
             }
