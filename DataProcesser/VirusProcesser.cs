@@ -10,10 +10,13 @@ public class VirusProcesser : IDataProcesser
     [ReadOnly]
     public float searchRadius;
     public float findInterval=0.05f;
+    public float searchUnit=0.1f;
     // List<string> tempNames;
     // List<float> tempTimes;
     public override bool Process(ref RecordData data, float animTime)
     {
+        if(searchUnit==0)
+        searchUnit=0.1f;
         searchRadius=0;
         mainCamera = Camera.main;
         isProcessed = false;
@@ -27,6 +30,8 @@ public class VirusProcesser : IDataProcesser
                 return false;
             }
         }
+        if(beginPoints.Count==0)
+        return false;
         while (searchRadius <= 20)
         {
             tempNames.Clear();
@@ -36,7 +41,7 @@ public class VirusProcesser : IDataProcesser
             FindNext(beginPoints, 0);
             if (tempNames.Count != data.objNames.Count)
             {
-                searchRadius += 0.1f;
+                searchRadius += searchUnit;
             }
             else
                 break;

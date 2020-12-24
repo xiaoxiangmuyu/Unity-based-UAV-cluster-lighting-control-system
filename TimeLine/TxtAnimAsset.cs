@@ -4,25 +4,42 @@ using UnityEngine;
 using UnityEngine.Playables;
 using Sirenix.OdinInspector;
 using DG.Tweening;
-[CreateAssetMenu(menuName = "创建动画序列", fileName = "新动画序列")]
 public class TxtAnimAsset : SerializedScriptableObject, IPlayableAsset
 {
     #region  IPlayableAsset
     public double duration { get; }
     public IEnumerable<PlayableBinding> outputs { get; }
     #endregion
-    [InfoBox("安全时间建议2秒，不然播放不完", InfoMessageType.Warning)]
     [LabelText("安全时间")]
-    public float safeSeconds = 0;
+    public double safeSeconds = 0;
     [ReadOnly]
     [LabelText("总帧数")]
+    [PropertyOrder(-2)]
     public int totalFrameCount;
+    [LabelText("总时长")]
+    [ShowInInspector]
+    [PropertyOrder(-1)]
+    public double seconds { get { return totalFrameCount / 25f; } }
     [ValueDropdown("animIndexs")]
     public string animName;
 
-    [LabelText("总时长")]
+    [LabelText("是否更新颜色")]
     [ShowInInspector]
-    public float seconds { get { return totalFrameCount / 25f; } }
+    public bool useColor
+    {
+        get
+        {
+            if (!target)
+                return false;
+            return target.useColor;
+        }
+        set
+        {
+            if (!target)
+                return;
+            target.useColor = value;
+        }
+    }
     TxtForAnimation[] scripts;
     ScriptPlayable<TxtAnimBehavior> scriptPlayable;
     TxtForAnimation target;
@@ -30,22 +47,26 @@ public class TxtAnimAsset : SerializedScriptableObject, IPlayableAsset
     {
         get
         {
-            if(scripts==null)
-            return null;
+            if (scripts == null)
+                return null;
             List<string> temp = new List<string>();
             for (int i = 0; i < scripts.Length; i++)
             {
-                temp.Add(scripts[i].animName);
+                temp.Add(scripts[i].danceDB.animName);
             }
             return temp;
         }
     }
-    [ShowInInspector]
-    bool available{get{
-        if(target==null)
-        return false;
-        return target.mappingSuccess;
-    }}
+    // [ShowInInspector]
+    // bool available
+    // {
+    //     get
+    //     {
+    //         if (target == null)
+    //             return false;
+    //         return target.mappingSuccess;
+    //     }
+    // }
     public Playable CreatePlayable(PlayableGraph graph, GameObject owner)
     {
         scriptPlayable = ScriptPlayable<TxtAnimBehavior>.Create(graph);
@@ -55,8 +76,8 @@ public class TxtAnimAsset : SerializedScriptableObject, IPlayableAsset
             var temp = new List<TxtForAnimation>(scripts);
             if (animName != null)
             {
-                var anim = temp.Find((a) => a.animName == animName);
-                totalFrameCount = anim.totalFrameCount;
+                var anim = temp.Find((a) => a.danceDB.animName == animName);
+                totalFrameCount = anim.danceDB.totalFrameCount;
                 scriptPlayable.GetBehaviour().target = anim;
                 target = anim;
             }

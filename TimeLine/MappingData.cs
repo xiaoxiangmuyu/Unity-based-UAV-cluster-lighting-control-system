@@ -31,6 +31,11 @@ public class MappingData
         }
 
     }
+    public MappingData()
+    {
+        colors = new List<Gradient>();
+        colors.Add(new Gradient());
+    }
     [VerticalGroup("Main")]
     [HideLabel]
     public string dataName;
@@ -48,7 +53,7 @@ public class MappingData
     [ShowIf("ShowXY")]
     [Range(0, 1)]
     [VerticalGroup("Properties")]
-    public float anchorX=0.5f, anchorY=0.5f;
+    public float anchorX = 0.5f, anchorY = 0.5f;
     [ShowIf("ShowZ")]
     [Range(0, 1)]
     [VerticalGroup("Properties")]
@@ -56,9 +61,9 @@ public class MappingData
     [VerticalGroup("Properties")]
     [ListDrawerSettings(Expanded = false)]
     [OnValueChanged("SetStateDirty")]
-    public List<Gradient> colors;
+    public List<Gradient> colors = new List<Gradient>();
     [HideInInspector]
-    public List<string> ObjNames;
+    public List<string> objNames;
     [HideInInspector]
     public PointIndexInfo pointsInfo;
 
@@ -74,6 +79,7 @@ public class MappingData
     bool ShowZ { get { return dirType == DirType.Ball; } }
     bool NeedCau;
     [SerializeField]
+    [HideInInspector]
     CameraPosSetting cameraPosSetting;
 
     [SerializeField]
@@ -88,7 +94,7 @@ public class MappingData
     [GUIColor(0.7f, 1, 1)]
     void ShowObjects()
     {
-        var objects = MyTools.FindObjs(ObjNames).ToArray();
+        var objects = MyTools.FindObjs(objNames).ToArray();
         for (int i = 0; i < objects.Length; i++)
         {
             objects[i].SetActive(true);
@@ -101,7 +107,7 @@ public class MappingData
     [GUIColor(0.5f, 1, 1)]
     void HideObjects()
     {
-        var objects = MyTools.FindObjs(ObjNames);
+        var objects = MyTools.FindObjs(objNames);
         objects.ForEach((a) => a.SetActive(false));
         UnityEditor.Selection.objects = null;
     }
@@ -111,26 +117,28 @@ public class MappingData
     {
         if (UnityEditor.Selection.objects.Length == 0)
             return;
-        ObjNames.Clear();
+        objNames.Clear();
         pointsInfo.posList.Clear();
         foreach (var point in UnityEditor.Selection.gameObjects)
         {
             if (point.name.Equals("Main Camera"))
                 continue;
             pointsInfo.posList.Add(MyTools.TruncVector3(point.transform.position));
-            ObjNames.Add(point.name);
+            objNames.Add(point.name);
         }
         SavePointScreenPos();
         NeedCau = true;
         Debug.Log(dataName + "内容更换完毕");
     }
+
+
     [Button("记录映射角度", ButtonSizes.Medium)]
     [VerticalGroup("Buttons")]
     void SavePointScreenPos()
     {
         var mainCamera = Camera.main;
         screenPosDic.Clear();
-        foreach (var pointName in ObjNames)
+        foreach (var pointName in objNames)
         {
             var info = ProjectManager.Instance.RecordProject.globalPosDic.Find((a) => a.groupName.Equals(groupName));
             screenPosDic.Add(pointName, mainCamera.WorldToScreenPoint(info.posList[int.Parse(pointName) - 1]));
@@ -138,8 +146,46 @@ public class MappingData
         cameraPosSetting.Set(mainCamera.transform);
         SetStateDirty();
     }
+
+
+    [VerticalGroup("Buttons")]
+    [Button("添加数据", ButtonSizes.Medium)]
+    void AddRecordData()
+    {
+        var recordData = ProjectManager.GetDataGroupByGroupName(groupName).recordDatas;
+        foreach (var temp in recordData)
+        {
+            if (temp.dataName.Equals(dataName))
+            {
+                temp.groupName = groupName;
+                temp.objNames = new List<string>(objNames);
+                temp.times = new List<float>();
+                foreach (var name in objNames)
+                {
+                    temp.times.Add(0);
+                }
+                temp.pointsInfo.posList = pointsInfo.posList;
+                Debug.Log("数据更新完毕");
+                return;
+            }
+        }
+        RecordData data = new RecordData();
+        data.pointsInfo.posList = pointsInfo.posList;
+        data.objNames = new List<string>(objNames);
+        data.times = new List<float>();
+        foreach (var name in data.objNames)
+        {
+            data.times.Add(0);
+        }
+        data.dataName = dataName;
+        data.groupName = groupName;
+        ProjectManager.Instance.RecordProject.AddData(data);
+        Debug.Log("添加数据成功");
+    }
+
+
     CameraPosSetting temp;
-    [Button("切换显示映射角度", ButtonSizes.Medium)]
+    //[Button("切换显示映射角度", ButtonSizes.Medium)]
     [VerticalGroup("Buttons")]
     void ShowScreenPos()
     {
@@ -155,6 +201,8 @@ public class MappingData
             temp.Clear();
         }
     }
+
+
     public Color GetMappingColor(string name, int colorIndex = 0, bool random = false)
     {
         if (!colorDics[colorIndex].ContainsKey(name))
@@ -173,6 +221,8 @@ public class MappingData
     // {
     //     return dics.ContainsKey(name);
     // }
+
+
     [Button("计算", ButtonSizes.Medium)]
     [GUIColor("GetStateColor")]
     [VerticalGroup("Main")]
@@ -190,10 +240,12 @@ public class MappingData
         NeedCau = false;
         Debug.Log("计算完成");
     }
+
+
     public void Caulate(int index)
     {
         var tempPosDic = new StringVector3Dictionary();
-        foreach (var pointName in ObjNames)
+        foreach (var pointName in objNames)
         {
             var info = ProjectManager.Instance.RecordProject.globalPosDic.Find((a) => a.groupName.Equals(groupName));
             var pos = info.posList[int.Parse(pointName) - 1];
@@ -341,12 +393,13 @@ public class MappingData
         }
         return 0;
     }
+    //[Button("校正")]
     public void CorrectIndex()
     {
-        var animName=ProjectManager.GetGlobalPosInfoByGroup(groupName).animName;
+        var animName = ProjectManager.GetGlobalPosInfoByGroup(groupName).animName;
         var newNames = new List<string>(MyTools.FindNamesByPosList(pointsInfo.posList, animName));
-        if(newNames.Count!=0)
-        ObjNames = new List<string>(newNames);
+        if (newNames.Count != 0)
+            objNames = new List<string>(newNames);
         // var newDic = new StringVector3Dictionary();
         // int index = 0;
         // foreach (var pair in screenPosDic)
@@ -358,6 +411,20 @@ public class MappingData
         // screenPosDic = newDic;
         SavePointScreenPos();
         CaulateAll();
+    }
+    [VerticalGroup("Main")]
+    [Button("预览", ButtonSizes.Medium)]
+    public void ShowColor()
+    {
+        if (Application.isPlaying)
+            foreach (var name in objNames)
+            {
+                GameObject obj = GameObject.Find(name);
+                Color color = GetMappingColor(name);
+                obj.GetComponent<ColorPoint>().mat.color = color;
+            }
+        else
+            Debug.Log("只能在运行模式下执行颜色预览");
     }
 
 

@@ -19,15 +19,16 @@ public class DoColor : GradualOrder
     {
         this.colorType = colorType;
         this.during = during;
+        colors.Add(Color.white);
     }
     public DoColor()
     {
-
+        colors.Add(Color.white);
     }
     [HideIf("hideColor")]
     [BoxGroup("Color")]
     [PropertyOrder(10)]
-    public Color color = Color.white;
+    public List<Color> colors = new List<Color>();
 
     [HideIf("hideGradient"), BoxGroup("Color")]
     public Gradient gradient = new Gradient();
@@ -86,16 +87,16 @@ public class DoColor : GradualOrder
     [BoxGroup("Color")]
     //[HorizontalGroup("Color/ColorPro")]
     public bool isWithIndex;
-    [ShowIf("isMapping")]
+    [ShowIf("showRandom")]
     [BoxGroup("Color")]
-    [HorizontalGroup("Color/ColorPro")]
+    //[HorizontalGroup("Color/ColorPro")]
     public bool isRandom;
     [ShowIf("isMapping")]
     [BoxGroup("Color")]
     [HorizontalGroup("Color/ColorPro")]
     [ValueDropdown("availableIndex")]
     [PropertyOrder(-10)]
-    public string groupName;
+    public string colorGroupName;
     [ShowIf("isWithIndex")]
     [BoxGroup("Color")]
     public int colorIndex;
@@ -110,24 +111,15 @@ public class DoColor : GradualOrder
         get
         {
             List<string> dataNames = new List<string>();
+            if (colorType != ColorType.MappingData || ProjectManager.GetDataGroupByGroupName(colorGroupName) == null)
+                return dataNames;
             dataNames.Add("UnSelect");
-            if (groupName == null || groupName.Equals(""))
+            var datalist = ProjectManager.GetDataGroupByGroupName(colorGroupName);
+            for (int i = 0; i < datalist.mappingDatas.Count; i++)
             {
-                var datalist = ProjectManager.Instance.RecordProject.mappingDatas;
-                foreach (var data in datalist)
-                    dataNames.Add(data.dataName);
-                return dataNames;
+                dataNames.Add(datalist.mappingDatas[i].dataName);
             }
-            else
-            {
-                var datalist = ProjectManager.Instance.RecordProject.mappingDatas;
-                datalist.ForEach((a) =>
-                {
-                    if (a.groupName.Equals(groupName))
-                        dataNames.Add(a.dataName);
-                });
-                return dataNames;
-            }
+            return dataNames;
         }
     }
     IEnumerable availableColorTypes
@@ -147,37 +139,37 @@ public class DoColor : GradualOrder
     MappingData GetMappingData(ColorPoint point)
     {
         if (mappingDataName != "UnSelect" && mappingDataName != null && mappingDataName != String.Empty)
-            return ProjectManager.Instance.RecordProject.mappingDatas.Find((a) => a.dataName == mappingDataName);
+            return ProjectManager.GetDataGroupByGroupName(colorGroupName).mappingDatas.Find((a) => a.dataName == mappingDataName);
         else
         {
-            var data = ProjectManager.Instance.RecordProject.mappingDatas;
-            List<MappingData> temp = new List<MappingData>(data.FindAll((a) => a.groupName == groupName));
-            return temp.Find((a) => a.ObjNames.Contains(point.name));
+            var data = ProjectManager.GetDataGroupByGroupName(colorGroupName);
+            return data.mappingDatas.Find((a) => a.objNames.Contains(point.name));
         }
     }
-    #region ColorMapper
-    [ValueDropdown("availableMappingSource")]
-    [ShowIf("isColorByMapper")]
-    public string mapperName;
-    void GetMapper()
-    {
-        colorMapper = ProjectManager.Instance.RecordProject.GetColorMapper(mapperName);
-    }
-    IEnumerable availableMappingSource
-    {
-        get
-        {
-            return ProjectManager.Instance.RecordProject.ColorMapperNames;
-        }
-    }
-    ColorMapper colorMapper;
-    #endregion
+    //#region ColorMapper
+    //[ValueDropdown("availableMappingSource")]
+    //[ShowIf("isColorByMapper")]
+    //public string mapperName;
+    //void GetMapper()
+    //{
+    //    colorMapper = ProjectManager.Instance.RecordProject.GetColorMapper(mapperName);
+    //}
+    //IEnumerable availableMappingSource
+    //{
+    //    get
+    //    {
+    //        return ProjectManager.Instance.RecordProject.ColorMapperNames;
+    //    }
+    //}
+    //ColorMapper colorMapper;
+    //#endregion
     bool hideColor { get { return colorType != ColorType.SingleColor; } }
     bool hideGradient { get { return colorType != ColorType.Gradient && colorType != ColorType.ColorByMapper; } }
     bool showHSVInfo { get { return colorType == ColorType.HSV; } }
     //bool showDarkInfo { get { return colorType == ColorType.Dark; } }
     //bool showTextureMappingInfo { get { return colorType == ColorType.TextureMapping; } }
     bool isMapping { get { return colorType == ColorType.MappingData; } }
+    bool showRandom { get { return colorType == ColorType.MappingData || colorType == ColorType.SingleColor; } }
     bool isMappingData { get { return colorType == ColorType.MappingData; } }
     bool isColorByMapper { get { return colorType == ColorType.ColorByMapper; } }
     public override Tween GetOrder(ColorPoint point)
@@ -198,20 +190,31 @@ public class DoColor : GradualOrder
         {
             case ColorType.SingleColor:
                 {
-                    targetColor = color; break;
+                    if (isRandom)
+                        targetColor = colors[UnityEngine.Random.Range(0, colors.Count)];
+                    else
+                    {
+                        if (colors == null || colors.Count == 0)
+                        {
+                            colors = new List<Color>();
+                            colors.Add(Color.white);
+                        }
+                        targetColor = colors[0];
+                    }
+                    break;
                 }
             case ColorType.Black:
                 {
                     targetColor = Color.black; break;
                 }
-            case ColorType.ColorByMapper:
-                {
-                    if (colorMapper == null)
-                        GetMapper();
-                    point.gradient = gradient;
-                    point.colorMapper = colorMapper;
-                    return point.mat.DOColor(point.MapperColor, during);
-                }
+            // case ColorType.ColorByMapper:
+            //     {
+            //         if (colorMapper == null)
+            //             GetMapper();
+            //         point.gradient = gradient;
+            //         point.colorMapper = colorMapper;
+            //         return point.mat.DOColor(point.MapperColor, during);
+            //     }
             case ColorType.ShaderMode:
                 {
                     targetColor = point.RenderColor;

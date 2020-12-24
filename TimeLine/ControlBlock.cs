@@ -12,45 +12,6 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
     public double duration { get; }
     public IEnumerable<PlayableBinding> outputs { get; }
     #endregion
-    public BlockState state
-    {
-        get
-        {
-            if (data == null)
-                return BlockState.NoData;
-            if (ProjectManager.Instance.RecordProject.RecorDataList.Exists((a) => a.dataName.Equals(data.dataName)&&a.groupName.Equals(data.groupName)))
-            {
-                var objNames = ProjectManager.Instance.RecordProject.RecorDataList.Find((a) => a.dataName.Equals(data.dataName)&&a.groupName.Equals(data.groupName)).objNames;
-                if (objNames.Count != data.objNames.Count || objs.Exists(a => a == null) || objs.Exists(a => !a.activeInHierarchy))
-                {
-                    return BlockState.NeedRefresh;
-                }
-            }
-            else
-            {
-                return BlockState.NoData;
-            }
-            return BlockState.Ready;
-        }
-    }
-    public Color blockColor
-    {
-        get
-        {
-
-            switch (state)
-            {
-                case BlockState.NeedRefresh:
-                    return Color.yellow;
-                case BlockState.NoData:
-                    return Color.red;
-                case BlockState.Ready:
-                    return data.GetGroupColor();
-                default:
-                    return Color.red;
-            }
-        }
-    }
     [EnumToggleButtons]
     public OrderType orderType;
     [BoxGroup("控制块属性")]
@@ -115,23 +76,13 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
         {
             List<string> dataNames = new List<string>();
             if (groupFilter == null || groupFilter.Equals(""))
+                return dataNames;
+            var datalist = ProjectManager.GetDataGroupByGroupName(groupFilter);
+            foreach (var data in datalist.recordDatas)
             {
-                var datalist = ProjectManager.Instance.RecordProject.RecorDataList;
-                foreach (var data in datalist)
-                    dataNames.Add(data.dataName);
-            }
-            else
-            {
-                var datalist = ProjectManager.Instance.RecordProject.RecorDataList;
-                foreach (var data in datalist)
-                {
-                    if (data.groupName == null || data.groupName == String.Empty)
-                        continue;
-                    var groupName = ProjectManager.GetGlobalPosInfoByGroup(data.groupName).groupName;
-                    if (groupName != null)
-                        if (groupName.Equals(groupFilter))
-                            dataNames.Add(data.dataName);
-                }
+                if (data.groupName == null || data.groupName == String.Empty)
+                    continue;
+                dataNames.Add(data.dataName);
             }
             return dataNames;
         }
@@ -143,9 +94,50 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
             return ProjectManager.availableGroups;
         }
     }
+    // public BlockState state
+    // {
+    //     get
+    //     {
+    //         if (this.data == null)
+    //             return BlockState.NoData;
+    //         var data = ProjectManager.GetDataGroupByGroupName(this.data.groupName);
+    //         if (data.recordDatas.Exists((a) => a.dataName.Equals(this.data.dataName)))
+    //         {
+    //             var objNames = data.recordDatas.Find((a) => a.dataName.Equals(this.data.dataName)).objNames;
+    //             if (objNames.Count != this.data.objNames.Count || objs.Exists(a => a == null) || objs.Exists(a => !a.activeInHierarchy))
+    //             {
+    //                 return BlockState.NeedRefresh;
+    //             }
+    //         }
+    //         else
+    //         {
+    //             return BlockState.NoData;
+    //         }
+    //         return BlockState.Ready;
+    //     }
+    // }
+    public Color blockColor
+    {
+        get
+        {
+
+            // switch (state)
+            // {
+            //     case BlockState.NeedRefresh:
+            //         return Color.yellow;
+            //     case BlockState.NoData:
+            //         return Color.red;
+            //     case BlockState.Ready:
+            //         return data.GetGroupColor();
+            //     default:
+            //         return Color.red;
+            // }
+            return data.GetGroupColor();
+        }
+    }
     void SetColor()
     {
-        groupName=groupFilter;
+        colorGroupName = groupFilter;
         SetColorIndex();
     }
 
@@ -207,6 +199,11 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
     {
         if (processer == null)
             return;
+        if (processer is VirusProcesser)
+        {
+            RefreshData();
+            //return;
+        }
         if (processer.Process(ref data, data.animTime))
         {
 
@@ -225,14 +222,23 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
     public void RefreshData()
     {
         RecordData result = new RecordData();
-        foreach (var data in ProjectManager.Instance.RecordProject.RecorDataList)
+        var dataList = ProjectManager.GetDataGroupByGroupName(groupFilter);
+        if (dataList == null)
+        {
+            Debug.LogError("Group Filter不合法");
+            return;
+        }
+        foreach (var data in dataList.recordDatas)
         {
             if (data.dataName.Equals(targetDataName))
             {
                 if (groupFilter != null || groupFilter != string.Empty)
                 {
                     if (ProjectManager.GetGlobalPosInfoByGroup(data.groupName).groupName.Equals(groupFilter))
+                    {
                         result = data;
+                        break;
+                    }
                 }
             }
         }
@@ -242,7 +248,9 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
             objs = new List<GameObject>();
             Register();
             SetWorkRangeMax();
-            ProcessData();
+            bool temp = processer is VirusProcesser;
+            if (!temp)
+                ProcessData();
         }
         else
         {
@@ -315,7 +323,7 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
     [ValueDropdown("availableNames")]
     [HorizontalGroup("SetColorGroup")]
     [LabelText("颜色分组")]
-    string groupName;
+    string colorGroupName;
     IEnumerable availableNames
     {
         get
@@ -339,7 +347,7 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
                 var temp = order as DoColor;
                 if (temp.colorType == ColorType.MappingData)
                 {
-                    temp.groupName = groupName;
+                    temp.colorGroupName = colorGroupName;
                 }
             }
             else if (order is OrderGroup)

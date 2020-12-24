@@ -6,9 +6,9 @@ using UnityEngine.Playables;
 using Sirenix.OdinInspector;
 using UnityEditor.Timeline;
 using UnityEngine.Rendering;
+using UnityEditor;
 public class ProjectManager : MonoBehaviour
 {
-    static GameObject currentTarget;
     const string ProjectParentPath = "Projects/";
     static ProjectManager instance;
     public static ProjectManager Instance
@@ -40,9 +40,8 @@ public class ProjectManager : MonoBehaviour
             return recordProject;
         }
     }
-    public Quaternion RotationInfo;
-    public Vector3 PosInfo;
-    public int ChildCount;
+
+
     public string projectName;
     public static List<string> availableGroups
     {
@@ -57,6 +56,8 @@ public class ProjectManager : MonoBehaviour
             return globalAnimNames;
         }
     }
+
+
     public static List<string> AllMainAnimNames
     {
         get
@@ -65,8 +66,8 @@ public class ProjectManager : MonoBehaviour
             var allAnimNames = new List<string>();
             foreach (var animation in GetPointsRoot().GetComponents<TxtForAnimation>())
             {
-                if (animation.animName.StartsWith("G"))
-                    allAnimNames.Add(animation.animName);
+                if (animation.danceDB.animName != null && animation.danceDB.animName.StartsWith("G"))
+                    allAnimNames.Add(animation.danceDB.animName);
             }
             return allAnimNames;
         }
@@ -94,49 +95,31 @@ public class ProjectManager : MonoBehaviour
     }
     public static GameObject GetPointsRoot()
     {
-        if (ProjectManager.currentTarget == null)
-        {
-            MovementManager[] mm = GameObject.FindObjectsOfType<MovementManager>();
-            foreach (var m in mm)
-            {
-                if (m.enabled)
-                {
-                    ProjectManager.currentTarget = m.gameObject;
-                    break;
-                }
-            }
-        }
-        return ProjectManager.currentTarget;
+        return GameObject.FindObjectOfType<MovementManager>().gameObject;
     }
-    public static void RefreshCurTarget()
-    {
-        MovementManager[] mm = GameObject.FindObjectsOfType<MovementManager>();
-        foreach (var m in mm)
-        {
-            if (m.gameObject.activeSelf)
-            {
-                ProjectManager.currentTarget = m.gameObject;
-                return;
-            }
-        }
-    }
+
+
     public static void ResetAllColorAndTween()
     {
         DOTween.CompleteAll();
         DOTween.KillAll();
         //currentTarget.ResetAllColor();
     }
+
+
     public static TxtForAnimation FindAnimByName(string name)
     {
         var anims = GetPointsRoot().GetComponents<TxtForAnimation>();
         for (int i = 0; i < anims.Length; i++)
         {
-            if (anims[i].animName == name)
+            if (anims[i].danceDB.animName == name)
                 return anims[i];
         }
         Debug.LogError(name + "   动画没有找到");
         return null;
     }
+
+
     // public static List<string> FindPointsByPos(PointIndexInfo info)
     // {
     //     var anims = GetPointsRoot().GetComponents<TxtForAnimation>();
@@ -154,17 +137,21 @@ public class ProjectManager : MonoBehaviour
         var anims = GetPointsRoot().GetComponents<TxtForAnimation>();
         foreach (var anim in anims)
         {
-            if (anim.animName.Equals(animName))
+            if (anim.danceDB.animName.Equals(animName))
                 return anim;
         }
         Debug.LogError("没有名为" + animName + "的动画");
         return null;
     }
+
+
     public static TxtForAnimation GetAnimationbyGroupIndex(int groupIndex)
     {
         var anims = GetPointsRoot().GetComponents<TxtForAnimation>();
         return anims[groupIndex - 1];
     }
+
+
     public static GlobalPosInfo GetGlobalPosInfoByGroup(string groupName)
     {
         var info = instance.RecordProject.globalPosDic.Find((a) => a.groupName.Equals(groupName));
@@ -202,4 +189,26 @@ public class ProjectManager : MonoBehaviour
         Color temp = instance.texture.GetPixel((int)screenPos.x, (int)screenPos.y);
         return temp;
     }
+
+
+    public static DataGroup GetDataGroupByGroupName(string groupName)
+    {
+        if (groupName == null || groupName.Equals(""))
+            return null;
+        string path = "Projects/" + Instance.projectName + "/" + groupName;
+        DataGroup result = Resources.Load<DataGroup>(path);
+        //DataGroup result = instance.RecordProject.datas.Find((a) => a.groupName.Equals(groupName));
+        if (result == null)
+        {
+            Debug.Log("没有找到名为" + groupName + "的数据,返回新数据组");
+            result = ScriptableObject.CreateInstance<DataGroup>();
+            result.groupName = groupName;
+            AssetDatabase.CreateAsset(result, "Assets/Resources/Projects/" + Instance.projectName + "/" + groupName + ".asset");
+            //instance.recordProject.datas.Add(result);
+            return result;
+        }
+        return result;
+    }
+
+
 }
