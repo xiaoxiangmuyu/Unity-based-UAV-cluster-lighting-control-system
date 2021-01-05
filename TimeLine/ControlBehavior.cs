@@ -87,6 +87,8 @@ public class ControlBehavior : PlayableBehaviour
     }
     void Process(bool isflip)
     {
+        if (workRange.y > record.data.objNames.Count - 1)
+            return;
         int counter = 0;
         int timeIndex = 0;
         if (!isflip)
@@ -129,17 +131,17 @@ public class ControlBehavior : PlayableBehaviour
                 counter += 1;
             }
         }
-        if (!hasProcess.Exists((x) => x == false)&&!trigger)
+        if (!hasProcess.Exists((x) => x == false) && !trigger)
             if (record.isDynamic)
             {
-                trigger=true;
+                trigger = true;
                 float time = MyTools.GetTotalTime(record.colorOrders);
-                DOVirtual.DelayedCall(time,(TweenCallback)PrcessAndReset);
+                DOVirtual.DelayedCall(time, (TweenCallback)PrcessAndReset);
             }
     }
     void PrcessAndReset()
     {
-        trigger=false;
+        trigger = false;
         record.ProcessData();
         timer = 0;
         for (int i = 0; i < hasProcess.Count; i++)

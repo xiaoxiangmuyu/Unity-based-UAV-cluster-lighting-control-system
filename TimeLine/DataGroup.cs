@@ -11,7 +11,7 @@ public class DataGroup : ScriptableObject
     [ValueDropdown("availableNames")]
     [GUIColor("GetGroupColor")]
     [HorizontalGroup("BaseInfo")]
-    [ReadOnly]
+    //[ReadOnly]
     public string groupName;
     [SerializeField]
     [TableList(DrawScrollView = false)]
