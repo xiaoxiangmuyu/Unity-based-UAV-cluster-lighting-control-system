@@ -209,7 +209,7 @@ public class RecordProject : SerializedScriptableObject
         }
         for (int i = 0; i < globalPosDic.Count; i++)
         {
-            if (AssetDatabase.FindAssets("Assets/Resources/Projects/" + ProjectManager.Instance.projectName + "/" + globalPosDic[i].groupName + ".asset") == null)
+            if (AssetDatabase.FindAssets("Assets/Resources/Projects/" + ProjectManager.Instance.projectName + "/" + globalPosDic[i].groupName + ".asset").Length == 0)
             {
                 var instance = ScriptableObject.CreateInstance<DataGroup>();
                 instance.groupName = globalPosDic[i].groupName;

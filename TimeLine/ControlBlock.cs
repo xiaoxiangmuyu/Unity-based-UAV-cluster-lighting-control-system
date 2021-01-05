@@ -199,11 +199,11 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
     {
         if (processer == null)
             return;
-        if (processer is VirusProcesser)
-        {
-            RefreshData();
-            //return;
-        }
+        //if (processer is VirusProcesser)
+        //{
+        //    RefreshData();
+        //    //return;
+        //}
         if (processer.Process(ref data, data.animTime))
         {
 
@@ -248,9 +248,9 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
             objs = new List<GameObject>();
             Register();
             SetWorkRangeMax();
-            bool temp = processer is VirusProcesser;
-            if (!temp)
-                ProcessData();
+            //bool temp = processer is VirusProcesser;
+            //if (!temp)
+            ProcessData();
         }
         else
         {

@@ -121,7 +121,7 @@ public class MappingData
         pointsInfo.posList.Clear();
         foreach (var point in UnityEditor.Selection.gameObjects)
         {
-            if (point.name.Equals("Main Camera"))
+            if (!int.TryParse(point.name, out int res))
                 continue;
             pointsInfo.posList.Add(MyTools.TruncVector3(point.transform.position));
             objNames.Add(point.name);
@@ -421,7 +421,8 @@ public class MappingData
             {
                 GameObject obj = GameObject.Find(name);
                 Color color = GetMappingColor(name);
-                obj.GetComponent<ColorPoint>().mat.color = color;
+                if (obj)
+                    obj.GetComponent<ColorPoint>().mat.color = color;
             }
         else
             Debug.Log("只能在运行模式下执行颜色预览");

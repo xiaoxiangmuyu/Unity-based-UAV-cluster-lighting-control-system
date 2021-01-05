@@ -26,7 +26,7 @@ public class RecordData
     public PointIndexInfo pointsInfo;
 
     [SerializeField]
-    [HideInInspector]
+    //[HideInInspector]
     public List<string> objNames;
     [SerializeField]
     [HideInInspector]
@@ -165,7 +165,7 @@ public class RecordData
         times.Clear();
         foreach (var point in UnityEditor.Selection.gameObjects)
         {
-            if (point.name.Equals("Main Camera"))
+            if (!int.TryParse(point.name, out int res))
                 continue;
             pointsInfo.posList.Add(MyTools.TruncVector3(point.transform.position));
             objNames.Add(point.name);
