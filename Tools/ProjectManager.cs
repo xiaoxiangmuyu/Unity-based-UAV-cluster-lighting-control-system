@@ -89,10 +89,6 @@ public class ProjectManager : MonoBehaviour
     {
         instance = this;
     }
-    public static void SetOperateTarget(GameObject mr)
-    {
-        currentTarget = mr;
-    }
     public static GameObject GetPointsRoot()
     {
         return GameObject.FindObjectOfType<MovementManager>().gameObject;
@@ -174,7 +170,7 @@ public class ProjectManager : MonoBehaviour
         width = RenderTexture.active.width;
         height = RenderTexture.active.height;
         if (texture == null)
-            texture = new Texture2D(width, height, TextureFormat.RGB24, false);
+            texture = new Texture2D(width, height, TextureFormat.RGBAFloat, false);
         //Read the pixels in the Rect starting at 0,0 and ending at the screen's width and height
         texture.ReadPixels(new Rect(0, 0, width, height), 0, 0);
         texture.Apply();

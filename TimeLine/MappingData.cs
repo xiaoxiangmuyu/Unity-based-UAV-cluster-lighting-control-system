@@ -226,7 +226,7 @@ public class MappingData
     [Button("计算", ButtonSizes.Medium)]
     [GUIColor("GetStateColor")]
     [VerticalGroup("Main")]
-    public void CaulateAll()
+    void CaulateAll()
     {
         colorDics = new List<StringColorDictionary>();
         if (screenPosDic.Count == 0)
@@ -239,6 +239,21 @@ public class MappingData
         }
         NeedCau = false;
         Debug.Log("计算完成");
+    }
+    [VerticalGroup("Properties")]
+    [Button("SaveColor", ButtonSizes.Medium)]
+    void SaveCurColor()
+    {
+        colorDics = new List<StringColorDictionary>();
+        colorDics.Add(new StringColorDictionary());
+        foreach (var obj in Selection.gameObjects)
+        {
+            if (!int.TryParse(obj.name, out int res))
+                return;
+            colorDics[0].Add(obj.name, obj.GetComponent<ColorPoint>().mat.color);
+        }
+        Debug.Log("存储颜色完成");
+
     }
 
 
