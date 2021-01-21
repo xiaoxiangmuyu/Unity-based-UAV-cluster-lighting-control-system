@@ -132,7 +132,7 @@ public class ControlBehavior : PlayableBehaviour
             }
         }
         if (!hasProcess.Exists((x) => x == false)&&!trigger)
-            if (record.isDynamicProcess)
+            if (record.isDynamicPos)
             {
                 trigger = true;
                 float time = MyTools.GetTotalTime(record.colorOrders);

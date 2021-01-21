@@ -25,11 +25,11 @@ public class ProjectInitWindow : EditorWindow
     {
         GUILayout.Label("路径列表");
         //EditorGUILayout.IntField(number);
-        if (GUI.Button(new Rect(10, 200, 300, 100), "排序（点不点都行）"))
+        if (GUI.Button(new Rect(10, 400, 300, 100), "排序（点不点都行）"))
         {
             paths.Sort(Sort);
         }
-        if (GUI.Button(new Rect(10, 300, 300, 100), "初始化项目"))
+        if (GUI.Button(new Rect(10, 500, 300, 100), "初始化项目"))
         {
             paths.Sort(Sort);
             for (int i = 0; i < paths.Count; i++)
@@ -59,8 +59,8 @@ public class ProjectInitWindow : EditorWindow
             {
                 var anim = root.AddComponent<TxtForAnimation>();
                 DanceDB danceDb = ScriptableObject.CreateInstance<DanceDB>();
-                AssetDatabase.CreateAsset(danceDb, "Assets/Resources/Projects/" + ProjectManager.Instance.projectName + "/"+(i+1).ToString()+".asset");
-                anim.danceDB=danceDb;
+                AssetDatabase.CreateAsset(danceDb, "Assets/Resources/Projects/" + ProjectManager.Instance.projectName + "/" + (i + 1).ToString() + ".asset");
+                anim.danceDB = danceDb;
                 if (File.Exists(paths[i]))
                     anim.danceDB.staticFilePath = paths[i];
                 else if (Directory.Exists(paths[i]))

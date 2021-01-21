@@ -11,7 +11,7 @@ public class ColorMapper : MonoBehaviour
 {
     private void OnEnable()
     {
-        //ProjectManager.Instance.RecordProject.AddMapper(this);
+        ProjectManager.Instance.RecordProject.AddMapper(this);
     }
     public GGType gGType;
     public Color GetColor(Gradient gradient, Vector3 pos)
@@ -31,7 +31,7 @@ public class ColorMapper : MonoBehaviour
             case GGType.Distances:
                 {
                     float maxValue = GetComponent<SphereCollider>().radius;
-                    float distance = Vector2.Distance(pos, transform.position);
+                    float distance = Vector3.Distance(pos, transform.position);
                     return gradient.Evaluate(distance / maxValue);
                 }
         }

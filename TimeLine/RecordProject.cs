@@ -37,7 +37,7 @@ public class RecordProject : SerializedScriptableObject
     [TabGroup("全局位置")]
     public List<GlobalPosInfo> globalPosDic = new List<GlobalPosInfo>();
 
-    //public List<string> ColorMapperNames = new List<string>();
+    public List<string> ColorMapperNames = new List<string>();
 
     private List<ColorMapper> colorMappers = new List<ColorMapper>();
 
@@ -89,19 +89,19 @@ public class RecordProject : SerializedScriptableObject
     }
     public ColorMapper GetColorMapper(string name)
     {
-        // if(colorMappers.Exists((a)=>a.name.Equals(name)))
-        // return colorMappers.Find((a)=>a.name.Equals(name));
+        if (colorMappers.Exists((a) => a.name.Equals(name)))
+            return colorMappers.Find((a) => a.name.Equals(name));
         ColorMapper result = GameObject.Find(name).GetComponent<ColorMapper>();
         //colorMappers.Add(result);
         return result;
     }
 
-    //public void AddMapper(ColorMapper mapper)
-    //{
-    //    if (ColorMapperNames.Exists((a) => a.Equals(mapper.name)))
-    //        return;
-    //    ColorMapperNames.Add(mapper.name);
-    //}
+    public void AddMapper(ColorMapper mapper)
+    {
+        if (ColorMapperNames.Exists((a) => a.Equals(mapper.name)))
+            return;
+        ColorMapperNames.Add(mapper.name);
+    }
 
     [Button("一键指派", ButtonSizes.Gigantic)]
     [FoldoutGroup("指派与校准")]

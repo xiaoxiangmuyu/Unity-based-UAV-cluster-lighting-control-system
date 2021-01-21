@@ -47,11 +47,8 @@ public class ColorPoint : MonoBehaviour
     {
         get
         {
-            // Vector3 curPos = ProjectManager.currentAnim.GetPointPosByFrame(name, curFrame);
-            // curFrame += 10;
-            // var color=colorMapper.GetColor(gradient, curPos);
-            //return color;
-            return Color.white;
+            var color = colorMapper.GetColor(gradient, transform.position);
+            return color;
         }
     }
     public Color RenderColor

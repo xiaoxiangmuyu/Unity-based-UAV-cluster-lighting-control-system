@@ -146,23 +146,23 @@ public class DoColor : GradualOrder
             return data.mappingDatas.Find((a) => a.objNames.Contains(point.name));
         }
     }
-    //#region ColorMapper
-    //[ValueDropdown("availableMappingSource")]
-    //[ShowIf("isColorByMapper")]
-    //public string mapperName;
-    //void GetMapper()
-    //{
-    //    colorMapper = ProjectManager.Instance.RecordProject.GetColorMapper(mapperName);
-    //}
-    //IEnumerable availableMappingSource
-    //{
-    //    get
-    //    {
-    //        return ProjectManager.Instance.RecordProject.ColorMapperNames;
-    //    }
-    //}
-    //ColorMapper colorMapper;
-    //#endregion
+    #region ColorMapper
+    [ValueDropdown("availableMappingSource")]
+    [ShowIf("isColorByMapper")]
+    public string mapperName;
+    void GetMapper()
+    {
+        colorMapper = ProjectManager.Instance.RecordProject.GetColorMapper(mapperName);
+    }
+    IEnumerable availableMappingSource
+    {
+        get
+        {
+            return ProjectManager.Instance.RecordProject.ColorMapperNames;
+        }
+    }
+    ColorMapper colorMapper;
+    #endregion
     bool hideColor { get { return colorType != ColorType.SingleColor; } }
     bool hideGradient { get { return colorType != ColorType.Gradient && colorType != ColorType.ColorByMapper; } }
     bool showHSVInfo { get { return colorType == ColorType.HSV; } }
@@ -207,14 +207,14 @@ public class DoColor : GradualOrder
                 {
                     targetColor = Color.black; break;
                 }
-            // case ColorType.ColorByMapper:
-            //     {
-            //         if (colorMapper == null)
-            //             GetMapper();
-            //         point.gradient = gradient;
-            //         point.colorMapper = colorMapper;
-            //         return point.mat.DOColor(point.MapperColor, during);
-            //     }
+            case ColorType.ColorByMapper:
+                {
+                    if (colorMapper == null)
+                        GetMapper();
+                    point.gradient = gradient;
+                    point.colorMapper = colorMapper;
+                    return point.mat.DOColor(point.MapperColor, during);
+                }
             case ColorType.ShaderMode:
                 {
                     targetColor = point.RenderColor;

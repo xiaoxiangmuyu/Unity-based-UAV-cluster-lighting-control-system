@@ -33,7 +33,8 @@ public class MovementCheck : MonoBehaviour
         maxDistance = 0f;
         droneName = name;
     }
-    private void LateUpdate() {
+    private void LateUpdate()
+    {
         //if(ProjectManager.Instance.texture!=null)
         Record(ProjectManager.Instance.texture);
     }
