@@ -31,7 +31,7 @@ public class ProjectInitWindow : EditorWindow
         }
         if (GUI.Button(new Rect(10, 500, 300, 100), "初始化项目"))
         {
-            paths.Sort(Sort);
+            //paths.Sort(Sort);
             for (int i = 0; i < paths.Count; i++)
             {
                 if (Directory.Exists(paths[i]))
@@ -41,7 +41,10 @@ public class ProjectInitWindow : EditorWindow
                     if (name.StartsWith("f"))
                     {
                         string childPath = paths[i] + "/" + name;
-                        number = Directory.GetFiles(childPath).Length;
+                        if (Directory.Exists(childPath))
+                            number = Directory.GetFiles(childPath).Length;
+                        else
+                            number = Directory.GetFiles(paths[i]).Length;
                         break;
                     }
                     else

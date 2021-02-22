@@ -10,7 +10,6 @@ public class EfyTools
     const string projectPath = "Assets/Resources/Projects/";
     static MeshRenderer _renderer;
     static MovementCheck movementCheck;
-    [MenuItem("工具/EfyTools/Init", priority = 0)]
     public static void Init(GameObject[] objs)
     {
         bool isCountFinish = false;

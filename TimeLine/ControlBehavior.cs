@@ -87,7 +87,7 @@ public class ControlBehavior : PlayableBehaviour
     }
     void Process(bool isflip)
     {
-        if (workRange.y > record.data.objNames.Count - 1)
+        if (workRange.y > record.data.objNames.Count - 1||record.objs.Contains(null))
             return;
         int counter = 0;
         int timeIndex = 0;

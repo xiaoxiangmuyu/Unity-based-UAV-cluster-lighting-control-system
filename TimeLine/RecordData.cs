@@ -29,7 +29,7 @@ public class RecordData
     //[HideInInspector]
     public List<string> objNames;
     [SerializeField]
-    [HideInInspector]
+    //[HideInInspector]
     public List<float> times;
     // [SerializeField]
     // public List<string> originNames;

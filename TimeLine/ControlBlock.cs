@@ -46,6 +46,8 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
     [BoxGroup("数据处理模块")]
     [OnValueChanged("Register")]
     public IDataProcesser processer;
+    [BoxGroup("数据处理模块")]
+    public IListOrderProcesser listOrderProcesser;
     #endregion
     [ShowInInspector]
     [PropertyOrder(1)]
@@ -209,6 +211,14 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
 
             needProcess = false;
         }
+    }
+    [BoxGroup("数据处理模块")]
+    [Button(ButtonSizes.Large)]
+    public void ProcessList()
+    {
+        listOrderProcesser.ProcessOrder(data,processer.easeType);
+        FindPoints();
+        SetWorkRangeMax();
     }
     Color GetColor()
     {

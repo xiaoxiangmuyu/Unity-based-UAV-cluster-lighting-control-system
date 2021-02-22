@@ -15,7 +15,7 @@ public class TxtForAnimation : MonoBehaviour
     [ShowInInspector]
     public int childCount { get { if (childs != null) return childs.Count; else return 0; } }
     [SerializeField]
-    [HideInInspector]
+    //[HideInInspector]
     public List<int> indexs;
     #endregion
 
