@@ -65,7 +65,7 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
     public List<GameObject> objs;
     [ValueDropdown("availableFilter")]
     [BoxGroup("数据读取模块")]
-    [OnValueChanged("SetColor")]
+    //[OnValueChanged("SetColor")]
     public string groupFilter;
     [ValueDropdown("availableData")]
     [OnValueChanged("RefreshData")]
@@ -137,12 +137,6 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
             return data.GetGroupColor();
         }
     }
-    void SetColor()
-    {
-        colorGroupName = groupFilter;
-        SetColorIndex();
-    }
-
     int ObjMaxIndex
     {
         get
@@ -177,11 +171,13 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
     }
     public double GetDuring()
     {
-        if (processer is VirusProcesser && data.objNames.Count != 0)
-        {
+        //if (processer is VirusProcesser && data.objNames.Count != 0)
+        //{
+        if (data.times.Count != 0 && colorOrders != null)
             return MyTools.GetTotalTime(colorOrders) + data.times[data.times.Count - 1];
-        }
-        return MyTools.GetTotalTime(colorOrders) + data.animTime;
+        return 3;
+        //}
+        //return MyTools.GetTotalTime(colorOrders) + data.animTime;
     }
     // [Button(ButtonSizes.Large)]
     // void ReadOrderFile(OrderData orderData)
@@ -216,7 +212,7 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
     [Button(ButtonSizes.Large)]
     public void ProcessList()
     {
-        listOrderProcesser.ProcessOrder(data,processer.easeType);
+        listOrderProcesser.ProcessOrder(data, processer.easeType);
         FindPoints();
         SetWorkRangeMax();
     }
@@ -329,11 +325,11 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
             }
         }
     }
-    [ShowInInspector]
-    [ValueDropdown("availableNames")]
-    [HorizontalGroup("SetColorGroup")]
-    [LabelText("颜色分组")]
-    string colorGroupName;
+    //[ShowInInspector]
+    //[ValueDropdown("availableNames")]
+    //[HorizontalGroup("SetColorGroup")]
+    //[LabelText("颜色分组")]
+    //string colorGroupName;
     IEnumerable availableNames
     {
         get
@@ -341,12 +337,12 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
             return ProjectManager.availableGroups;
         }
     }
-    [Button("设置全部颜色序号")]
-    [HorizontalGroup("SetColorGroup")]
-    void SetColorIndex()
+    //[Button("设置全部颜色序号")]
+    //[HorizontalGroup("SetColorGroup")]
+    public void SetColorIndex()
     {
         SetColorGroup(colorOrders);
-        ConsoleProDebug.LogToFilter("设置颜色序号成功", "Log");
+        //ConsoleProDebug.LogToFilter("设置颜色序号成功", "Log");
     }
     void SetColorGroup(List<ColorOrderBase> orders)
     {
@@ -357,7 +353,7 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
                 var temp = order as DoColor;
                 if (temp.colorType == ColorType.MappingData)
                 {
-                    temp.colorGroupName = colorGroupName;
+                    temp.colorGroupName = groupFilter;
                 }
             }
             else if (order is OrderGroup)

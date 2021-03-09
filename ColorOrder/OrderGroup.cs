@@ -57,9 +57,20 @@ public class FlowLight : OrderGroup
     public FlowLight()
     {
         this.colorOrders.Add(new DoColor(ColorType.SingleColor, 0.2f));
-        this.colorOrders.Add(new DoColor(ColorType.MappingData, 0.5f));
+        this.colorOrders.Add(new DoColor(ColorType.MappingData, 0.3f));
         this.colorOrders.Add(new Interval(false, 1f));
 
+    }
+}
+[LabelText("碎光")]
+public class SpotLight : OrderGroup
+{
+    public SpotLight()
+    {
+        colorOrders.Add(new Interval(true, 0.2f));
+        this.colorOrders.Add(new DoColor(ColorType.Gradient, 0.3f));
+        this.colorOrders.Add(new DoColor(ColorType.MappingData, 0.2f));
+        this.colorOrders.Add(new Interval(false, 2f));
     }
 }
 //[LabelText("呼吸灯")]

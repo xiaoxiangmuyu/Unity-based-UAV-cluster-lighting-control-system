@@ -52,9 +52,8 @@ public class EfyTools
                     continue;
                 }
                 childCount += 1;
-                HandleMovementCheck(children[i]);
                 HandleRenderer(children[i], mat);
-                HandleColorPoint(children[i]);
+                HandleComponent(children[i]);
                 children[i].gameObject.layer = LayerMask.NameToLayer("Point");
                 // if (children[i].gameObject.layer != LayerMask.NameToLayer("TriggerIgnore"))
                 // {
@@ -72,31 +71,28 @@ public class EfyTools
         AssetDatabase.SaveAssets();
         Debug.Log("初始化完成");
     }
-    static void HandleColorPoint(Transform obj)
+    static void HandleComponent(Transform obj)
     {
         if (obj.GetComponent<ColorPoint>() == null)
         {
             Undo.AddComponent<ColorPoint>(obj.gameObject);
         }
-        if (obj.GetComponent<Rigidbody2D>() == null)
-        {
-            Undo.AddComponent<Rigidbody2D>(obj.gameObject);
-        }
-        var col = obj.GetComponent<Rigidbody2D>();
-        col.bodyType = RigidbodyType2D.Kinematic;
-    }
-    static void HandleMovementCheck(Transform obj)
-    {
         movementCheck = obj.GetComponent<MovementCheck>();
         if (movementCheck == null)
         {
             movementCheck = Undo.AddComponent<MovementCheck>(obj.gameObject);
         }
-        var col = obj.GetComponent<CircleCollider2D>();
+        var col = obj.GetComponent<SphereCollider>();
         if (col == null)
         {
-            col = obj.gameObject.AddComponent<CircleCollider2D>();
+            col = obj.gameObject.AddComponent<SphereCollider>();
         }
+        //if (obj.GetComponent<Rigidbody>() == null)
+        //{
+        //    Undo.AddComponent<Rigidbody>(obj.gameObject);
+        //}
+        //var col = obj.GetComponent<Rigidbody>();
+        //col.bodyType = Rigidbody.Kinematic;
     }
     static void HandleRenderer(Transform obj, Material mat)
     {

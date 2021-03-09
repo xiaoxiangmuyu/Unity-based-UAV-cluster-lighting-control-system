@@ -89,6 +89,7 @@ public class MyTools
                         clip.duration = temp.GetDuring() * temp.processTimes;
                     if (temp.targetDataName != string.Empty)
                         clip.displayName = temp.targetDataName;
+                    temp.SetColorIndex();
                 }
                 else
                 {
@@ -201,13 +202,13 @@ public class MyTools
 
         return new Vector3(x, y, z);
     }
-    public static bool VectorSimilar(Vector3 a, Vector3 b,float dis=1.85f)
+    public static bool VectorSimilar(Vector3 a, Vector3 b, float dis = 1.85f)
     {
         //if(Mathf.Abs(a.x-b.x)<1&&Mathf.Abs(a.y-b.y)<1&&Mathf.Abs(a.z-b.z)<1)
-        if(Vector3.Distance(a,b)<=dis)
-        return true;
+        if (Vector3.Distance(a, b) <= dis)
+            return true;
         else
-        return false;
+            return false;
 
     }
     public static void ResfrshTimeLine()

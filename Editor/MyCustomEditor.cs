@@ -57,8 +57,12 @@ public class MyCustomEditor : Editor
         GameObject obj = Camera.main.gameObject;
         Selection.activeGameObject = obj;
         SceneView.lastActiveSceneView.AlignWithView();
-        obj.transform.SetParent(null);
-        obj.transform.SetAsFirstSibling();
+        //obj.transform.SetParent(null);
+        GameObject preview = GameObject.Find("PointsPreview");
+        Selection.activeGameObject = preview;
+        SceneView.lastActiveSceneView.AlignWithView();
+
+        //obj.transform.SetAsFirstSibling();
 
     }
     //创建全局数据组
