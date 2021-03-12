@@ -31,8 +31,9 @@ public class Helper : MonoBehaviour
             Debug.LogError("没有选择模版");
             return;
         }
+        var directior=GetComponent<PlayableDirector>();
         var templete = Resources.Load<TimelineAsset>("Templetes/" + targetTemplete.name);
-        var asset = GetComponent<PlayableDirector>().playableAsset as TimelineAsset;
+        var asset = directior.playableAsset as TimelineAsset;
         var trackRoot = asset.CreateTrack<GroupTrack>(targetTemplete.name);
         var timelineLength = asset.duration;
         foreach (var track in templete.GetOutputTracks())
@@ -43,7 +44,7 @@ public class Helper : MonoBehaviour
             foreach (var clip in track.GetClips())
             {
                 var tempClip = tempTrack.CreateClip<ControlBlock>();
-                tempClip.start = clip.start;
+                tempClip.start = clip.start+directior.time;
                 tempClip.duration = clip.duration;
                 tempClip.displayName = clip.displayName;
                 var from = JsonUtility.ToJson(clip.asset);

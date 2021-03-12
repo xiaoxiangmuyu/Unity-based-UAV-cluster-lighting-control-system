@@ -139,16 +139,17 @@ public class MyCustomEditor : Editor
         ProjectManager.Instance.RecordProject.AddMappingData(tempdata);
         Debug.Log("创建颜色组成功");
     }
-    [MenuItem("GameObject/工具/批量添加Tag", priority = 0)]
-    static void AddTag()
-    {
-        GameObject obj = Selection.activeGameObject;
-        foreach (var point in obj.GetComponentsInChildren<ColorPoint>())
-        {
-            point.AddTag(obj.name);
-        }
-        Debug.Log("添加Tag成功");
-    }
+    // [MenuItem("GameObject/工具/批量添加Tag", priority = 0)]
+    // static void AddTag()
+    // {
+    //     GameObject obj = Selection.activeGameObject;
+    //     foreach (var point in obj.GetComponentsInChildren<ColorPoint>())
+    //     {
+    //         point.AddTag(obj.name);
+    //     }
+    //     Debug.Log("添加Tag成功");
+    // }
+
     static void Resfrsh(object userData)
     {
         var clips = TimelineEditor.selectedClips;
@@ -194,5 +195,28 @@ public class MyCustomEditor : Editor
     {
         ProjectManager.Instance.RecordProject.ColorPreview();
     }
+    [MenuItem("GameObject/泽宇工具箱/准备渲染套件", priority = 0)]
+    static void RenderMode()
+    {
+        var tool=Resources.Load<GameObject>("工具箱/CinemachineTools");
+        Instantiate(tool);
+        Debug.Log("渲染套件准备完成");
+    }
+    [MenuItem("GameObject/使用模版/圆形水波闪烁", priority = 0)]
+    static void UseCrossTemplete()
+    {
+        var helper=GameObject.FindObjectOfType<Helper>();
+        helper.targetTemplete=Resources.Load<PlayableAsset>("Templetes/"+"单向水波闪烁");
+        helper.UseTemplete();
+    }
+    [MenuItem("GameObject/使用模版/圆形水波循环闪烁", priority = 0)]
+    static void UseCrossTemplete1()
+    {
+        var helper=GameObject.FindObjectOfType<Helper>();
+        helper.targetTemplete=Resources.Load<PlayableAsset>("Templetes/"+"循环水波闪烁");
+        helper.UseTemplete();
+    }
+    
+
 }
 

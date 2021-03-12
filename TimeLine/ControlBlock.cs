@@ -206,6 +206,8 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
         {
 
             needProcess = false;
+            if(listOrderProcesser!=null)
+            ProcessList();
         }
     }
     [BoxGroup("数据处理模块")]
@@ -353,7 +355,8 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
                 var temp = order as DoColor;
                 if (temp.colorType == ColorType.MappingData)
                 {
-                    temp.colorGroupName = groupFilter;
+                    //if (temp.colorGroupName == null || temp.colorGroupName == "MappingData")
+                        temp.colorGroupName = groupFilter;
                 }
             }
             else if (order is OrderGroup)

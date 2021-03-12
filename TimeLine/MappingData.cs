@@ -246,11 +246,15 @@ public class MappingData
     {
         colorDics = new List<StringColorDictionary>();
         colorDics.Add(new StringColorDictionary());
-        foreach (var obj in Selection.gameObjects)
+        //foreach (var obj in Selection.gameObjects)
+        //{
+        //    if (!int.TryParse(obj.name, out int res))
+        //        return;
+        //    colorDics[0].Add(obj.name, obj.GetComponent<ColorPoint>().mat.color);
+        //}
+        foreach (var point in MyTools.FindObjs(objNames))
         {
-            if (!int.TryParse(obj.name, out int res))
-                return;
-            colorDics[0].Add(obj.name, obj.GetComponent<ColorPoint>().mat.color);
+            colorDics[0].Add(point.name, point.GetComponent<ColorPoint>().mat.color);
         }
         Debug.Log("存储颜色完成");
 
