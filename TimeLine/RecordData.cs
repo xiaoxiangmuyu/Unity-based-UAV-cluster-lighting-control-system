@@ -206,7 +206,10 @@ public class RecordData
         var animName = ProjectManager.GetGlobalPosInfoByGroup(groupName).animName;
         var temp = new List<string>(MyTools.FindNamesByPosList(pointsInfo.posList, animName));
         if (temp.Count != 0)
+        {
             objNames = new List<string>(temp);
+            //ShowObjects();
+        }
         //CorrectByMappingIndex();
     }
     //动画数据不变(坐标和文件序号都不能变)，仅顺序调整时使用,开发中，待完善

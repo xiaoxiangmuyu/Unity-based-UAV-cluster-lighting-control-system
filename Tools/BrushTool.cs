@@ -39,6 +39,7 @@ public class BrushTool : MonoBehaviour
         }
         tempdata.animTime = tempdata.times[tempdata.times.Count - 1];
         ProjectManager.Instance.RecordProject.AddData(tempdata);
+        pointList.Clear();
         Debug.Log("数据记录完成");
     }
     void SingleModeUpdate()
@@ -107,7 +108,7 @@ public class BrushTool : MonoBehaviour
     }
     private void OnDrawGizmos()
     {
-        if (singleMode)
+        if (singleMode||!enabled)
             return;
         if (!mainCamera)
         {

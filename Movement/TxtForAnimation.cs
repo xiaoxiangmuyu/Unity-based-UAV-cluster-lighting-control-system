@@ -71,7 +71,15 @@ public class TxtForAnimation : MonoBehaviour
         }
         EditorUtility.SetDirty(danceDB);
     }
-
+    [Button("Reset指派列表")]
+    void ResetIndexs()
+    {
+        indexs = new List<int>();
+        for (int i = 0; i < childCount; i++)
+        {
+            indexs.Add(i);
+        }
+    }
     // Update is called once per frame
     public void MyUpdatePos(int frame)
     {
@@ -217,7 +225,7 @@ public class TxtForAnimation : MonoBehaviour
         {
             for (int i = 0; i < childs.Count; i++)
             {
-                if (danceDB.cords[indexs[i]].GetPos(frame) == pos)
+                if (danceDB.cords[indexs[i]].GetPos(frame).Equals(pos))
                     return (i + 1).ToString();
                 if (similar)
                 {
@@ -231,6 +239,7 @@ public class TxtForAnimation : MonoBehaviour
     public List<string> FindPointNamesByPos(List<Vector3> posList)
     {
         //Debug.Log(posList.Count);
+        int errorCount = 0;
         List<string> temp = new List<string>();
         //先试一下第一帧能不能找到
         foreach (var pos in posList)
@@ -244,44 +253,47 @@ public class TxtForAnimation : MonoBehaviour
         }
         temp.Clear();
 
-        // //全动画帧遍历寻找精确对应位置
-        // for (int i = 0; i < totalFrameCount; i++)
-        // {
-        //     foreach (var pos in posList)
-        //     {
-        //         var result = FindPointName(pos, i);
-        //         if (result != null)
-        //             temp.Add(result);
-        //         else
-        //             break;
-        //     }
-        //     //temp.Add(FindPointName(posList[0], i));
-        //     if (temp.Count != posList.Count)
-        //     {
-        //         temp.Clear();
-        //     }
-        //     else
-        //     {
-        //         Debug.Log("校正成功");
-        //         return temp;
-        //     }
-        // }
-
-
-        //在所有帧错帧寻找对应位置
+        //全动画帧遍历寻找精确对应位置
         for (int i = 0; i < posList.Count; i++)
         {
-            for (int j = 0; j < danceDB.totalFrameCount; j++)
+            for (int k = 0; k < danceDB.totalFrameCount; k++)
             {
-                string findResult = FindPointName(posList[i], j);
-                if (findResult != null && !temp.Contains(findResult))
+                var result = FindPointName(posList[i], k);
+                if (result != null)
                 {
-                    temp.Add(findResult);
+                    temp.Add(result);
                     break;
                 }
             }
-
         }
+        //temp.Add(FindPointName(posList[0], i));
+        if (temp.Count != posList.Count)
+        {
+            Debug.Log(danceDB.animName + "校正失败: " + (posList.Count - temp.Count) + " 个点没有找到位置");
+            temp.Clear();
+            return temp;
+        }
+        else
+        {
+            Debug.Log("校正成功");
+            return temp;
+        }
+
+
+        //在所有帧错帧寻找对应位置
+        // for (int i = 0; i < posList.Count; i++)
+        // {
+        //     for (int j = 0; j < danceDB.totalFrameCount; j++)
+        //     {
+        //         string findResult = FindPointName(posList[i], j);
+        //         if (findResult != null && !temp.Contains(findResult))
+        //         {
+        //             temp.Add(findResult);
+        //             break;
+        //         }
+        //     }
+
+        // }
 
 
         ////在所有帧错帧寻找对应位置
@@ -341,8 +353,8 @@ public class TxtForAnimation : MonoBehaviour
         //        }
         //    }
         //}
-        Debug.Log(danceDB.animName + "校正结果: " + (posList.Count - temp.Count) + " 个点没有找到位置");
-        return temp;
+        //Debug.Log(danceDB.animName + "校正失败:" + (((float)errorCount / (float)temp.Count) * 100f).ToString("f2") + "% 的点没有找到位置");
+        //return temp;
     }
     public List<Vector3> GetEndPoitions()
     {

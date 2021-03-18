@@ -62,7 +62,7 @@ public class MappingData
     [ListDrawerSettings(Expanded = false)]
     [OnValueChanged("SetStateDirty")]
     public List<Gradient> colors = new List<Gradient>();
-    [HideInInspector]
+    //[HideInInspector]
     public List<string> objNames;
     [HideInInspector]
     public PointIndexInfo pointsInfo;
@@ -303,6 +303,15 @@ public class MappingData
                 colorDics[index].Add(pointName, color);
             }
         }
+        else if (dirType == DirType.List)
+        {
+            for (int i = 0; i < objNames.Count; i++)
+            {
+                float temp = (float)i / (float)objNames.Count;
+                Color color = colors[index].Evaluate(temp);
+                colorDics[index].Add(objNames[i], color);
+            }
+        }
         else
         {
             float? xMin = null, xMax = null, yMin = null, yMax = null;
@@ -419,6 +428,8 @@ public class MappingData
         var newNames = new List<string>(MyTools.FindNamesByPosList(pointsInfo.posList, animName));
         if (newNames.Count != 0)
             objNames = new List<string>(newNames);
+        else
+            Debug.LogError("返回的列表长度为0");
         // var newDic = new StringVector3Dictionary();
         // int index = 0;
         // foreach (var pair in screenPosDic)

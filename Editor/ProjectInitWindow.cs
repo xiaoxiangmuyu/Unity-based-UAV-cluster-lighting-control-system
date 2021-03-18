@@ -5,13 +5,15 @@ using UnityEditor;
 using Sirenix.OdinInspector;
 using System;
 using System.IO;
+using UnityEditor.SceneManagement;
+using UnityEngine.SceneManagement;
 public class ProjectInitWindow : EditorWindow
 {
     int number;
     [ShowInInspector]
     public List<string> paths = new List<string>();
-    [MenuItem("Window/项目初始化")]
-    static void ShowEditor()
+    [MenuItem("Tools/项目初始化")]
+    public static void Show()
     {
         ProjectInitWindow editor = EditorWindow.GetWindow<ProjectInitWindow>();
         //editor.Init();
@@ -25,11 +27,11 @@ public class ProjectInitWindow : EditorWindow
     {
         GUILayout.Label("路径列表");
         //EditorGUILayout.IntField(number);
-        if (GUI.Button(new Rect(10, 400, 300, 100), "排序（点不点都行）"))
+        if (GUI.Button(new Rect(10, paths.Count * 50 + 50, 300, 100), "排序(必须点）"))
         {
             paths.Sort(Sort);
         }
-        if (GUI.Button(new Rect(10, 500, 300, 100), "初始化项目"))
+        if (GUI.Button(new Rect(10, paths.Count * 50 + 150, 300, 100), "初始化项目"))
         {
             //paths.Sort(Sort);
             for (int i = 0; i < paths.Count; i++)
@@ -79,12 +81,17 @@ public class ProjectInitWindow : EditorWindow
                 else
                     Debug.LogError("路径有问题，不是文件也不是文件夹");
             }
+            Close();
         }
         if (paths != null)
         {
-            for (int i = 0; i < paths.Count; i++)
+            var tempPath = new List<string>(paths);
+            for (int i = 0; i < tempPath.Count; i++)
             {
-                GUILayout.TextArea(paths[i]);
+                if (GUI.Button(new Rect(0, i * 50, 400, 50), Path.GetFileNameWithoutExtension(tempPath[i])))
+                {
+                    paths.Remove(tempPath[i]);
+                }
             }
         }
         if (mouseOverWindow == this)
@@ -151,5 +158,44 @@ public class ProjectInitWindow : EditorWindow
         }
     }
 
+}
+public class InitProjectWindow : EditorWindow
+{
+    [MenuItem("Tools/创建新项目")]
+    static void Show()
+    {
+        InitProjectWindow editor = EditorWindow.GetWindow<InitProjectWindow>();
+    }
+    static void InitNewProject(string sceneName)
+    {
+        string path = "Scenes";
+        var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+        scene.name = sceneName;
+        InitScene();
+        EditorSceneManager.SaveScene(scene, "Assets/Scenes/" + scene.name + ".unity");
+
+    }
+    static void InitScene()
+    {
+        GameObject prefab = Resources.Load<GameObject>("Camera/CommonEnvironment");
+        PrefabUtility.InstantiatePrefab(prefab);
+    }
+    string sceneName;
+    private void OnGUI()
+    {
+        sceneName = EditorGUILayout.TextField("项目名称", sceneName);
+        if (GUI.Button(new Rect(10, 100, 300, 100), "创建场景"))
+        {
+            if (sceneName == string.Empty)
+            {
+                Debug.Log("场景名不能为空");
+                return;
+            }
+            InitNewProject(sceneName);
+            Close();
+            ProjectInitWindow.Show();
+        }
+
+    }
 }
 

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Sirenix.OdinInspector;
-[CreateAssetMenu(menuName = "创建分组颜色存储", fileName = "new_DanceDB")]
+[CreateAssetMenu(menuName = "创建图案数据存储", fileName = "new_DanceDB")]
 public class DataGroup : ScriptableObject
 {
     public DataGroup(string groupName)

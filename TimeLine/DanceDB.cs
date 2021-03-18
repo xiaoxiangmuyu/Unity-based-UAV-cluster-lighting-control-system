@@ -48,7 +48,7 @@ public class PointInfo
         return colorList[frameIndex];
     }
 }
-[CreateAssetMenu(menuName = "创建舞步存储", fileName = "new_DanceDB")]
+[CreateAssetMenu(menuName = "创建舞步数据存储", fileName = "new_DanceDB")]
 public class DanceDB : ScriptableObject
 {
     public string animName;

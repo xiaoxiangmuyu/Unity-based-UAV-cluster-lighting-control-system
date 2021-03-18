@@ -5,7 +5,7 @@ using Sirenix.OdinInspector;
 using System;
 public static class ColorManager
 {
-    public static readonly List<string>ColorTypes=new List<string>{"SingleColor","Gradient","ShaderMode","MappingData","HSV","ColorByMapper","Black"};
+    public static readonly List<string> ColorTypes = new List<string> { "SingleColor", "Gradient", "ShaderMode", "MappingData", "HSV", "ColorByMapper", "Black" };
 }
 public enum ColorType
 {
@@ -47,6 +47,7 @@ public enum DirType
     Right_Left,//右左
     In_Out,//内外
     Out_In,//外内
+    List,//列表顺序
     Ball,//3D球形映射
 }
 public enum BlockState
