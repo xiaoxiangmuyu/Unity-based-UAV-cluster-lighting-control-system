@@ -206,8 +206,8 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
         {
 
             needProcess = false;
-            if(listOrderProcesser!=null)
-            ProcessList();
+            if (listOrderProcesser != null)
+                ProcessList();
         }
     }
     [BoxGroup("数据处理模块")]
@@ -356,6 +356,7 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
                 if (temp.colorType == ColorType.MappingData)
                 {
                     //if (temp.colorGroupName == null || temp.colorGroupName == "MappingData")
+                    if (!temp.isManualMode)
                         temp.colorGroupName = groupFilter;
                 }
             }

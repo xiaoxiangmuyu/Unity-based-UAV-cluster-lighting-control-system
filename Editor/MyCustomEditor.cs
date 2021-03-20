@@ -26,6 +26,7 @@ public class MyCustomEditor : Editor
             menu.AddItem(new GUIContent("创建数据"), false, CreatGroup, "menu_4");
             menu.AddItem(new GUIContent("创建颜色"), false, CreatMapping, "menu_5");
             menu.AddItem(new GUIContent("颜色预览"), false, ColorPreview, "menu_6");
+            menu.AddItem(new GUIContent("颜色重置"), false, ResetAllColor, "menu_8");
             //menu.AddItem(new GUIContent("创建旧映射组"), false, CreatOldMapping, "menu_5");
             menu.AddSeparator("");
             menu.AddItem(new GUIContent("调整摄像机"), false, SetCameraPos, "menu_3");
@@ -191,6 +192,14 @@ public class MyCustomEditor : Editor
             root.transform.GetChild(i).gameObject.SetActive(true);
         }
     }
+    static void ResetAllColor(object userdata)
+    {
+        GameObject root = GameObject.Find("Main");
+        foreach (var point in root.GetComponentsInChildren<ColorPoint>())
+        {
+            point.mat.color = Color.white;
+        }
+    }
     static void ColorPreview(object userdata)
     {
         ProjectManager.Instance.RecordProject.ColorPreview();
@@ -198,25 +207,25 @@ public class MyCustomEditor : Editor
     [MenuItem("GameObject/泽宇工具箱/准备渲染套件", priority = 0)]
     static void RenderMode()
     {
-        var tool=Resources.Load<GameObject>("工具箱/CinemachineTools");
+        var tool = Resources.Load<GameObject>("工具箱/CinemachineTools");
         Instantiate(tool);
         Debug.Log("渲染套件准备完成");
     }
     [MenuItem("GameObject/使用模版/圆形水波闪烁", priority = 0)]
     static void UseCrossTemplete()
     {
-        var helper=GameObject.FindObjectOfType<Helper>();
-        helper.targetTemplete=Resources.Load<PlayableAsset>("Templetes/"+"单向水波闪烁");
+        var helper = GameObject.FindObjectOfType<Helper>();
+        helper.targetTemplete = Resources.Load<PlayableAsset>("Templetes/" + "单向水波闪烁");
         helper.UseTemplete();
     }
     [MenuItem("GameObject/使用模版/圆形水波循环闪烁", priority = 0)]
     static void UseCrossTemplete1()
     {
-        var helper=GameObject.FindObjectOfType<Helper>();
-        helper.targetTemplete=Resources.Load<PlayableAsset>("Templetes/"+"循环水波闪烁");
+        var helper = GameObject.FindObjectOfType<Helper>();
+        helper.targetTemplete = Resources.Load<PlayableAsset>("Templetes/" + "循环水波闪烁");
         helper.UseTemplete();
     }
-    
+
 
 }
 

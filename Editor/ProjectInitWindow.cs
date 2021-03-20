@@ -27,11 +27,11 @@ public class ProjectInitWindow : EditorWindow
     {
         GUILayout.Label("路径列表");
         //EditorGUILayout.IntField(number);
-        if (GUI.Button(new Rect(10, paths.Count * 50 + 50, 300, 100), "排序(必须点）"))
+        if (GUI.Button(new Rect(10, paths.Count * 25 + 50, 300, 100), "排序(必须点）"))
         {
             paths.Sort(Sort);
         }
-        if (GUI.Button(new Rect(10, paths.Count * 50 + 150, 300, 100), "初始化项目"))
+        if (GUI.Button(new Rect(10, paths.Count * 25 + 150, 300, 100), "初始化项目"))
         {
             //paths.Sort(Sort);
             for (int i = 0; i < paths.Count; i++)
@@ -88,7 +88,7 @@ public class ProjectInitWindow : EditorWindow
             var tempPath = new List<string>(paths);
             for (int i = 0; i < tempPath.Count; i++)
             {
-                if (GUI.Button(new Rect(0, i * 50, 400, 50), Path.GetFileNameWithoutExtension(tempPath[i])))
+                if (GUI.Button(new Rect(0, i * 25, 400, 25), Path.GetFileNameWithoutExtension(tempPath[i])))
                 {
                     paths.Remove(tempPath[i]);
                 }

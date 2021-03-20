@@ -7,20 +7,19 @@ public class CircleProcesser_3D : IDataProcesser
 {
     [OnValueChanged("EventDispatch")]
     [Range(0, 1)]
-    public float center_X=0.5f;
+    public float center_X = 0.5f;
     [OnValueChanged("EventDispatch")]
     [Range(0, 1)]
-    public float center_Y=0.5f;
+    public float center_Y = 0.5f;
     [OnValueChanged("EventDispatch")]
     [Range(0, 1)]
-    public float center_Z=0.5f;
+    public float center_Z = 0.5f;
     Vector3 anchorPoint;
-    public override bool Process(ref RecordData data, float animTime)
+    public override bool Process(ref RecordData data, float animTime = 1)
     {
         if (animTime == 0)
         {
-            Debug.LogError("animTime为0");
-            return false;
+            data.animTime = 1;
         }
         isProcessed = false;
         this.data = data;
@@ -31,12 +30,12 @@ public class CircleProcesser_3D : IDataProcesser
         float? yMin = null;
         float? zMax = null;
         float? zMin = null;
-        tempPosDic=new StringVector3Dictionary();
-        foreach(var pointName in data.objNames)
+        tempPosDic = new StringVector3Dictionary();
+        foreach (var pointName in data.objNames)
         {
-            var info=ProjectManager.GetGlobalPosInfoByGroup(data.groupName);
-            var pos=info.posList[int.Parse(pointName)-1];
-            tempPosDic.Add(pointName,pos);
+            var info = ProjectManager.GetGlobalPosInfoByGroup(data.groupName);
+            var pos = info.posList[int.Parse(pointName) - 1];
+            tempPosDic.Add(pointName, pos);
         }
         foreach (var pos in tempPosDic.Values)
         {
@@ -53,7 +52,7 @@ public class CircleProcesser_3D : IDataProcesser
             if (!zMin.HasValue || pos.z < zMin.Value)
                 zMin = pos.z;
         }
-        anchorPoint = new Vector3(xMin.Value + (xMax.Value - xMin.Value) * center_X, yMin.Value + (yMax.Value - yMin.Value) * center_Y,zMin.Value+(zMax.Value-zMin.Value)*center_Z);
+        anchorPoint = new Vector3(xMin.Value + (xMax.Value - xMin.Value) * center_X, yMin.Value + (yMax.Value - yMin.Value) * center_Y, zMin.Value + (zMax.Value - zMin.Value) * center_Z);
         float maxDistance = 0;
         foreach (var pos in tempPosDic.Values)
         {
@@ -69,17 +68,17 @@ public class CircleProcesser_3D : IDataProcesser
         while (processPercent <= 1)
         {
             value = DOVirtual.EasedValue(0, maxDistance, processPercent, easeType);
-            OnValueUpdate(value,animTime);
+            OnValueUpdate(value, animTime);
             processPercent += 0.04f / animTime;
             if (processPercent > 1)
             {
-                OnValueUpdate(maxDistance,animTime);
+                OnValueUpdate(maxDistance, animTime);
                 break;
             }
         }
         return true;
     }
-    void OnValueUpdate(float value,float animTime)
+    void OnValueUpdate(float value, float animTime)
     {
         //Debug.Log(value);
         foreach (var pointName in tempPosDic.Keys)
@@ -95,7 +94,7 @@ public class CircleProcesser_3D : IDataProcesser
             }
         }
         timer += 0.04f;
-        timer=Mathf.Min(timer,animTime);
+        timer = Mathf.Min(timer, animTime);
         if (index.Count == data.objNames.Count)
         {
             if (isProcessed)

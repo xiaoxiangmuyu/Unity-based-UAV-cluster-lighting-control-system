@@ -7,7 +7,7 @@ using UnityEngine.Events;
 public abstract class IDataProcesser
 {
     [OnValueChanged("EventDispatch")]
-    public Ease easeType=Ease.OutQuad;
+    public Ease easeType = Ease.OutQuad;
     //public AnimationCurve curve;
     public abstract bool Process(ref RecordData data, float animTime);
 
@@ -55,14 +55,15 @@ public abstract class IDataProcesser
     }
     public virtual void RemoveValueChangelistener(System.Action action)
     {
-        if(OnValueChangeActions.Contains(action))
-        OnValueChangeActions.Remove(action);
+        if (OnValueChangeActions.Contains(action))
+            OnValueChangeActions.Remove(action);
     }
     public virtual void ProcessComplete()
     {
-        foreach(var action in OnProcessCompleteActions)
-        {
-            action();
-        }
+        if (OnProcessCompleteActions != null)
+            foreach (var action in OnProcessCompleteActions)
+            {
+                action();
+            }
     }
 }

@@ -17,12 +17,11 @@ public class RectProcesser : IDataProcesser
     float B { get { return -1; } }
     float C { get { return offset_Min + (offset_Max - offset_Min) * offset; } }
 
-    public override bool Process(ref RecordData data, float animTime)
+    public override bool Process(ref RecordData data, float animTime = 1)
     {
         if (animTime == 0)
         {
-            Debug.LogError("animTime为0");
-            return false;
+            data.animTime = 1;
         }
         isProcessed = false;
         this.data = data;
@@ -38,7 +37,7 @@ public class RectProcesser : IDataProcesser
         foreach (var pointName in data.objNames)
         {
             var info = ProjectManager.GetGlobalPosInfoByGroup(data.groupName);
-            var pos = info.posList[int.Parse(pointName) - 1]; 
+            var pos = info.posList[int.Parse(pointName) - 1];
             tempPosDic.Add(pointName, pos);
         }
         foreach (var pos in tempPosDic.Values)

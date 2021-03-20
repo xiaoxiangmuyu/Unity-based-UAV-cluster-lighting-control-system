@@ -41,10 +41,10 @@ public enum TriggerType
 //渐变的方向类型
 public enum DirType
 {
-    Up_Down,//上下
-    Down_UP,//下上
-    Left_Right,//左右
-    Right_Left,//右左
+    Direction,//上下
+    //Down_UP,//下上
+    //Left_Right,//左右
+    //Right_Left,//右左
     In_Out,//内外
     Out_In,//外内
     List,//列表顺序

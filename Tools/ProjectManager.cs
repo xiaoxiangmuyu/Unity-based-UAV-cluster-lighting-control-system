@@ -150,7 +150,7 @@ public class ProjectManager : MonoBehaviour
 
     public static GlobalPosInfo GetGlobalPosInfoByGroup(string groupName)
     {
-        var info = instance.RecordProject.globalPosDic.Find((a) => a.animName.Equals(groupName));
+        var info = instance.RecordProject.globalPosDic.Find((a) => a.groupName.Equals(groupName));
         return info;
     }
     public Texture2D texture;

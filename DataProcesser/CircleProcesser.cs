@@ -7,20 +7,19 @@ public class CircleProcesser : IDataProcesser
 {
     [OnValueChanged("EventDispatch")]
     [Range(0, 1)]
-    public float center_X=0.5f;
+    public float center_X = 0.5f;
     [OnValueChanged("EventDispatch")]
     [Range(0, 1)]
-    public float center_Y=0.5f;
+    public float center_Y = 0.5f;
 
     Vector2 anchorPoint;
 
 
-    public override bool Process(ref RecordData data, float animTime)
+    public override bool Process(ref RecordData data, float animTime = 1)
     {
         if (animTime == 0)
         {
-            Debug.LogError("animTime为0");
-            return false;
+            data.animTime = 1;
         }
         isProcessed = false;
         this.data = data;
@@ -29,12 +28,12 @@ public class CircleProcesser : IDataProcesser
         float? xMin = null;
         float? yMax = null;
         float? yMin = null;
-        tempPosDic=new StringVector3Dictionary();
-        foreach(var pointName in data.objNames)
+        tempPosDic = new StringVector3Dictionary();
+        foreach (var pointName in data.objNames)
         {
-            var info=ProjectManager.GetGlobalPosInfoByGroup(data.groupName);
-            var pos=info.posList[int.Parse(pointName)-1];
-            tempPosDic.Add(pointName,pos);
+            var info = ProjectManager.GetGlobalPosInfoByGroup(data.groupName);
+            var pos = info.posList[int.Parse(pointName) - 1];
+            tempPosDic.Add(pointName, pos);
         }
         foreach (var pos in tempPosDic.Values)
         {
@@ -64,18 +63,18 @@ public class CircleProcesser : IDataProcesser
         while (processPercent <= 1)
         {
             value = DOVirtual.EasedValue(0, maxDistance, processPercent, easeType);
-            OnValueUpdate(value,animTime);
+            OnValueUpdate(value, animTime);
             processPercent += 0.04f / animTime;
             if (processPercent > 1)
             {
-                OnValueUpdate(maxDistance,animTime);
+                OnValueUpdate(maxDistance, animTime);
                 break;
             }
         }
         //DOVirtual.Float(0, maxDistance, animTime, OnValueUpdate).SetEase(easeType);
         return true;
     }
-    void OnValueUpdate(float value,float animTime)
+    void OnValueUpdate(float value, float animTime)
     {
         //Debug.Log(value);
         foreach (var pointName in tempPosDic.Keys)
@@ -91,7 +90,7 @@ public class CircleProcesser : IDataProcesser
             }
         }
         timer += 0.04f;
-        timer=Mathf.Min(timer,animTime);
+        timer = Mathf.Min(timer, animTime);
         if (index.Count == data.objNames.Count)
         {
             if (isProcessed)

@@ -314,47 +314,47 @@ public class ColorPoint : MonoBehaviour
     }
 
 
-    public Color GetMappingColor(int targetTexIndex = 0)
-    {
-        ColorMapping colorMapping = colorParent as ColorMapping;
-        if (!colorMapping)
-        {
-            Debug.LogError(gameObject.name + "ColorMapping为空");
-            return Color.white;
-        }
-        return colorMapping.GetMappingColor(transform, targetTexIndex);
-    }
-    public Color GetMappingColor()
-    {
-        ColorMapping colorMapping = colorParent as ColorMapping;
-        if (!colorMapping)
-        {
-            Debug.LogError(gameObject.name + "ColorMapping为空");
-            return Color.white;
-        }
-        if (colorMapping.ColorChangeCount == 0)
-        {
-            return colorMapping.GetMappingColor(transform, 0);
-        }
-        texCounter += 1;
-        if (texCounter <= colorMapping.ColorChangeCount)
-        {
-            return colorMapping.GetMappingColor(transform, texIndex);
-        }
-        else
-        {
-            texCounter = 1;
-            if (texIndex + 1 <= colorMapping.colors.Count - 1)
-                texIndex += 1;
-            else
-            {
-                if (colorMapping.isColorLoop)
-                    texIndex = 0;
-            }
+    //public Color GetMappingColor(int targetTexIndex = 0)
+    //{
+    //    ColorMapping colorMapping = colorParent as ColorMapping;
+    //    if (!colorMapping)
+    //    {
+    //        Debug.LogError(gameObject.name + "ColorMapping为空");
+    //        return Color.white;
+    //    }
+    //    return colorMapping.GetMappingColor(transform, targetTexIndex);
+    //}
+    //public Color GetMappingColor()
+    //{
+    //    ColorMapping colorMapping = colorParent as ColorMapping;
+    //    if (!colorMapping)
+    //    {
+    //        Debug.LogError(gameObject.name + "ColorMapping为空");
+    //        return Color.white;
+    //    }
+    //    if (colorMapping.ColorChangeCount == 0)
+    //    {
+    //        return colorMapping.GetMappingColor(transform, 0);
+    //    }
+    //    texCounter += 1;
+    //    if (texCounter <= colorMapping.ColorChangeCount)
+    //    {
+    //        return colorMapping.GetMappingColor(transform, texIndex);
+    //    }
+    //    else
+    //    {
+    //        texCounter = 1;
+    //        if (texIndex + 1 <= colorMapping.colors.Count - 1)
+    //            texIndex += 1;
+    //        else
+    //        {
+    //            if (colorMapping.isColorLoop)
+    //                texIndex = 0;
+    //        }
 
-            return colorMapping.GetMappingColor(transform, texIndex);
-        }
-    }
+    //        return colorMapping.GetMappingColor(transform, texIndex);
+    //    }
+    //}
 
 
     float h, s, v;//for hsv effect

@@ -85,8 +85,9 @@ public class DoColor : GradualOrder
 
     [ShowIf("isMapping")]
     [BoxGroup("Color")]
-    //[HorizontalGroup("Color/ColorPro")]
-    public bool isWithIndex;
+    public bool isManualMode;
+    ////[HorizontalGroup("Color/ColorPro")]
+    //public bool isWithIndex;
     [ShowIf("showRandom")]
     [BoxGroup("Color")]
     //[HorizontalGroup("Color/ColorPro")]
@@ -97,9 +98,9 @@ public class DoColor : GradualOrder
     [ValueDropdown("availableIndex")]
     [PropertyOrder(-10)]
     public string colorGroupName;
-    [ShowIf("isWithIndex")]
-    [BoxGroup("Color")]
-    public int colorIndex;
+    //[ShowIf("isWithIndex")]
+    //[BoxGroup("Color")]
+    //public int colorIndex;
     [ValueDropdown("availableData")]
     [ShowIf("isMappingData")]
     [PropertyOrder(11)]
@@ -174,6 +175,10 @@ public class DoColor : GradualOrder
     bool isColorByMapper { get { return colorType == ColorType.ColorByMapper; } }
     public override Tween GetOrder(ColorPoint point)
     {
+        if (!point.gameObject.activeSelf)
+        {
+            Debug.LogError(point.name + "没有显示");
+        }
         if (ColorTypeName.Equals("6"))
             ColorTypeName = "Gradient";
         else if (ColorTypeName.Equals("7"))
@@ -229,10 +234,10 @@ public class DoColor : GradualOrder
                         //Debug.LogError(point.name + "找不到映射颜色");
                         break;
                     }
-                    if (isWithIndex)
-                    {
-                        targetColor = mappingData.GetMappingColor(point.name, colorIndex);
-                    }
+                    //if (isWithIndex)
+                    //{
+                    //    targetColor = mappingData.GetMappingColor(point.name, colorIndex);
+                    //}
                     else
                     {
                         if (isRandom)

@@ -62,10 +62,22 @@ public class MappingData
     [ListDrawerSettings(Expanded = false)]
     [OnValueChanged("SetStateDirty")]
     public List<Gradient> colors = new List<Gradient>();
-    //[HideInInspector]
+    [HideInInspector]
     public List<string> objNames;
     [HideInInspector]
     public PointIndexInfo pointsInfo;
+    //[ShowIf("isListMode")]
+    [VerticalGroup("Properties")]
+    [ShowInInspector]
+    [ShowIf("isListMode")]
+    VirusProcesser processer;
+    bool isListMode
+    {
+        get
+        {
+            return dirType == DirType.List;
+        }
+    }
 
     IEnumerable availableNames
     {
@@ -238,6 +250,7 @@ public class MappingData
             Caulate(i);
         }
         NeedCau = false;
+        ShowColor();
         Debug.Log("计算完成");
     }
     [VerticalGroup("Properties")]
@@ -305,6 +318,11 @@ public class MappingData
         }
         else if (dirType == DirType.List)
         {
+            var tempData = new RecordData();
+            tempData.groupName = groupName;
+            tempData.objNames = new List<string>(objNames);
+            processer.Process(ref tempData, 0);
+            objNames = new List<string>(tempData.objNames);
             for (int i = 0; i < objNames.Count; i++)
             {
                 float temp = (float)i / (float)objNames.Count;
@@ -337,32 +355,11 @@ public class MappingData
             }
             switch (dirType)
             {
-                case DirType.Up_Down:
+                case DirType.Direction:
                     foreach (var pointName in screenPosDic.Keys)
                     {
                         tempScreenPos = screenPosDic[pointName];
                         colorDics[index].Add(pointName, colors[index].Evaluate(1 - ((tempScreenPos.y - yMin.Value) / (yMax.Value - yMin.Value))));
-                    }
-                    break;
-                case DirType.Down_UP:
-                    foreach (var pointName in screenPosDic.Keys)
-                    {
-                        tempScreenPos = screenPosDic[pointName];
-                        colorDics[index].Add(pointName, colors[index].Evaluate((tempScreenPos.y - yMin.Value) / (yMax.Value - yMin.Value)));
-                    }
-                    break;
-                case DirType.Left_Right:
-                    foreach (var pointName in screenPosDic.Keys)
-                    {
-                        tempScreenPos = screenPosDic[pointName];
-                        colorDics[index].Add(pointName, colors[index].Evaluate((tempScreenPos.x - xMin.Value) / (xMax.Value - xMin.Value)));
-                    }
-                    break;
-                case DirType.Right_Left:
-                    foreach (var pointName in screenPosDic.Keys)
-                    {
-                        tempScreenPos = screenPosDic[pointName];
-                        colorDics[index].Add(pointName, colors[index].Evaluate(1 - ((tempScreenPos.x - xMin.Value) / (xMax.Value - xMin.Value))));
                     }
                     break;
                 case DirType.In_Out:
@@ -454,8 +451,6 @@ public class MappingData
                 if (obj)
                     obj.GetComponent<ColorPoint>().mat.color = color;
             }
-        else
-            Debug.Log("只能在运行模式下执行颜色预览");
     }
 
 
