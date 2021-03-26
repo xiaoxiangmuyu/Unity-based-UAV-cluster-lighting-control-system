@@ -11,6 +11,7 @@ public class TxtForAnimation : MonoBehaviour
     public DanceDB danceDB;
     [HideInInspector]
     public bool useColor;
+    [ShowInInspector]
     public bool HasFinish { get { return hasFinish; } }
     [ShowInInspector]
     public int childCount { get { if (childs != null) return childs.Count; else return 0; } }
@@ -99,7 +100,6 @@ public class TxtForAnimation : MonoBehaviour
         {
             childs[i].transform.position = danceDB.staticPositions[indexs[i]];
         }
-        hasFinish = true;
     }
     void AnimUpdate(int frame)
     {//frame是索引，范围是0-totalFrameCount-1
@@ -148,6 +148,10 @@ public class TxtForAnimation : MonoBehaviour
                 int index = danceDB.cords.FindIndex((a) => a.GetPos(0) == pos[i]);
                 if (index == -1)
                 {
+                    index = danceDB.cords.FindIndex((a) => MyTools.IsSimilar(a.GetPos(0), pos[i]));
+                }
+                if (index == -1)
+                {
                     failed = true;
                     Debug.LogError((i + 1).ToString() + "接不上上个动画最后一帧数");
                 }
@@ -159,7 +163,30 @@ public class TxtForAnimation : MonoBehaviour
             for (int i = 0; i < childs.Count; i++)
             {
                 int index = danceDB.staticPositions.FindIndex((a) => a == pos[i]);
-                indexs.Add(index);
+                if (index == -1)
+                {
+                    index = danceDB.staticPositions.FindIndex((a) => MyTools.IsSimilar(a, pos[i]));
+                    //for (int j = 0; j < danceDB.staticPositions.Count; j++)
+                    //{
+                    //    if (Vector3.Distance(danceDB.cords[j].GetPos(0), pos[i]) <= 0.01f)
+                    //        index = j;
+                    //}
+                }
+                if (index == -1)
+                {
+                    failed = true;
+                    Debug.LogError((i + 1).ToString() + "接不上上个动画最后一帧数");
+                }
+            }
+        }
+        //检测是否有序号重复
+        foreach (var index in indexs)
+        {
+            if (indexs.FindAll((a) => a == index).Count > 1)
+            {
+                Debug.LogError("有指派序号重复:" + index);
+                failed = true;
+                break;
             }
         }
         if (failed)

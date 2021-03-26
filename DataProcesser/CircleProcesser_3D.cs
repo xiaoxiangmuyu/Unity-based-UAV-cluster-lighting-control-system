@@ -19,7 +19,8 @@ public class CircleProcesser_3D : IDataProcesser
     {
         if (animTime == 0)
         {
-            data.animTime = 1;
+            Debug.LogError("animTime is 0");
+            return false;
         }
         isProcessed = false;
         this.data = data;

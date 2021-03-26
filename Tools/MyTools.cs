@@ -228,6 +228,17 @@ public class MyTools
             }
         }
     }
+    public static bool IsSimilar(Vector3 a, Vector3 b)
+    {
+        var m = (a - b).sqrMagnitude;
+        if (m <= 0.01f)
+            return true;
+        else
+        {
+            //Debug.LogError("模:" + m.ToString());
+            return false;
+        }
+    }
 
 
 }

@@ -48,7 +48,7 @@ public class MovementManager : MonoBehaviour
     }
     void Start()
     {
-        frame=-1;
+        frame = -1;
         playableDirector = GetComponent<PlayableDirector>();
         animator = GetComponent<Animator>();
         if (isWorking)
@@ -193,7 +193,7 @@ public class MovementManager : MonoBehaviour
         var anims = GetComponents<TxtForAnimation>();
         for (int i = 0; i < anims.Length; i++)
         {
-            if (!anims[i].HasFinish)
+            if (anims[i].danceDB.animType == AnimType.Animation && !anims[i].HasFinish)
             {
                 ConsoleProDebug.LogToFilter("动画片段:" + anims[i].danceDB.animName + " 导出时间过短，TxT没播放完", "Result");
                 return false;
@@ -216,7 +216,7 @@ public class MovementManager : MonoBehaviour
         if (movementChecks.Exists((a) => a.GetPosInfos().Count != temp))
         {
             MovementCheck movementCheck = movementChecks.Find((a) => a.GetPosInfos().Count != temp);
-            Debug.LogError(movementCheck.gameObject.gameObject.name + "导出的txt行数有问题,是否中途被关闭?PosCount:"+movementCheck.GetPosInfos().Count+"  "+temp);
+            Debug.LogError(movementCheck.gameObject.gameObject.name + "导出的txt行数有问题,是否中途被关闭?PosCount:" + movementCheck.GetPosInfos().Count + "  " + temp);
             return false;
         }
         return true;
@@ -400,7 +400,7 @@ public class MovementManager : MonoBehaviour
     }
     public void RecordAllPoint(Texture2D texture)
     {
-        for(int i=0;i<movementChecks.Count;i++)
+        for (int i = 0; i < movementChecks.Count; i++)
         {
             movementChecks[i].Record(texture);
         }

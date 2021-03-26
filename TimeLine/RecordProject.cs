@@ -191,7 +191,7 @@ public class RecordProject : SerializedScriptableObject
         Debug.Log("读取分组信息成功");
     }
 
-
+    //[Button]
     public void GenerateGlobalPos()
     {
         foreach (var anim in ProjectManager.AllMainAnimNames)

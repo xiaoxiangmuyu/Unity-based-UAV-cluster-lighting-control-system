@@ -68,9 +68,9 @@ public class MappingData
     public PointIndexInfo pointsInfo;
     //[ShowIf("isListMode")]
     [VerticalGroup("Properties")]
-    [ShowInInspector]
     [ShowIf("isListMode")]
-    VirusProcesser processer;
+    [ShowInInspector]
+    public VirusProcesser processer;
     bool isListMode
     {
         get

@@ -45,7 +45,7 @@ public class RecordData
     public RecordData(string name = "")
     {
         dataName = name;
-        animTime = 0;
+        animTime = 1;
         objNames = new List<string>();
         times = new List<float>();
         pointsInfo.posList = new List<Vector3>();
