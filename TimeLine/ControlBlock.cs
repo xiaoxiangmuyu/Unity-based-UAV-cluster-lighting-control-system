@@ -346,6 +346,13 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
         SetColorGroup(colorOrders);
         //ConsoleProDebug.LogToFilter("设置颜色序号成功", "Log");
     }
+    public void SetDefaultGroup()
+    {
+        if (groupFilter == null)
+        {
+            groupFilter = ProjectManager.Instance.RecordProject.current.groupName;
+        }
+    }
     void SetColorGroup(List<ColorOrderBase> orders)
     {
         foreach (var order in orders)

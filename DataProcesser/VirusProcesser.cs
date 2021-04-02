@@ -11,6 +11,7 @@ public class VirusProcesser : IDataProcesser
     public float searchRadius;
     public float findInterval = 0.05f;
     public float searchUnit = 0.1f;
+    bool isSelectMode;
     // List<string> tempNames;
     // List<float> tempTimes;
     public override bool Process(ref RecordData data, float animTime)
@@ -58,6 +59,13 @@ public class VirusProcesser : IDataProcesser
         ProcessComplete();
         isProcessed = true;
         Debug.Log("处理完成");
+        if (isSelectMode)
+        {
+            isSelectMode = false;
+            BrushTool.RemoveRayCast(AddName);
+            BrushTool.RemoveRayCast(RemoveName);
+            BrushTool.SwitchWorkState();
+        }
         return true;
     }
     void FindNext(List<string> pointNames, float time)
@@ -135,6 +143,31 @@ public class VirusProcesser : IDataProcesser
             temp.Add(minName);
         }
         return temp;
+    }
+    [GUIColor("GetSelectStateColor")]
+    [Button(ButtonSizes.Medium)]
+    void BeginSelect()
+    {
+        isSelectMode = !isSelectMode;
+        BrushTool.SwitchWorkState();
+        BrushTool.RegisterLeftClick(AddName);
+        BrushTool.RegisterRightClick(RemoveName);
+    }
+    Color GetSelectStateColor()
+    {
+        return isSelectMode ? Color.green : Color.red;
+    }
+    void AddName(RaycastHit hit)
+    {
+        if (beginPoints.Contains(hit.transform.name))
+            return;
+        beginPoints.Add(hit.transform.name);
+    }
+    void RemoveName(RaycastHit hit)
+    {
+        if (beginPoints.Contains(hit.transform.name))
+            beginPoints.Remove(hit.transform.name);
+
     }
 }
 

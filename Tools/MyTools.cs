@@ -90,6 +90,7 @@ public class MyTools
                     if (temp.targetDataName != string.Empty)
                         clip.displayName = temp.targetDataName;
                     temp.SetColorIndex();
+                    temp.SetDefaultGroup();
                 }
                 else
                 {

@@ -141,7 +141,7 @@ public class TxtForAnimation : MonoBehaviour
     {
         indexs = new List<int>();
         bool failed = false;
-        if (danceDB.totalFrameCount != 0)
+        if (danceDB.animType == AnimType.Animation)
         {
             for (int i = 0; i < childs.Count; i++)
             {
@@ -177,6 +177,7 @@ public class TxtForAnimation : MonoBehaviour
                     failed = true;
                     Debug.LogError((i + 1).ToString() + "接不上上个动画最后一帧数");
                 }
+                indexs.Add(index);
             }
         }
         //检测是否有序号重复

@@ -48,6 +48,8 @@ public class ProjectManager : MonoBehaviour
         get
         {
             var globalAnimNames = new List<string>();
+            if (!Instance)
+                return globalAnimNames;
             var temp = Instance.RecordProject.globalPosDic;
             foreach (var info in temp)
             {
