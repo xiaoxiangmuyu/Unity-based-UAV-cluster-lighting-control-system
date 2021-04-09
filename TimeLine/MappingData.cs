@@ -318,11 +318,14 @@ public class MappingData
         }
         else if (dirType == DirType.List)
         {
-            var tempData = new RecordData();
-            tempData.groupName = groupName;
-            tempData.objNames = new List<string>(objNames);
-            processer.Process(ref tempData, 0);
-            objNames = new List<string>(tempData.objNames);
+            if (processer != null)
+            {
+                var tempData = new RecordData();
+                tempData.groupName = groupName;
+                tempData.objNames = new List<string>(objNames);
+                processer.Process(ref tempData, 0);
+                objNames = new List<string>(tempData.objNames);
+            }
             for (int i = 0; i < objNames.Count; i++)
             {
                 float temp = (float)i / (float)objNames.Count;

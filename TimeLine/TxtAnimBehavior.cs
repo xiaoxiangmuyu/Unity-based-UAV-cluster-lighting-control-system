@@ -37,7 +37,10 @@ public class TxtAnimBehavior : PlayableBehaviour
     }
     public override void OnBehaviourPlay(Playable playable, FrameData info)
     {
-
+        if (target.danceDB.animName.StartsWith("G"))
+            ProjectManager.isRecordAvailable = true;
+        else
+            ProjectManager.isRecordAvailable = false;
     }
     public override void OnGraphStart(Playable playable)
     {
@@ -65,7 +68,7 @@ public class TxtAnimBehavior : PlayableBehaviour
         //if (Application.isPlaying)
         //    curframe += 1;
         //else
-            curframe = Mathf.FloorToInt((float)director.time * 25f) - startFrame;
+        curframe = Mathf.FloorToInt((float)director.time * 25f) - startFrame;
     }
     //s
     void UpdatePosFrameByFrame()

@@ -74,7 +74,7 @@ public class ProjectManager : MonoBehaviour
             return allAnimNames;
         }
     }
-
+    public static bool isRecordAvailable;
     void OnEnable()
     {
         RenderPipelineManager.endFrameRendering += RenderPipelineManager_endCameraRendering;

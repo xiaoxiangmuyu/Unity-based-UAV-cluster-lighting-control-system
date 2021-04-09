@@ -95,6 +95,11 @@ public class MyCustomEditor : Editor
     //创建数据组
     static void CreatGroup(object userData)
     {
+        if (!ProjectManager.isRecordAvailable)
+        {
+            Debug.Log("非图案画面，不能创建数据，不利于位置校正");
+            return;
+        }
         RecordData tempdata = new RecordData();
         tempdata.pointsInfo.posList = new List<Vector3>();
         foreach (var point in Selection.gameObjects)
@@ -126,6 +131,11 @@ public class MyCustomEditor : Editor
     }
     static void CreatMapping(object userData)
     {
+        if (!ProjectManager.isRecordAvailable)
+        {
+            Debug.Log("非图案画面，不能创建数据，不利于位置校正");
+            return;
+        }
         MappingData tempdata = new MappingData();
         tempdata.pointsInfo.posList = new List<Vector3>();
         //tempdata.Objects = Selection.gameObjects;

@@ -10,7 +10,10 @@ public class MovementManager : MonoBehaviour
 {
     public enum ExportType { Time, Frame }
     [OnValueChanged("RefreshTimeLine")]
+    [LabelText("导出模式")]
     public bool isWorking;
+    [LabelText("整段导出")]
+    public bool isFullExport = true;
     void RefreshTimeLine()
     {
         UnityEditor.Timeline.TimelineEditor.Refresh(UnityEditor.Timeline.RefreshReason.ContentsAddedOrRemoved);
@@ -190,13 +193,16 @@ public class MovementManager : MonoBehaviour
             ConsoleProDebug.LogToFilter("导出路径不合法", "Result");
             return false;
         }
-        var anims = GetComponents<TxtForAnimation>();
-        for (int i = 0; i < anims.Length; i++)
+        if (isFullExport)
         {
-            if (anims[i].danceDB.animType == AnimType.Animation && !anims[i].HasFinish)
+            var anims = GetComponents<TxtForAnimation>();
+            for (int i = 0; i < anims.Length; i++)
             {
-                ConsoleProDebug.LogToFilter("动画片段:" + anims[i].danceDB.animName + " 导出时间过短，TxT没播放完", "Result");
-                return false;
+                if (anims[i].danceDB.animType == AnimType.Animation && !anims[i].HasFinish)
+                {
+                    ConsoleProDebug.LogToFilter("动画片段:" + anims[i].danceDB.animName + " 导出时间过短，TxT没播放完", "Result");
+                    return false;
+                }
             }
         }
         return true;

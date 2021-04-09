@@ -19,6 +19,7 @@ public class RecordData
     [OnValueChanged("EventDispatch")]
     [GUIColor("GetGroupColor")]
     public float animTime;
+    [HideInInspector]
     [ValueDropdown("availableNames")]
     [GUIColor("GetGroupColor")]
     public string groupName;
