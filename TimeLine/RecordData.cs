@@ -27,7 +27,7 @@ public class RecordData
     public PointIndexInfo pointsInfo;
 
     [SerializeField]
-    [HideInInspector]
+    //[HideInInspector]
     public List<string> objNames;
     [SerializeField]
     [HideInInspector]

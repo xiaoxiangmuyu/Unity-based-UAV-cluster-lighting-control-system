@@ -27,11 +27,11 @@ public class ProjectInitWindow : EditorWindow
     {
         GUILayout.Label("路径列表");
         //EditorGUILayout.IntField(number);
-        if (GUI.Button(new Rect(10, paths.Count * 25 + 50, 300, 100), "排序(必须点）"))
+        if (GUI.Button(new Rect(500, 10, 300, 100), "排序(必须点）"))
         {
             paths.Sort(Sort);
         }
-        if (GUI.Button(new Rect(10, paths.Count * 25 + 150, 300, 100), "初始化项目"))
+        if (GUI.Button(new Rect(500, 110, 300, 100), "初始化项目"))
         {
             //paths.Sort(Sort);
             for (int i = 0; i < paths.Count; i++)

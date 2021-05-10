@@ -22,7 +22,7 @@ public class ControlBlock : SerializedScriptableObject, IPlayableAsset
     [BoxGroup("控制块属性")]
     public bool isflip;
     [BoxGroup("控制块属性")]
-    public bool forceMode;
+    public bool forceMode = true;
     [BoxGroup("控制块属性")]
     public bool timeInit;
 

@@ -83,10 +83,14 @@ public class MyTools
                     temp.Register();
                     if (temp.GetDuring() == 0)
                         clip.duration = 3;
-                    else if (!temp.isDynamicPos)
-                        clip.duration = temp.GetDuring();
-                    else
+                    else if (temp.isDynamicPos)
                         clip.duration = temp.GetDuring() * temp.processTimes;
+                    else if (temp.isDynamicBehavior)
+                        clip.duration = temp.GetDuring()*1.7f;
+                    else
+                        clip.duration = temp.GetDuring();
+
+
                     if (temp.targetDataName != string.Empty)
                         clip.displayName = temp.targetDataName;
                     temp.SetColorIndex();

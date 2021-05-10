@@ -8,10 +8,12 @@ public class EasyRotate : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
     public Camera mainCamera;
     Vector2 beginPos;
     Vector2 endPos;
+    Vector3 temp;
     void IBeginDragHandler.OnBeginDrag(PointerEventData eventData)
     {
         beginPos = new Vector2(Screen.width / 2, Screen.height / 2);
         beginPos = Input.mousePosition;
+        temp = mainCamera.transform.eulerAngles;
     }
 
     void IDragHandler.OnDrag(PointerEventData eventData)
@@ -21,7 +23,8 @@ public class EasyRotate : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
         float angle = Vector2.Angle(dir, Vector2.down);
         if (endPos.x < beginPos.x)
             angle = -angle;
-        mainCamera.transform.eulerAngles = (new Vector3(0, 0, angle));
+
+        mainCamera.transform.eulerAngles = (new Vector3(temp.x, temp.y, angle));
         //ConsoleProDebug.Watch("angle", angle.ToString());
     }
     void IEndDragHandler.OnEndDrag(PointerEventData eventData)
